@@ -253,7 +253,7 @@ export async function generateStoryboardImage(
     visualKeywords: visualKeywords || '',
   });
 
-  const negative = buildNegativePrompt();
+  const negative = buildNegativePrompt({ style: styleKey, isComic: styleKey === 'comic_book' || styleKey === 'webtoon' || styleKey === 'manga_bw' });
 
   // character_ref（给 image model 注入参考图）
   const characterRefParam = characterRefUrls.join(',');

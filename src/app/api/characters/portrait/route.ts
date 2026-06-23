@@ -166,7 +166,7 @@ async function generateCharacterPortrait(
   const viewConfig = PORTRAIT_VIEWS.find(v => v.key === view) || PORTRAIT_VIEWS[0];
   const fullPrompt = `${portraitPrompt}, ${viewConfig.prompt}`;
 
-  const negative = buildNegativePrompt();
+  const negative = buildNegativePrompt({ style: styleKey });
 
   // 使用第一个角色作为参考（如果有的话）
   const characterRef = character.referenceImg || undefined;

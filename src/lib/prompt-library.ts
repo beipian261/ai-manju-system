@@ -95,6 +95,23 @@ export const QUALITY_TAGS = {
   color: 'professional color grading, beautiful color palette, harmonic color scheme, vibrant colors',
   depth: 'shallow depth of field, bokeh background, cinematic focus, sharp foreground',
   texture: 'rich texture detail, fabric weave, skin pores, realistic material properties',
+  
+  // ===== 漫画/漫剧专用质量标签 =====
+  comic_art: 'dynamic comic panel composition, engaging framing, sequential art quality, expressive character acting',
+  comic_action: 'dynamic action lines, impact frames, speed lines, dramatic motion blur, kinetic energy',
+  comic_expression: 'exaggerated comic expressions, clear readable emotions, dramatic facial acting',
+  comic_background: 'detailed environment background, atmospheric perspective, immersive setting',
+  
+  // ===== 负向提示词（分层） =====
+  // 基础层：通用画质问题
+  negative_base: 'low quality, blurry, distorted, deformed, bad anatomy, watermark, text, logo, signature, jpeg artifacts, noise, grain, oversaturated, bad proportions, cropped',
+  // 角色层：角色相关畸形
+  negative_character: 'extra limbs, extra fingers, fused fingers, bad hands, mutated hands, missing limbs, disconnected limbs, ugly, poorly drawn face, bad teeth',
+  // 风格层：风格污染
+  negative_style: '3d render, photorealistic, photograph, realistic shading, real life, instagram filter, bad filters, instagram, snapchat',
+  // 漫画层：漫画专属负面
+  negative_comic: 'speech bubbles, panel borders, manga text, sound effects text, gridded layout, screentone overuse, printer artifacts',
+
   negative_default: 'low quality, blurry, distorted, deformed, bad anatomy, extra limbs, watermark, text, logo, signature, jpeg artifacts, noise, grain, oversaturated',
 } as const;
 
@@ -494,6 +511,88 @@ export const COLOR_PALETTES = {
   vivid_neon: 'vivid neon color palette, electric magenta cyan and yellow, energetic cyberpunk saturation',
   muted_vintage: 'muted vintage palette, faded sepia and dusty rose, nostalgic retro film look',
 } as const;
+
+// ============================================================
+// 角色姿势/动作库（Character Pose & Action Library）
+// ============================================================
+export const CHARACTER_POSES = {
+  standing_confident: 'standing confidently, straight posture, shoulders back, head held high',
+  standing_timid: 'standing timidly, hunched shoulders, looking down, arms close to body',
+  sitting_thoughtful: 'sitting thoughtfully, chin resting on hand, distant gaze, contemplative pose',
+  sitting_relaxed: 'sitting relaxed, leaning back, casual posture, comfortable pose',
+  walking_determined: 'walking with determination, purposeful stride, forward momentum, confident gait',
+  walking_casual: 'casual walking, relaxed pace, hands in pockets, everyday stroll',
+  running_action: 'running, dynamic action pose, mid-stride, motion blur, urgent movement',
+  leaning: 'leaning against wall, casual cool pose, one shoulder against surface, relaxed arms',
+  crouching_wary: 'crouching low, wary posture, ready to spring, cautious defensive stance',
+  kneeling_vulnerable: 'kneeling down, vulnerable position, head lowered, submissive posture',
+  arms_crossed: 'arms crossed, defensive or confident pose, closed body language, defiant stance',
+  hands_on_hips: 'hands on hips, confident assertive pose, open body language, power stance',
+  pointing_forward: 'pointing forward, directing attention, leading gesture, commanding pose',
+  surprised_recoil: 'surprised recoil, leaning back, hands raised, shocked defensive reaction',
+  triumphant_victory: 'triumphant victory pose, arms raised, looking up, celebrating success',
+  crying_vulnerable: 'crying, wiping tears, vulnerable emotional moment, distressed pose',
+  whispering_secret: 'whispering secret, hand cupped to mouth, conspiratorial lean, intimate gesture',
+  reading_focused: 'reading or studying, focused attention, leaning over book, concentrated expression',
+  carrying_burden: 'carrying heavy load, strained posture, struggling with weight, physical exertion',
+  greeting_warm: 'greeting warmly, arm raised in wave, friendly open gesture, welcoming smile',
+} as const;
+
+export const CHARACTER_POSE_LABELS: Record<keyof typeof CHARACTER_POSES, string> = {
+  standing_confident: '自信站立',
+  standing_timid: '怯懦站立',
+  sitting_thoughtful: '沉思坐姿',
+  sitting_relaxed: '放松坐姿',
+  walking_determined: '坚定行走',
+  walking_casual: '悠闲走路',
+  running_action: '奔跑动作',
+  leaning: '倚靠',
+  crouching_wary: '蹲伏警惕',
+  kneeling_vulnerable: '跪地脆弱',
+  arms_crossed: '抱胸',
+  hands_on_hips: '叉腰',
+  pointing_forward: '指向前方',
+  surprised_recoil: '惊讶后退',
+  triumphant_victory: '胜利姿态',
+  crying_vulnerable: '哭泣脆弱',
+  whispering_secret: '耳语秘密',
+  reading_focused: '阅读专注',
+  carrying_burden: '负重',
+  greeting_warm: '温暖挥手',
+};
+
+export function inferCharacterPose(rawHint: string): keyof typeof CHARACTER_POSES {
+  const h = (rawHint || '').toLowerCase();
+  if (h.includes('自信') || h.includes('confident') || h.includes('站立')) return 'standing_confident';
+  if (h.includes('怯') || h.includes('timid') || h.includes('羞涩')) return 'standing_timid';
+  if (h.includes('沉思') || h.includes('thoughtful') || h.includes('思考')) return 'sitting_thoughtful';
+  if (h.includes('放松') || h.includes('relaxed') || h.includes('悠闲')) return 'sitting_relaxed';
+  if (h.includes('走') || h.includes('walk')) return 'walking_determined';
+  if (h.includes('跑') || h.includes('run')) return 'running_action';
+  if (h.includes('靠') || h.includes('lean')) return 'leaning';
+  if (h.includes('蹲') || h.includes('crouch')) return 'crouching_wary';
+  if (h.includes('跪') || h.includes('kneel')) return 'kneeling_vulnerable';
+  if (h.includes('抱胸') || h.includes('arms crossed')) return 'arms_crossed';
+  if (h.includes('叉腰') || h.includes('hands on hips')) return 'hands_on_hips';
+  if (h.includes('指') || h.includes('point')) return 'pointing_forward';
+  if (h.includes('惊讶') || h.includes('surprised')) return 'surprised_recoil';
+  if (h.includes('胜利') || h.includes('triumph') || h.includes('victory')) return 'triumphant_victory';
+  if (h.includes('哭') || h.includes('cry') || h.includes('泪')) return 'crying_vulnerable';
+  if (h.includes('耳语') || h.includes('whisper') || h.includes('悄悄')) return 'whispering_secret';
+  if (h.includes('读') || h.includes('read') || h.includes('看书')) return 'reading_focused';
+  if (h.includes('负重') || h.includes('carry') || h.includes('搬')) return 'carrying_burden';
+  if (h.includes('挥手') || h.includes('招手') || h.includes('wave') || h.includes('greet')) return 'greeting_warm';
+  return 'standing_confident';
+}
+
+export function normalizePoseKey(raw: string | undefined | null): keyof typeof CHARACTER_POSES {
+  if (!raw) return 'standing_confident';
+  if (raw in CHARACTER_POSES) return raw as keyof typeof CHARACTER_POSES;
+  for (const [key, label] of Object.entries(CHARACTER_POSE_LABELS)) {
+    if (label === raw) return key as keyof typeof CHARACTER_POSES;
+  }
+  return inferCharacterPose(raw);
+}
 
 export const COLOR_PALETTE_LABELS: Record<keyof typeof COLOR_PALETTES, string> = {
   warm_amber: '暖橙调',

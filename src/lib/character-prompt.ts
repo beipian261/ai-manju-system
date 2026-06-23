@@ -3,9 +3,11 @@ import {
   CAMERA_ANGLES,
   EMOTION_TONES,
   QUALITY_TAGS,
+  CHARACTER_POSES,
   inferArtStyle,
   inferCameraAngle,
   inferEmotion,
+  inferCharacterPose,
 } from './prompt-library';
 
 const MAX_PROMPT_LENGTH = 2500;
@@ -320,71 +322,68 @@ export function enrichImagePrompt(input: EnrichImagePromptInput): string {
 
   const parts: string[] = [];
 
-  // 1) 场景描述（放在最前面，让模型先理解场景）
+  // ===== 1) 镜头指令（放在最前 = 最高优先级，控制构图框架）=====
+  const camKey = inferCameraAngle(cameraAngleHint || 'medium shot');
+  parts.push(`[FRAMING] ${CAMERA_ANGLES[camKey as keyof typeof CAMERA_ANGLES]}`);
+
+  // ===== 2) 场景核心描述 =====
   const safeScene = (sceneDescription || '').slice(0, 500);
   if (safeScene) {
-    parts.push(`[SCENE DESCRIPTION - PRIMARY FOCUS] ${safeScene}`);
+    parts.push(`[SCENE] ${safeScene}`);
   }
 
-  // 2) 镜头角度（配合场景理解）
-  const camKey = inferCameraAngle(cameraAngleHint || 'medium shot');
-  parts.push(`[CAMERA] ${CAMERA_ANGLES[camKey as keyof typeof CAMERA_ANGLES]}`);
-
-  // 3) 角色一致性：放在场景之后，确保角色与场景融合
+  // ===== 3) 角色一致性 + 姿势注入（关键创新点）=====
   if (characterSheets.length > 0) {
-    parts.push(
-      `[CHARACTER CONSISTENCY LOCK - CRITICAL: All characters must look EXACTLY the same in every scene, same face, same hair, same clothes, same age]`
-    );
+    // 显式的一致性锁定指令
+    parts.push(`[CONSISTENCY] CRITICAL: All characters must have EXACT same face, hair, eyes, outfit across all images.`);
     
     characterSheets.forEach((sheet, i) => {
-      parts.push(`[CHARACTER ${i + 1}: ${sheet.name}]`);
-      parts.push(`face: ${sheet.face}`);
-      parts.push(`hair: ${sheet.hair}`);
-      parts.push(`eyes: ${sheet.eyes}`);
-      parts.push(`outfit: ${sheet.outfit_main}`);
+      const charLines: string[] = [];
+      charLines.push(`[CHARACTER ${i + 1}: ${sheet.name}]`);
+      charLines.push(`face=${sheet.face}, hair=${sheet.hair}, eyes=${sheet.eyes}`);
+      charLines.push(`outfit=${sheet.outfit_main}`);
       if (sheet.signature_look && sheet.signature_look.length > 5) {
-        parts.push(`signature details: ${sheet.signature_look}`);
+        charLines.push(`signature=${sheet.signature_look}`);
       }
+      // 姿势推断：从场景描述中推断角色姿势
+      const detectedPose = inferCharacterPose(safeScene);
+      if (detectedPose !== 'standing_confident') {
+        charLines.push(`pose=${CHARACTER_POSES[detectedPose]}`);
+      }
+      parts.push(charLines.join('. '));
     });
-    
-    parts.push(
-      `[REMINDER: Character appearance must be CONSISTENT across all images. Same face shape, same hair color/style, same clothing. DO NOT change any character's appearance.]`
-    );
   }
 
-  // 4) 视觉关键词
+  // ===== 4) 视觉关键词（氛围、道具、天气等）=====
   if (visualKeywords) {
-    parts.push(`[VISUAL KEYWORDS] ${visualKeywords.slice(0, 200)}`);
+    parts.push(`[ATMOSPHERE] ${visualKeywords.slice(0, 200)}`);
   }
 
-  // 5) 情绪氛围
+  // ===== 5) 情绪氛围 =====
   if (emotionHint) {
     const emoKey = inferEmotion(emotionHint);
-    parts.push(`[EMOTION] ${EMOTION_TONES[emoKey as keyof typeof EMOTION_TONES]}`);
+    parts.push(`[MOOD] ${EMOTION_TONES[emoKey as keyof typeof EMOTION_TONES]}`);
   }
 
-  // 6) 艺术风格
+  // ===== 6) 艺术风格 =====
   const artKey = inferArtStyle(styleKey as string);
-  parts.push(`[ART STYLE] ${ART_STYLES[artKey as keyof typeof ART_STYLES]}`);
+  parts.push(`[STYLE] ${ART_STYLES[artKey as keyof typeof ART_STYLES]}`);
 
-  // 7) 质量与技术关键词（让画面达到专业级）
+  // ===== 7) 质量标签 =====
   parts.push(QUALITY_TAGS.base);
   parts.push(QUALITY_TAGS.face);
   parts.push(QUALITY_TAGS.composition);
   parts.push(QUALITY_TAGS.lighting);
   parts.push(QUALITY_TAGS.color);
-  parts.push(QUALITY_TAGS.depth);
-
-  // 8) 最后强调：场景优先，角色其次
-  if (safeScene && characterSheets.length > 0) {
-    parts.push(
-      `[FINAL INSTRUCTION: First render the scene environment as described, then place characters in appropriate positions maintaining their consistent appearance]`
-    );
+  
+  // 漫画风格额外加漫画标签
+  if (artKey === 'comic_book' || artKey === 'webtoon' || artKey === 'manga_bw') {
+    parts.push(QUALITY_TAGS.comic_art);
+    parts.push(QUALITY_TAGS.comic_action);
   }
 
   let result = parts.join('. ');
   if (result.length > MAX_PROMPT_LENGTH) {
-    // 如果超长，优先保留角色描述（前半部分）和质量标签
     result = result.slice(0, MAX_PROMPT_LENGTH);
   }
   return result;
@@ -454,11 +453,33 @@ export function buildCharacterConsistencyInstructions(
 }
 
 // ============================================================
-// Negative Prompt（用于图像生成模型）
-// 确保生成的画面没有常见问题
+// 负向提示词（Negative Prompt）
+// 分层策略：基础层 + 角色层 + 风格层，根据生成类型动态组合
 // ============================================================
-export function buildNegativePrompt(): string {
-  return QUALITY_TAGS.negative_default;
+export function buildNegativePrompt(options?: { 
+  style?: string;
+  isComic?: boolean; 
+}): string {
+  const opts = options || {};
+  const parts: string[] = [];
+  
+  // 必选：基础画质层
+  parts.push(QUALITY_TAGS.negative_base);
+  
+  // 必选：角色畸形层
+  parts.push(QUALITY_TAGS.negative_character);
+  
+  // 动漫风格：添加 3D/写实污染
+  if (!opts.style || opts.style === 'anime' || opts.style === 'manga_bw') {
+    parts.push(QUALITY_TAGS.negative_style);
+  }
+  
+  // 漫画模式：添加漫画专属负向
+  if (opts.isComic) {
+    parts.push(QUALITY_TAGS.negative_comic);
+  }
+  
+  return parts.join(', ');
 }
 
 // ============================================================
