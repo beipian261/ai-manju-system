@@ -8,14 +8,12 @@ import { chatCompletion } from '@/lib/agnes-client';
 import { buildCharacterSheet } from '@/lib/character-prompt';
 
 // POST: 锁定/解锁角色 DNA
-export async function POST(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const auth = await checkApiAuth();
   if (!auth.ok) return auth.response!;
 
-  const characterId = params.id;
+  const characterId = id;
   if (!characterId) {
     return NextResponse.json({ error: '角色 ID 必填' }, { status: 400 });
   }
@@ -108,15 +106,13 @@ export async function POST(
 }
 
 // GET: 获取角色 DNA 状态
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const auth = await checkApiAuth();
   if (!auth.ok) return auth.response!;
 
   const character = await prisma.character.findUnique({
-    where: { id: params.id },
+    where: { id: id },
     select: {
       id: true,
       name: true,

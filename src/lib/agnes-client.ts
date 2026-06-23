@@ -33,7 +33,7 @@ export interface ImageGenerationRequest {
   prompt: string;
   size?: string;
   n?: number;
-  seed?: number;
+  quality?: string;
   character_ref?: string;
   negative_prompt?: string;
 }

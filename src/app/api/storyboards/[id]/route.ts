@@ -3,12 +3,10 @@ import prisma from '@/lib/prisma-client';
 import { checkApiAuth } from '@/lib/auth';
 import { isSafeExternalUrl } from '@/lib/url-guard';
 
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const storyboard = await prisma.storyboard.findUnique({
-    where: { id: params.id },
+    where: { id: id },
   });
   if (!storyboard) {
     return NextResponse.json({ error: 'Storyboard not found' }, { status: 404 });
@@ -16,10 +14,8 @@ export async function GET(
   return NextResponse.json(storyboard);
 }
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const auth = await checkApiAuth();
   if (!auth.ok) return auth.response!;
 
@@ -138,7 +134,7 @@ export async function PATCH(
 
   try {
     const storyboard = await prisma.storyboard.update({
-      where: { id: params.id },
+      where: { id: id },
       data,
     });
     return NextResponse.json(storyboard);
@@ -147,15 +143,13 @@ export async function PATCH(
   }
 }
 
-export async function DELETE(
-  _req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const auth = await checkApiAuth();
   if (!auth.ok) return auth.response!;
 
   try {
-    await prisma.storyboard.delete({ where: { id: params.id } });
+    await prisma.storyboard.delete({ where: { id: id } });
     return NextResponse.json({ success: true });
   } catch (e) {
     return NextResponse.json({ error: 'Delete failed' }, { status: 400 });

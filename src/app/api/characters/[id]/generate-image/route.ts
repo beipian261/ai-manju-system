@@ -14,15 +14,13 @@ import { checkApiAuth } from '@/lib/auth';
 // 生成角色主形象图：根据角色属性生成 1 张肖像图，存到 Character.referenceImg
 // 该图作为后续分镜图生成的"角色一致性"参考
 
-export async function POST(
-  _req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function POST(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const auth = await checkApiAuth();
   if (!auth.ok) return auth.response!;
 
   const character = await prisma.character.findUnique({
-    where: { id: params.id },
+    where: { id: id },
   });
   if (!character) {
     return NextResponse.json({ error: 'Character not found' }, { status: 404 });

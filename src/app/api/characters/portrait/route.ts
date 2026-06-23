@@ -176,7 +176,7 @@ async function generateCharacterPortrait(
     prompt: fullPrompt,
     size: '1024x1024',
     n: 1,
-    seed: 42, // 固定种子增加一致性
+    quality: 'hd',
     character_ref: characterRef,
     negative_prompt: negative,
   });

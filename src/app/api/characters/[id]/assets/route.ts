@@ -10,14 +10,12 @@ const MAX_URL_LEN = 2000;
 const MAX_LABEL_LEN = 100;
 
 // GET: 获取角色所有参考图
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const auth = await checkApiAuth();
   if (!auth.ok) return auth.response!;
 
-  const characterId = params.id;
+  const characterId = id;
   if (!characterId) {
     return NextResponse.json({ error: '角色 ID 必填' }, { status: 400 });
   }
@@ -31,14 +29,12 @@ export async function GET(
 }
 
 // POST: 添加参考图
-export async function POST(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const auth = await checkApiAuth();
   if (!auth.ok) return auth.response!;
 
-  const characterId = params.id;
+  const characterId = id;
   if (!characterId) {
     return NextResponse.json({ error: '角色 ID 必填' }, { status: 400 });
   }
@@ -121,14 +117,12 @@ export async function POST(
 }
 
 // DELETE: 删除参考图
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const auth = await checkApiAuth();
   if (!auth.ok) return auth.response!;
 
-  const characterId = params.id;
+  const characterId = id;
   const { searchParams } = new URL(req.url);
   const assetId = searchParams.get('assetId');
 

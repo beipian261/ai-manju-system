@@ -3,14 +3,12 @@ import { checkApiAuth } from '@/lib/auth';
 import { cancelJob } from '@/lib/job-queue';
 
 // POST /api/jobs/[id]/cancel — 取消一个正在执行或等待中的异步任务
-export async function POST(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const auth = await checkApiAuth();
   if (!auth.ok) return auth.response!;
 
-  const jobId = params.id;
+  const jobId = id;
   if (!jobId) {
     return NextResponse.json({ error: 'jobId is required' }, { status: 400 });
   }

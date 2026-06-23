@@ -12,15 +12,13 @@ const ALLOWED_STYLES = [
 ];
 const ALLOWED_STATUSES = ['draft', 'scripting', 'storyboarding', 'producing', 'completed'];
 
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const auth = await checkApiAuth();
   if (!auth.ok) return auth.response!;
 
   const project = await prisma.project.findUnique({
-    where: { id: params.id },
+    where: { id: id },
     include: { characters: true, scripts: true },
   });
   if (!project) {
@@ -29,10 +27,8 @@ export async function GET(
   return NextResponse.json(project);
 }
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const auth = await checkApiAuth();
   if (!auth.ok) return auth.response!;
 
@@ -60,22 +56,20 @@ export async function PATCH(
   }
 
   try {
-    const project = await prisma.project.update({ where: { id: params.id }, data });
+    const project = await prisma.project.update({ where: { id: id }, data });
     return NextResponse.json(project);
   } catch (e) {
     return NextResponse.json({ error: 'Update failed' }, { status: 400 });
   }
 }
 
-export async function DELETE(
-  _req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const auth = await checkApiAuth();
   if (!auth.ok) return auth.response!;
 
   try {
-    await prisma.project.delete({ where: { id: params.id } });
+    await prisma.project.delete({ where: { id: id } });
     return NextResponse.json({ success: true });
   } catch (e) {
     return NextResponse.json({ error: 'Delete failed' }, { status: 400 });

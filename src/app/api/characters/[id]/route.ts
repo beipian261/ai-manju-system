@@ -11,12 +11,10 @@ function trimStr(v: unknown, max = MAX_FIELD_LEN): string | null {
   return v.slice(0, max);
 }
 
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const character = await prisma.character.findUnique({
-    where: { id: params.id },
+    where: { id: id },
   });
   if (!character) {
     return NextResponse.json({ error: 'Character not found' }, { status: 404 });
@@ -24,10 +22,8 @@ export async function GET(
   return NextResponse.json(character);
 }
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const auth = await checkApiAuth();
   if (!auth.ok) return auth.response!;
 
@@ -96,7 +92,7 @@ export async function PATCH(
 
   try {
     const character = await prisma.character.update({
-      where: { id: params.id },
+      where: { id: id },
       data,
     });
     return NextResponse.json(character);
@@ -105,15 +101,13 @@ export async function PATCH(
   }
 }
 
-export async function DELETE(
-  _req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const auth = await checkApiAuth();
   if (!auth.ok) return auth.response!;
 
   try {
-    await prisma.character.delete({ where: { id: params.id } });
+    await prisma.character.delete({ where: { id: id } });
     return NextResponse.json({ success: true });
   } catch (e) {
     return NextResponse.json({ error: 'Delete failed' }, { status: 400 });

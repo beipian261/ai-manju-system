@@ -297,7 +297,7 @@ export async function generateStoryboardImage(
           prompt: currentPrompt,
           size,
           n,
-          seed: parseInt(storyboardId.slice(-8), 16) % 1000000 + attempt, // 基于分镜ID的随机种子
+          quality: 'hd',
           character_ref: characterRefParam || undefined,
           negative_prompt: negative,
         }),
@@ -371,6 +371,7 @@ export async function generateStoryboardImage(
     where: { id: storyboardId },
     data: {
       imageUrls: imageValue,
+      qualityScore: lastScore || null,
     },
   });
   await updateProjectStatus(storyboard.script.projectId, 'producing');

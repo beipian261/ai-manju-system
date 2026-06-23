@@ -5,12 +5,10 @@ import { chatCompletion } from '@/lib/agnes-client';
 import { getSetting } from '@/lib/settings';
 import { emitProgress } from '@/lib/progress-bus';
 
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const script = await prisma.script.findUnique({
-    where: { id: params.id },
+    where: { id: id },
     include: { storyboards: true },
   });
   if (!script) {
@@ -19,15 +17,13 @@ export async function GET(
   return NextResponse.json(script);
 }
 
-export async function DELETE(
-  _req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const auth = await checkApiAuth();
   if (!auth.ok) return auth.response!;
 
   try {
-    await prisma.script.delete({ where: { id: params.id } });
+    await prisma.script.delete({ where: { id: id } });
     return NextResponse.json({ success: true });
   } catch (e) {
     return NextResponse.json({ error: 'Delete failed' }, { status: 400 });
@@ -37,10 +33,8 @@ export async function DELETE(
 const MODES = ['rewrite_scene', 'append_scene', 'rewrite_all'] as const;
 type RewriteMode = (typeof MODES)[number];
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const auth = await checkApiAuth();
   if (!auth.ok) return auth.response!;
 
@@ -77,7 +71,7 @@ export async function PATCH(
     );
   }
 
-  const script = await prisma.script.findUnique({ where: { id: params.id } });
+  const script = await prisma.script.findUnique({ where: { id: id } });
   if (!script) {
     return NextResponse.json({ error: 'Script not found' }, { status: 404 });
   }

@@ -21,7 +21,7 @@ export {
 
 export async function checkAuthFromCookies(): Promise<boolean> {
   if (!isAuthEnabled()) return process.env.NODE_ENV !== 'production';
-  const c = cookies();
+  const c = await cookies();
   const token = c.get(getCookieName())?.value;
   return verifySessionToken(token);
 }

@@ -3,10 +3,7 @@ import prisma from '@/lib/prisma-client';
 import { checkApiAuth } from '@/lib/auth';
 
 // GET: 获取剧本的所有历史版本
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await checkApiAuth();
   if (!auth.ok) return auth.response!;
 
