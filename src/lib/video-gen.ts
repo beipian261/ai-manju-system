@@ -56,7 +56,7 @@ export async function generateStoryboardVideo(
     model: VIDEO_MODEL,
     prompt,
     images: [imageUrl],
-    duration,
+    seconds: duration,
   });
 
   // 保存异步任务 ID 到数据库，前端通过 /api/agnes/video/task/{taskId} 轮询
@@ -130,14 +130,14 @@ export async function syncStoryboardVideo(storyboardId: string): Promise<Generat
   return result;
 }
 
-// 构建视频生成 prompt
+// 构建视频生成 prompt（更详细的描述 = 更好的视频质量）
 function buildVideoPrompt(description: string, emotion: string, timeOfDay: string, cameraAngle: string): string {
   const parts: string[] = [];
-  parts.push('Anime-style cinematic sequence');
+  parts.push('High quality anime-style cinematic animation sequence');
   if (description) parts.push(`Scene: ${description}`);
-  if (emotion) parts.push(`Mood: ${emotion}`);
+  if (emotion) parts.push(`Mood/Atmosphere: ${emotion}`);
   if (timeOfDay) parts.push(`Time of day: ${timeOfDay}`);
-  if (cameraAngle) parts.push(`Camera: ${cameraAngle}`);
-  parts.push('Smooth camera movements, cinematic lighting, professional animation quality, clear detail, high resolution, anime style');
+  if (cameraAngle) parts.push(`Camera angle: ${cameraAngle}`);
+  parts.push('Masterpiece quality, smooth motion, cinematic lighting, vibrant colors, detailed animation, fluid character movement, professional production quality, stunning visuals, highly detailed background');
   return parts.join('. ');
 }

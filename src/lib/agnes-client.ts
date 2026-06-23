@@ -50,8 +50,8 @@ export interface VideoGenerationRequest {
   model: string;
   prompt: string;
   images: string[];
-  duration?: number;
-  transitions?: string[];
+  seconds?: number;
+  size?: string;
 }
 
 export interface VideoGenerationResponse {
