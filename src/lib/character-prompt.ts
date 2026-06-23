@@ -4,10 +4,18 @@ import {
   EMOTION_TONES,
   QUALITY_TAGS,
   CHARACTER_POSES,
+  LIGHTING_SCHEMES,
+  COMPOSITION_RULES,
+  COLOR_PALETTES,
+  CAMERA_MOVEMENT,
   inferArtStyle,
   inferCameraAngle,
   inferEmotion,
   inferCharacterPose,
+  inferLighting,
+  inferComposition,
+  inferColorPalette,
+  inferCameraMovement,
 } from './prompt-library';
 
 const MAX_PROMPT_LENGTH = 2500;
@@ -308,6 +316,11 @@ export interface EnrichImagePromptInput {
   emotionHint?: string;           // 情绪氛围提示
   dialogueSubtitle?: string;      // 字幕（可选，用于合成）
   visualKeywords?: string;        // 额外视觉关键词（英文）
+  // ===== 新字段：从剧本分镜直接传入 =====
+  lightingHint?: string;          // 光影方案 key
+  compositionHint?: string;       // 构图规则 key
+  colorPaletteHint?: string;      // 色板 key
+  cameraMovementHint?: string;    // 镜头运动 key
 }
 
 export function enrichImagePrompt(input: EnrichImagePromptInput): string {
@@ -318,6 +331,10 @@ export function enrichImagePrompt(input: EnrichImagePromptInput): string {
     cameraAngleHint,
     emotionHint,
     visualKeywords,
+    lightingHint,
+    compositionHint,
+    colorPaletteHint,
+    cameraMovementHint,
   } = input;
 
   const parts: string[] = [];
@@ -332,9 +349,8 @@ export function enrichImagePrompt(input: EnrichImagePromptInput): string {
     parts.push(`[SCENE] ${safeScene}`);
   }
 
-  // ===== 3) 角色一致性 + 姿势注入（关键创新点）=====
+  // ===== 3) 角色一致性 + 姿势注入 =====
   if (characterSheets.length > 0) {
-    // 显式的一致性锁定指令
     parts.push(`[CONSISTENCY] CRITICAL: All characters must have EXACT same face, hair, eyes, outfit across all images.`);
     
     characterSheets.forEach((sheet, i) => {
@@ -359,17 +375,35 @@ export function enrichImagePrompt(input: EnrichImagePromptInput): string {
     parts.push(`[ATMOSPHERE] ${visualKeywords.slice(0, 200)}`);
   }
 
-  // ===== 5) 情绪氛围 =====
+  // ===== 5) 光影方案（从剧本分镜传入）=====
+  if (lightingHint) {
+    const lightKey = inferLighting(lightingHint);
+    parts.push(`[LIGHTING] ${LIGHTING_SCHEMES[lightKey as keyof typeof LIGHTING_SCHEMES]}`);
+  }
+
+  // ===== 6) 构图规则（从剧本分镜传入）=====
+  if (compositionHint) {
+    const compKey = inferComposition(compositionHint);
+    parts.push(`[COMPOSITION] ${COMPOSITION_RULES[compKey as keyof typeof COMPOSITION_RULES]}`);
+  }
+
+  // ===== 7) 色板（从剧本分镜传入）=====
+  if (colorPaletteHint) {
+    const colorKey = inferColorPalette(colorPaletteHint);
+    parts.push(`[COLOR] ${COLOR_PALETTES[colorKey as keyof typeof COLOR_PALETTES]}`);
+  }
+
+  // ===== 8) 情绪氛围 =====
   if (emotionHint) {
     const emoKey = inferEmotion(emotionHint);
     parts.push(`[MOOD] ${EMOTION_TONES[emoKey as keyof typeof EMOTION_TONES]}`);
   }
 
-  // ===== 6) 艺术风格 =====
+  // ===== 9) 艺术风格 =====
   const artKey = inferArtStyle(styleKey as string);
   parts.push(`[STYLE] ${ART_STYLES[artKey as keyof typeof ART_STYLES]}`);
 
-  // ===== 7) 质量标签 =====
+  // ===== 10) 质量标签 =====
   parts.push(QUALITY_TAGS.base);
   parts.push(QUALITY_TAGS.face);
   parts.push(QUALITY_TAGS.composition);

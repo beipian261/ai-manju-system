@@ -411,7 +411,11 @@ export const SCRIPT_PROMPTS = {
           "emotion": "dramatic 或 peaceful 或 comedic 或 tense 或 mysterious 或 epic 或 melancholy 或 cheerful 或 hopeful 或 romantic 或 action 或 magical",
           "dialogue": "角色对白，格式：角色名：台词内容，如无对白则填空字符串",
           "visual_keywords": "英文视觉关键词，逗号分隔，5-10个词，用于图像生成",
-          "characters_in_scene": ["角色名1", "角色名2"]
+          "characters_in_scene": ["角色名1", "角色名2"],
+          "lighting": "光影方案（可选：golden_hour/neon/backlit/moonlight/candlelight/volumetric/soft_box/low_key/high_key）",
+          "composition": "构图规则（可选：rule_of_thirds/symmetry/leading_lines/center/diagonal/framing）",
+          "color_palette": "色调方案（可选：warm_amber/cool_blue/cinematic_teal_orange/pastel/vivid_neon/monochrome）",
+          "camera_movement": "镜头运动（可选：static/tracking/push_in/pull_out/pan/arc）"
         }
       ]
     }

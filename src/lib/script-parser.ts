@@ -25,6 +25,11 @@ export interface StoryboardFrame {
   characters_in_scene: string[];
   weather?: string;           // 天气/光线关键词（英文）
   act_num?: number;           // 第几幕
+  // ===== 新字段：直接映射到图片生成提示词 =====
+  lighting?: string;          // 光影方案 key（如 golden_hour / neon）
+  composition?: string;       // 构图 key（如 rule_of_thirds / symmetry）
+  color_palette?: string;     // 色板 key（如 warm_amber / cool_blue）
+  camera_movement?: string;   // 镜头运动 key（如 tracking_shot / push_in）
 }
 
 // ============================================================
@@ -50,6 +55,10 @@ interface ParsedScriptJSON {
       dialogue?: string;
       visual_keywords?: string;
       characters_in_scene?: string[];
+      lighting?: string;
+      composition?: string;
+      color_palette?: string;
+      camera_movement?: string;
     }>;
   }>;
   // 备用：扁平数组结构
@@ -65,6 +74,11 @@ interface ParsedScriptJSON {
     dialogue?: string;
     visual_keywords?: string;
     characters_in_scene?: string[];
+    // 新字段
+    lighting?: string;
+    composition?: string;
+    color_palette?: string;
+    camera_movement?: string;
   }>;
 }
 
@@ -161,6 +175,10 @@ function parseFromJSON(json: ParsedScriptJSON): StoryboardFrame[] {
           visual_keywords: scene.visual_keywords || '',
           characters_in_scene: scene.characters_in_scene || [],
           act_num: act.act_num,
+          lighting: scene.lighting,
+          composition: scene.composition,
+          color_palette: scene.color_palette,
+          camera_movement: scene.camera_movement,
         });
       });
     });
@@ -181,6 +199,10 @@ function parseFromJSON(json: ParsedScriptJSON): StoryboardFrame[] {
         dialogue: scene.dialogue,
         visual_keywords: scene.visual_keywords || '',
         characters_in_scene: scene.characters_in_scene || [],
+        lighting: scene.lighting,
+        composition: scene.composition,
+        color_palette: scene.color_palette,
+        camera_movement: scene.camera_movement,
       });
     });
   }

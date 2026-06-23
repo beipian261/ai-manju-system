@@ -251,6 +251,11 @@ export async function generateStoryboardImage(
     cameraAngleHint: cameraKey,
     emotionHint: emotionKey,
     visualKeywords: visualKeywords || '',
+    // 从剧本分镜直接传入：如果 storyboard 中有这些字段，直接传给图片生成
+    lightingHint: storyboard.lighting || undefined,
+    compositionHint: storyboard.composition || undefined,
+    colorPaletteHint: storyboard.colorPalette || undefined,
+    cameraMovementHint: storyboard.cameraMovement || undefined,
   });
 
   const negative = buildNegativePrompt({ style: styleKey, isComic: styleKey === 'comic_book' || styleKey === 'webtoon' || styleKey === 'manga_bw' });
