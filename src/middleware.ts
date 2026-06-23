@@ -29,7 +29,7 @@ function safeRedirectPath(nextRaw: string | null): string {
   return cleaned || '/dashboard';
 }
 
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const isProd = process.env.NODE_ENV === 'production';
 
@@ -64,7 +64,7 @@ export function middleware(req: NextRequest) {
   }
 
   const token = req.cookies.get(getCookieName())?.value;
-  const authed = verifySessionToken(token);
+  const authed = await verifySessionToken(token);
 
   if (authed) return NextResponse.next();
 

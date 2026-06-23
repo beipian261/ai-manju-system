@@ -61,7 +61,7 @@ module.exports = {
         },
       },
       fontFamily: {
-        sans: ['DM Sans', 'Inter', 'system-ui', 'PingFang SC', 'Microsoft YaHei', 'sans-serif'],
+        sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
         'card': '0 1px 3px rgba(0, 0, 0, 0.04)',

@@ -1,6 +1,7 @@
-// 鉴权核心（Edge / Middleware 安全）：不依赖 next/headers
-import crypto from 'crypto';
-import bcrypt from 'bcryptjs';
+// 鉴权核心（Edge Runtime 兼容）：使用 Web Crypto API 替代 Node.js crypto
+// 同时用于 middleware（Edge）和 API routes（Node.js）
+
+import * as bcrypt from 'bcryptjs';
 
 const COOKIE_NAME = 'auth_session';
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 天
@@ -18,28 +19,55 @@ function getRequiredSecret(): string {
   return secret;
 }
 
-function sign(payload: string): string {
-  return crypto.createHmac('sha256', getRequiredSecret()).update(payload).digest('hex');
+// 将字符串转换为 Uint8Array
+function strToBytes(str: string): Uint8Array {
+  return new TextEncoder().encode(str);
 }
 
+// 将 ArrayBuffer 转换为 hex 字符串
+function bufToHex(buf: ArrayBuffer): string {
+  return Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+// HMAC-SHA256 签名（Web Crypto API，Edge Runtime 兼容）
+async function sign(payload: string): Promise<string> {
+  const secret = getRequiredSecret();
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+  const signature = await crypto.subtle.sign('HMAC', key, encoder.encode(payload));
+  return bufToHex(signature);
+}
+
+// 常量时间比较（防止时序攻击）
 function safeEqual(a: string, b: string): boolean {
-  const ab = Buffer.from(a);
-  const bb = Buffer.from(b);
-  if (ab.length !== bb.length) return false;
-  return crypto.timingSafeEqual(ab, bb);
+  if (a.length !== b.length) return false;
+  let result = 0;
+  for (let i = 0; i < a.length; i++) {
+    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return result === 0;
 }
 
 export function isAuthEnabled(): boolean {
   return !!(process.env.AUTH_SECRET || process.env.AUTH_PASSWORD || process.env.AUTH_PASSWORD_HASH);
 }
 
-export function makeSessionToken(userId = USER_ID): string {
+export async function makeSessionToken(userId = USER_ID): Promise<string> {
   const exp = Date.now() + COOKIE_MAX_AGE * 1000;
   const payload = `${userId}.${exp}`;
-  return `${payload}.${sign(payload)}`;
+  const sig = await sign(payload);
+  return `${payload}.${sig}`;
 }
 
-export function verifySessionToken(token: string | undefined | null): boolean {
+export async function verifySessionToken(token: string | undefined | null): Promise<boolean> {
   if (!token) return false;
   if (!getSecret()) return false;
   const parts = token.split('.');
@@ -48,7 +76,7 @@ export function verifySessionToken(token: string | undefined | null): boolean {
   if (userId !== USER_ID) return false;
   const exp = parseInt(expStr, 10);
   if (!Number.isFinite(exp) || exp < Date.now()) return false;
-  const expected = sign(`${userId}.${expStr}`);
+  const expected = await sign(`${userId}.${expStr}`);
   if (!safeEqual(sig, expected)) return false;
   return true;
 }

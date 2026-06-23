@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: false, error: '密码错误' }, { status: 401 });
   }
 
-  const token = makeSessionToken();
+  const token = await makeSessionToken();
   const res = NextResponse.json({ success: true });
   res.cookies.set(getCookieName(), token, getSessionCookieOptions());
   return res;
