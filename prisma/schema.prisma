@@ -1,0 +1,196 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Project {
+  id           String      @id @default(uuid())
+  title        String
+  description  String?
+  genre        String      @default("unknown")
+  style        String      @default("anime")
+  status       String      @default("draft")
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  characters   Character[]
+  scripts      Script[]
+}
+
+model Character {
+  id           String  @id @default(uuid())
+  name         String
+  age          String?
+  gender       String?
+  personality  String?
+  clothing     String?
+  appearance   String?
+  hair         String?
+  eyes         String?
+  build        String?
+  referenceImg String?
+  expressions  String?   // 表情动作描述（JSON 或中文描述，如：冷静/愤怒/微笑）
+  signaturePose String?  // 标志动作（如：双手插兜/侧身回眸）
+  colorScheme  String?   // 主色调（如：深蓝+银白 / 暖橙+黑）
+  // ========== 角色 DNA ==========
+  dnaLocked    Boolean  @default(false) // 是否锁定 DNA（锁定后生图时强制注入所有参考图）
+  dnaSummary   String?  // AI 生成的角色特征摘要（英文，注入 prompt）
+  projectId    String
+  project      Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  assets       CharacterAsset[]
+  createdAt    DateTime @default(now())
+
+  @@index([projectId])
+}
+
+// 角色 DNA 资产：多张参考图（正面/侧面/全身/表情/服装）
+model CharacterAsset {
+  id          String   @id @default(uuid())
+  characterId String
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  type        String   // front | side | fullbody | expression | outfit | custom
+  url         String   // 图片 URL
+  label       String?  // 用户备注（如"愤怒表情""冬季服装"）
+  isPrimary   Boolean  @default(false) // 是否为主参考图（生图时优先注入）
+  createdAt   DateTime @default(now())
+
+  @@index([characterId])
+  @@index([type])
+}
+
+model Script {
+  id          String          @id @default(uuid())
+  outline     String
+  content     String
+  status      String          @default("generating")
+  projectId   String
+  project     Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  storyboards Storyboard[]
+  versions    ScriptVersion[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([projectId])
+}
+
+// 剧本版本历史：每次再生或编辑时自动保存旧版本
+model ScriptVersion {
+  id            String   @id @default(uuid())
+  scriptId      String
+  script        Script   @relation(fields: [scriptId], references: [id], onDelete: Cascade)
+  versionNumber Int      // 自增版本号（每 script 独立）
+  outline       String   // 该版本的大纲
+  content       String   // 该版本的剧本全文
+  source        String   @default("ai_generated") // ai_generated | manual_edit | restore
+  createdAt     DateTime @default(now())
+
+  @@index([scriptId])
+  @@index([scriptId, versionNumber])
+}
+
+model Storyboard {
+  id           String   @id @default(uuid())
+  sceneNum     Int
+  title        String?
+  description  String
+  cameraAngle  String   @default("medium shot")
+  emotion      String?
+  location     String?
+  timeOfDay    String?
+  visualKeywords String?
+  charactersInScene String?
+  lighting       String?   // 光影方案 key（golden_hour/backlit/neon...）
+  composition    String?   // 构图 key（rule_of_thirds/symmetry...）
+  cameraMovement String?   // 镜头运动 key（slow_push_in/tracking_shot...）
+  colorPalette   String?   // 色板 key（cinematic_teal_orange/cool_blue...）
+  atmosphere     String?   // AI 生成的氛围描述（英文）
+  dialogue     String?
+  imagePrompt  String?
+  promptMode   String?  @default("rule")  // rule | smart  提示词生成模式
+  imageUrls    String?
+  qualityScore Float?
+  videoUrl     String?
+  videoTaskId  String?
+  videoStatus  String?   // queued | in_progress | completed | failed
+  duration     Int?
+  reviewStatus String?  @default("pending") // pending | reviewing | approved | rejected
+  scriptId     String
+  script       Script   @relation(fields: [scriptId], references: [id], onDelete: Cascade)
+  comments     ReviewComment[]
+  createdAt    DateTime @default(now())
+
+  @@index([scriptId])
+}
+
+// 评审评论：对分镜帧的标注和意见
+model ReviewComment {
+  id            String   @id @default(uuid())
+  storyboardId  String
+  storyboard    Storyboard @relation(fields: [storyboardId], references: [id], onDelete: Cascade)
+  author        String   // 评论者名称
+  text          String   // 评论内容
+  annotationX   Float?   // 标注 X 坐标 (0-1 相对位置)
+  annotationY   Float?   // 标注 Y 坐标 (0-1 相对位置)
+  createdAt     DateTime @default(now())
+
+  @@index([storyboardId])
+}
+
+model Asset {
+  id        String   @id @default(uuid())
+  type      String
+  filePath  String
+  url       String?
+  projectId String?
+  createdAt DateTime @default(now())
+
+  @@index([projectId])
+}
+
+model Setting {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// 异步任务队列：进程内 worker 轮询消费
+// 解决 fire-and-forget 后台任务在请求结束后丢失的问题
+model Job {
+  id         String   @id @default(uuid())
+  type       String   // 'script' | 'storyboard' | 'image_batch'
+  status     String   @default("pending") // pending | running | completed | failed
+  payload    String   // JSON：任务参数
+  result     String?  // JSON：结果
+  progress   Int      @default(0)
+  error      String?
+  projectId  String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now())
+  startedAt  DateTime?
+  finishedAt DateTime?
+
+  @@index([status])
+  @@index([projectId])
+  @@index([type])
+}
+
+// 图片生成缓存：根据 prompt 哈希缓存已生成的图片 URL
+model ImageCache {
+  id         String   @id @default(uuid())   // 主键
+  promptHash String   @unique                // prompt 的 SHA256 哈希
+  prompt     String                        // 原始提示词（可读调试用）
+  imageUrl   String                        // 生成的图片 URL
+  artStyle   String?                       // 风格标签（用于区分不同风格的缓存）
+  score      Float?                       // 生成质量评分
+  model      String?                       // 使用的模型
+  createdAt  DateTime @default(now())
+  expiresAt  DateTime?                    // 可选过期时间
+
+  @@index([promptHash])
+  @@index([artStyle])
+}

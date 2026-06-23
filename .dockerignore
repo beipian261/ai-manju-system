@@ -1,0 +1,52 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Build output
+.next
+out
+dist
+
+# Testing
+coverage
+.nyc_output
+
+# Environment (handled at runtime)
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Project artifacts
+.workbuddy
+docs
+*.md
+!README.md
+
+# Docker
+docker-compose*.yml
+Dockerfile
+.dockerignore
+
+# Logs
+*.log
+npm-debug.log*
+
+# Prisma SQLite (mounted as volume)
+prisma/dev.db
+prisma/dev.db-journal

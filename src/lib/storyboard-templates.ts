@@ -1,0 +1,51 @@
+﻿// 分镜模板定义
+export const STORYBOARD_TEMPLATES = {
+  emotional: {
+    name: '情感冲突',
+    description: '适合情感激烈的场景，多用近景和特写',
+    cameraSequence: ['medium_shot', 'medium_close_up', 'close_up', 'close_up', 'medium_shot'],
+    emotionSequence: ['peaceful', 'tense', 'dramatic', 'dramatic', 'peaceful'],
+    avgDuration: 4,
+    tips: ['高潮部分使用特写增强情感冲击', '情绪转折处添加停顿'],
+  },
+  action: {
+    name: '动作场景',
+    description: '适合打斗、追逐等动态场景',
+    cameraSequence: ['long_shot', 'medium_shot', 'medium_shot', 'close_up', 'long_shot'],
+    emotionSequence: ['tense', 'tense', 'excited', 'excited', 'tense'],
+    avgDuration: 3,
+    tips: ['动作场面用远景展示空间', '关键动作用特写强调'],
+  },
+  dialogue: {
+    name: '对话场景',
+    description: '适合角色对话、谈判等静态场景',
+    cameraSequence: ['medium_shot', 'medium_close_up', 'medium_shot', 'medium_close_up', 'medium_shot'],
+    emotionSequence: ['peaceful', 'peaceful', 'peaceful', 'peaceful', 'peaceful'],
+    avgDuration: 5,
+    tips: ['对话用中景展示两人', '重要台词用近景强调'],
+  },
+  romance: {
+    name: '浪漫场景',
+    description: '适合爱情、温馨等柔和场景',
+    cameraSequence: ['medium_shot', 'medium_close_up', 'close_up', 'medium_shot', 'long_shot'],
+    emotionSequence: ['peaceful', 'gentle', 'gentle', 'happy', 'peaceful'],
+    avgDuration: 6,
+    tips: ['浪漫场景多用柔光', '特写展示表情细节'],
+  },
+  horror: {
+    name: '恐怖悬疑',
+    description: '适合惊悚、悬疑等紧张场景',
+    cameraSequence: ['long_shot', 'medium_shot', 'close_up', 'close_up', 'medium_shot'],
+    emotionSequence: ['tense', 'fear', 'fear', 'surprised', 'tense'],
+    avgDuration: 4,
+    tips: ['恐怖场景用阴影营造氛围', '突然的特写制造惊吓'],
+  },
+  comedy: {
+    name: '喜剧场景',
+    description: '适合搞笑、轻松等娱乐场景',
+    cameraSequence: ['medium_shot', 'medium_shot', 'close_up', 'medium_shot', 'medium_shot'],
+    emotionSequence: ['happy', 'happy', 'surprised', 'happy', 'happy'],
+    avgDuration: 3,
+    tips: ['喜剧用中景展示互动', '表情特写增强笑点'],
+  },
+};

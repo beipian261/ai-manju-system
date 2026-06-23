@@ -1,0 +1,30 @@
+version: '3.8'
+
+# ============================
+# Development Compose — hot-reload, local dev.db
+# ============================
+
+services:
+  app:
+    build:
+      context: .
+      target: builder
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=development
+      - AGNES_API_BASE=${AGNES_API_BASE:-https://platform.agnes-ai.com/v1}
+      - AGNES_API_KEY=${AGNES_API_KEY}
+      - AGNES_TEXT_MODEL=${AGNES_TEXT_MODEL:-agnes-2.0-flash}
+      - AGNES_IMAGE_MODEL=${AGNES_IMAGE_MODEL:-agnes-image-2.1-flash}
+      - AGNES_VIDEO_MODEL=${AGNES_VIDEO_MODEL:-agnes-video-v2.0}
+      - AUTH_PASSWORD=${AUTH_PASSWORD}
+      - IMAGE_MAX_RETRIES=2
+      - IMAGE_HARD_TIMEOUT_MS=45000
+    volumes:
+      - ./src:/app/src:ro
+      - ./public:/app/public:ro
+      - ./data:/app/data
+      - ./prisma/dev.db:/app/prisma/dev.db
+    command: npm run dev
+    restart: unless-stopped

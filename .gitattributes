@@ -1,0 +1,24 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Source code
+*.ts text diff=typescript
+*.tsx text diff=typescript
+*.css text diff=css
+*.json text
+*.prisma text
+
+# Ensure consistent line endings
+*.sh text eol=lf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.db binary
+*.db-journal binary
