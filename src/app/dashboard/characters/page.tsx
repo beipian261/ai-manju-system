@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { Navbar } from '@/components/navbar';
+import DNAPanel from '@/components/DNAPanel';
 
 interface Character {
   id: string;
@@ -232,6 +233,19 @@ export default function CharactersPage() {
                 </div>
                 <div className="progress-track md mb-5">
                   <div className="progress-fill" style={{ width: '92%' }} />
+                </div>
+
+                {/* DNA 面板 */}
+                <div className="mb-5">
+                  <DNAPanel
+                    characterId={selected.id}
+                    projectId=""
+                    initialDNA={{
+                      dnaSummary: null,
+                      dnaLocked: false,
+                      referenceImg: null,
+                    }}
+                  />
                 </div>
 
                 <div className="divider mb-5" />
