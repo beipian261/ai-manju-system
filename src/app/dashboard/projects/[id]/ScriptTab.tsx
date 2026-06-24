@@ -126,7 +126,6 @@ export default function ScriptTab() {
                 hasStoryboards={storyboards.some(st => st.scriptId === s.id)}
                 onOpen={() => setActiveStream(activeStream === s.id ? null : s.id)}
                 onDelete={() => deleteScript(s.id)}
-                onGenerateStoryboard={() => setActiveTab('storyboard')}
               />
             ))}
           </div>
@@ -155,8 +154,8 @@ export default function ScriptTab() {
   );
 }
 
-function ScriptCard({ script: s, index, isActive, hasStoryboards, onOpen, onDelete, onGenerateStoryboard }: {
-  script: Script; index: number; isActive: boolean; hasStoryboards: boolean; onOpen: () => void; onDelete: () => void; onGenerateStoryboard: () => void;
+function ScriptCard({ script: s, index, isActive, hasStoryboards, onOpen, onDelete }: {
+  script: Script; index: number; isActive: boolean; hasStoryboards: boolean; onOpen: () => void; onDelete: () => void;
 }) {
   const cfg: Record<string, { label: string; variant: 'amber' | 'emerald' | 'zinc' | 'purple' | 'pink' | 'sky' | 'red' }> = {
     draft: { label: '草稿', variant: 'zinc' },
@@ -187,11 +186,6 @@ function ScriptCard({ script: s, index, isActive, hasStoryboards, onOpen, onDele
             </div>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
-            {s.status === 'completed' && !hasStoryboards && (
-              <Button size="sm" onClick={onGenerateStoryboard}>
-                🎬 生成分镜
-              </Button>
-            )}
             <button onClick={onDelete} className="btn-ghost px-3 py-1.5 text-xs text-red-400 hover:text-red-600">🗑️</button>
           </div>
         </div>
