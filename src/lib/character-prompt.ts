@@ -65,6 +65,7 @@ export function buildCharacterSheet(character: {
   expressions?: string | null;
   signaturePose?: string | null;
   referenceImg?: string | null;
+  dnaSummary?: string | null;  // AI 提取的 DNA 摘要（优先使用）
 }): CharacterSheet {
   // 性别和年龄
   const gender = character.gender || 'female';
@@ -215,23 +216,25 @@ export function buildCharacterSheet(character: {
     referenceImages.push(character.referenceImg);
   }
 
-  // 构建完整的英文描述
-  const englishDescription = [
-    character.name,
-    gender,
-    ageDesc,
-    face,
-    hair,
-    eyes,
-    body,
-    `wearing ${outfit_main}`,
-    outfit_accessories,
-    expressions,
-    signaturePose,
-    personality,
-  ]
-    .filter(Boolean)
-    .join('. ');
+  // 构建完整的英文描述，优先使用 DNA 摘要
+  const englishDescription = character.dnaSummary
+    ? `[DNA] ${character.dnaSummary}`
+    : [
+        character.name,
+        gender,
+        ageDesc,
+        face,
+        hair,
+        eyes,
+        body,
+        `wearing ${outfit_main}`,
+        outfit_accessories,
+        expressions,
+        signaturePose,
+        personality,
+      ]
+        .filter(Boolean)
+        .join('. ');
 
   return {
     name: character.name,
@@ -356,8 +359,15 @@ export function enrichImagePrompt(input: EnrichImagePromptInput): string {
     characterSheets.forEach((sheet, i) => {
       const charLines: string[] = [];
       charLines.push(`[CHARACTER ${i + 1}: ${sheet.name}]`);
-      charLines.push(`face=${sheet.face}, hair=${sheet.hair}, eyes=${sheet.eyes}`);
-      charLines.push(`outfit=${sheet.outfit_main}`);
+      
+      // 如果有 DNA 摘要，直接使用精简 DNA（更精确、占 token 更少）
+      if (sheet.englishDescription.startsWith('[DNA]')) {
+        charLines.push(`dna=${sheet.englishDescription.replace('[DNA] ', '')}`);
+      } else {
+        charLines.push(`face=${sheet.face}, hair=${sheet.hair}, eyes=${sheet.eyes}`);
+        charLines.push(`outfit=${sheet.outfit_main}`);
+      }
+      
       if (sheet.signature_look && sheet.signature_look.length > 5) {
         charLines.push(`signature=${sheet.signature_look}`);
       }

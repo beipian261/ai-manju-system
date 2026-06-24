@@ -62,7 +62,7 @@ async function generateScriptMultiPass(
       buildCharacterSheet({
         name: c.name, age: c.age, gender: c.gender, personality: c.personality,
         clothing: c.clothing, appearance: c.appearance, hair: c.hair, eyes: c.eyes,
-        build: c.build, referenceImg: c.referenceImg,
+        build: c.build, referenceImg: c.referenceImg, dnaSummary: c.dnaSummary,
       })
     );
 

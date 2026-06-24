@@ -136,7 +136,7 @@ async function streamScriptGeneration(
         const TEXT_MODEL = await getSetting('AGNES_TEXT_MODEL');
         const characters = await prisma.character.findMany({ where: { projectId } });
         const characterSheets = characters.map((c) =>
-          buildCharacterSheet({ name: c.name, age: c.age, gender: c.gender, personality: c.personality, clothing: c.clothing, appearance: c.appearance, hair: c.hair, eyes: c.eyes, build: c.build, referenceImg: c.referenceImg })
+                buildCharacterSheet({ name: c.name, age: c.age, gender: c.gender, personality: c.personality, clothing: c.clothing, appearance: c.appearance, hair: c.hair, eyes: c.eyes, build: c.build, referenceImg: c.referenceImg, dnaSummary: c.dnaSummary })
         );
         const characterInstructions = buildCharacterConsistencyInstructions(characters);
 

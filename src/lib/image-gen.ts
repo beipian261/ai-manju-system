@@ -166,6 +166,7 @@ export async function generateStoryboardImage(
         eyes: c.eyes,
         build: c.build,
         referenceImg: c.referenceImg,
+        dnaSummary: c.dnaSummary,
       })
     );
 
