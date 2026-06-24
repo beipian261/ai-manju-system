@@ -10,6 +10,7 @@ import {
 } from '@/lib/character-prompt';
 import { normalizeStyleKey } from '@/lib/prompt-library';
 import { checkApiAuth } from '@/lib/auth';
+import { logger } from '@/lib/logger';
 
 // 生成角色主形象图：根据角色属性生成 1 张肖像图，存到 Character.referenceImg
 // 该图作为后续分镜图生成的"角色一致性"参考
@@ -102,7 +103,7 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({ imageUrl });
   } catch (error) {
     const msg = error instanceof Error ? error.message : 'Image generation failed';
-    console.error('Character portrait generation failed:', error);
+    logger.error('Character portrait generation failed:', error);
     emitProgress({ type: 'image', id: character.id, status: 'failed', message: msg.slice(0, 200) });
     return NextResponse.json({ error: msg.slice(0, 500) }, { status: 500 });
   }

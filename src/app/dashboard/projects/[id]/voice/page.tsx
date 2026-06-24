@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { Navbar } from '@/components/navbar';
 import Link from 'next/link';
+import { apiGet, apiPost } from '@/lib/api-client';
 
 interface DialogueLine {
   id: string;
@@ -62,8 +63,7 @@ export default function VoicePage() {
   useEffect(() => {
     if (!projectId) return;
     setLoading(true);
-    fetch(`/api/voice/lines?projectId=${projectId}`)
-      .then(r => r.json())
+    apiGet<{ lines: DialogueLine[] }>(`/api/voice/lines?projectId=${projectId}`)
       .then(data => {
         if (data.lines) {
           setLines(data.lines);
@@ -87,13 +87,7 @@ export default function VoicePage() {
     setGenerating(true);
     setError('');
     try {
-      const res = await fetch('/api/voice/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ storyboardId: selectedLineId, voice: selectedVoice, speed, pitch, emotions: selectedEmotions }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      const data = await apiPost<GeneratedVoice>('/api/voice/generate', { storyboardId: selectedLineId, voice: selectedVoice, speed, pitch, emotions: selectedEmotions });
       setGeneratedVoice(data);
       setGeneratedClips(prev => [data, ...prev.filter(c => c.storyboardId !== data.storyboardId)]);
       setLines(prev => prev.map(l => l.id === selectedLineId ? { ...l, status: 'done' as const } : l));

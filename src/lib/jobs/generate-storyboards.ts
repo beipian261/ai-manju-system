@@ -13,6 +13,8 @@ import { emitProgress } from '../progress-bus';
 import { updateProjectStatus } from '../project-status';
 import { getSetting } from '../settings';
 import { registerJobHandler } from '../job-queue';
+import { logger } from '../logger';
+import type { SceneOrderItem } from '@/types';
 
 // AI JSON 解析：从剧本中提取的分镜帧原始结构（字段名可能不统一）
 interface RawFrame {
@@ -37,7 +39,7 @@ interface RawFrame {
 registerJobHandler('storyboard', async (job) => {
   const scriptId = job.payload.scriptId as string;
   const projectId = job.payload.projectId as string;
-  const sceneOrder: string[] | null = Array.isArray(job.payload.sceneOrder) ? job.payload.sceneOrder as string[] : null;
+  const sceneOrder: SceneOrderItem[] | null = Array.isArray(job.payload.sceneOrder) ? job.payload.sceneOrder as SceneOrderItem[] : null;
 
   if (!scriptId || !projectId) {
     throw new Error('storyboard job 缺少必要参数 scriptId/projectId');
@@ -53,7 +55,7 @@ registerJobHandler('storyboard', async (job) => {
 async function generateStoryboardsInBackground(
   scriptId: string,
   projectId: string,
-  sceneOrder: any[] | null,
+  sceneOrder: SceneOrderItem[] | null,
   setProgress: (pct: number, message?: string) => Promise<void>,
   progressProjectId: string | null
 ) {
@@ -96,7 +98,7 @@ async function generateStoryboardsInBackground(
 
     if (sceneOrder && sceneOrder.length > 0) {
       parseSource = 'user_order';
-      frames = sceneOrder.map((s: Record<string, unknown>, i: number) => ({
+      frames = sceneOrder.map((s, i: number) => ({
         scene_number: i + 1,
         title: typeof s.title === 'string' ? s.title : '',
         description: typeof s.description === 'string' ? s.description : '',
@@ -152,7 +154,7 @@ async function generateStoryboardsInBackground(
       }
     }
 
-    console.log(`[storyboard:${scriptId}] frames: ${frames.length} (source: ${parseSource}, took ${Date.now() - perfStart}ms)`);
+    logger.info(`[storyboard:${scriptId}] frames: ${frames.length} (source: ${parseSource}, took ${Date.now() - perfStart}ms)`);
 
     if (frames.length === 0) {
       const msg = '剧本解析未提取到任何分镜';
@@ -218,7 +220,7 @@ async function generateStoryboardsInBackground(
             },
           })
           .catch((e) => {
-            console.error(`[storyboard:${scriptId}] failed to create scene ${sceneNum}:`, e.message || e);
+            logger.error(`[storyboard:${scriptId}] failed to create scene ${sceneNum}:`, e.message || e);
             return null;
           })
       );
@@ -233,7 +235,7 @@ async function generateStoryboardsInBackground(
     const results = await Promise.all(dbCreatePromises);
     const created = results.filter(Boolean).length;
 
-    console.log(`[storyboard:${scriptId}] done, created ${created}/${frames.length}, total ${Date.now() - perfStart}ms`);
+    logger.info(`[storyboard:${scriptId}] done, created ${created}/${frames.length}, total ${Date.now() - perfStart}ms`);
 
     if (created === 0) {
       emitProgress({ type: 'storyboard', id: scriptId, status: 'failed', message: '分镜保存失败（数据库写入全部失败）', projectId: progressProjectId || undefined });
@@ -244,7 +246,7 @@ async function generateStoryboardsInBackground(
       await updateProjectStatus(projectId, 'producing');
     }
   } catch (e) {
-    console.error(`[storyboard:${scriptId}] generate error (took ${Date.now() - perfStart}ms):`, e);
+    logger.error(`[storyboard:${scriptId}] generate error (took ${Date.now() - perfStart}ms):`, e);
     emitProgress({ type: 'storyboard', id: scriptId, status: 'failed', message: '分镜生成失败: ' + (e instanceof Error ? e.message : String(e)).slice(0, 300), projectId: progressProjectId || undefined });
     throw e;
   }

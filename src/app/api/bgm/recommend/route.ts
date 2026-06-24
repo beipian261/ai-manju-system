@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { checkApiAuth } from '@/lib/auth';
 import { chatCompletion } from '@/lib/agnes-client';
 import { getSetting } from '@/lib/settings';
+import { logger } from '@/lib/logger';
 
 // 背景音乐风格库
 const BGM_STYLES = {
@@ -104,7 +105,7 @@ export async function POST(req: NextRequest) {
         duration,
       });
     } catch (e) {
-      console.warn('[bgm-recommend] AI analysis failed:', e);
+      logger.warn('[bgm-recommend] AI analysis failed:', e);
     }
   }
 

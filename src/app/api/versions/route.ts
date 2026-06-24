@@ -3,6 +3,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { checkApiAuth } from '@/lib/auth';
 import prisma from '@/lib/prisma-client';
+import { logger } from '@/lib/logger';
+
+function safeParseJSON(json: string | null | undefined, context: string): any {
+  try {
+    return JSON.parse(json || '{}');
+  } catch (e) {
+    logger.error(`[versions] JSON.parse failed (${context})`, e);
+    return {};
+  }
+}
 
 export async function POST(req: NextRequest) {
   const auth = await checkApiAuth();
@@ -109,7 +119,7 @@ async function rollbackToVersion(projectId: string, versionId: string) {
     return NextResponse.json({ error: '版本不属于该项目' }, { status: 400 });
   }
 
-  const data = JSON.parse(job.result || '{}');
+  const data = safeParseJSON(job.result, 'rollbackToVersion-result');
 
   // 更新项目
   if (data.project) {
@@ -165,7 +175,7 @@ async function rollbackToVersion(projectId: string, versionId: string) {
   }
 
   // 创建回滚记录
-  const payload = JSON.parse(job.payload || '{}');
+  const payload = safeParseJSON(job.payload, 'rollbackToVersion-payload');
   await prisma.job.create({
     data: {
       type: 'version',
@@ -202,10 +212,10 @@ async function compareVersions(projectId: string, body: Record<string, unknown>)
     return NextResponse.json({ error: '版本不存在' }, { status: 404 });
   }
 
-  const payload1 = JSON.parse(v1.payload || '{}');
-  const payload2 = JSON.parse(v2.payload || '{}');
-  const data1 = JSON.parse(v1.result || '{}');
-  const data2 = JSON.parse(v2.result || '{}');
+  const payload1 = safeParseJSON(v1.payload, 'compareVersions-payload1');
+  const payload2 = safeParseJSON(v2.payload, 'compareVersions-payload2');
+  const data1 = safeParseJSON(v1.result, 'compareVersions-data1');
+  const data2 = safeParseJSON(v2.result, 'compareVersions-data2');
 
   const differences = {
     project: compareObjects(data1.project, data2.project),
@@ -222,8 +232,8 @@ async function compareVersions(projectId: string, body: Record<string, unknown>)
   });
 }
 
-function compareObjects(obj1: any, obj2: any): Record<string, { before: any; after: any }> {
-  const result: Record<string, { before: any; after: any }> = {};
+function compareObjects(obj1: Record<string, unknown>, obj2: Record<string, unknown>): Record<string, { before: unknown; after: unknown }> {
+  const result: Record<string, { before: unknown; after: unknown }> = {};
   const keys = new Set([...Object.keys(obj1 || {}), ...Object.keys(obj2 || {})]);
   
   for (const key of keys) {
@@ -238,9 +248,9 @@ function compareObjects(obj1: any, obj2: any): Record<string, { before: any; aft
   return result;
 }
 
-function compareArrays(arr1: any[], arr2: any[]): { added: number; removed: number; changed: number } {
-  const ids1 = new Set((arr1 || []).map((item: any) => item.id));
-  const ids2 = new Set((arr2 || []).map((item: any) => item.id));
+function compareArrays(arr1: Array<{ id: string } & Record<string, unknown>>, arr2: Array<{ id: string } & Record<string, unknown>>): { added: number; removed: number; changed: number } {
+  const ids1 = new Set((arr1 || []).map((item: { id: string }) => item.id));
+  const ids2 = new Set((arr2 || []).map((item: { id: string }) => item.id));
   
   const added = [...ids2].filter(id => !ids1.has(id)).length;
   const removed = [...ids1].filter(id => !ids2.has(id)).length;
@@ -268,7 +278,7 @@ export async function GET(req: NextRequest) {
   });
 
   const versions = jobs.map((job) => {
-    const payload = JSON.parse(job.payload || '{}');
+    const payload = safeParseJSON(job.payload, 'GET-versions-list');
     return {
       id: job.id,
       name: payload.versionName || `版本 ${job.createdAt}`,

@@ -4,6 +4,7 @@ import { checkApiAuth } from '@/lib/auth';
 import { emitProgress } from '@/lib/progress-bus';
 import { updateProjectStatus } from '@/lib/project-status';
 import { enqueueJob } from '@/lib/job-queue';
+import type { SceneOrderItem } from '@/types';
 // 触发 job handler 注册（必须在 enqueueJob 前 import）
 import '@/lib/jobs';
 
@@ -73,7 +74,7 @@ export async function POST(req: NextRequest) {
 
   const scriptId = typeof body.scriptId === 'string' ? body.scriptId.trim() : '';
   const projectId = typeof body.projectId === 'string' ? body.projectId.trim() : '';
-  const sceneOrder: string[] | null = Array.isArray(body.sceneOrder) ? body.sceneOrder as string[] : null;
+  const sceneOrder: SceneOrderItem[] | null = Array.isArray(body.sceneOrder) ? body.sceneOrder as SceneOrderItem[] : null;
 
   if (!scriptId || !projectId) {
     return NextResponse.json({ error: 'scriptId 和 projectId 必填' }, { status: 400 });

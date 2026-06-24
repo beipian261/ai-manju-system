@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useConfirmDialog } from '@/components/ConfirmDialog';
 import type { Character } from './types';
+import type { ConsistencyIssue } from '@/types';
 
 const EMPTY_FORM = {
   name: '', age: '', gender: '', personality: '',
@@ -31,7 +32,7 @@ export default function CharactersTab() {
   const [generatingPortraits, setGeneratingPortraits] = useState(false);
   const [consistencyScore, setConsistencyScore] = useState<number | null>(null);
   const [showConsistency, setShowConsistency] = useState(false);
-  const [consistencyIssues, setConsistencyIssues] = useState<any[]>([]);
+  const [consistencyIssues, setConsistencyIssues] = useState<ConsistencyIssue[]>([]);
   const [checkingConsistency, setCheckingConsistency] = useState(false);
   const { showConfirm, dialog: confirmDialog } = useConfirmDialog();
   

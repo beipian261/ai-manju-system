@@ -12,6 +12,7 @@ import { emitProgress } from '../progress-bus';
 import { buildCharacterConsistencyInstructions, buildCharacterSheet } from '../character-prompt';
 import { SCRIPT_PROMPTS } from '../prompt-library';
 import { registerJobHandler } from '../job-queue';
+import { logger } from '../logger';
 
 // AI JSON 解析：剧本验证用到的中间结构
 interface ParsedAct {
@@ -21,7 +22,10 @@ interface ParsedAct {
   [key: string]: unknown;
 }
 interface ParsedScene {
+  scene_number?: number;
   emotion?: string;
+  dialogue?: string;
+  description?: string;
   [key: string]: unknown;
 }
 
@@ -158,7 +162,7 @@ async function generateScriptMultiPass(
 
     const validationResult = await validateScriptStructure(parsed, outline, TEXT_MODEL);
     if (validationResult.needsRewrite) {
-      console.log(`[script:${scriptId}] Pass 3 校验未通过，重写... 原因：${validationResult.reasons.join(', ')}`);
+      logger.info(`[script:${scriptId}] Pass 3 校验未通过，重写... 原因：${validationResult.reasons.join(', ')}`);
       emitProgress({ type: 'script', id: scriptId, status: 'progress', progress: 82, message: '质量校验未通过，自动修复中...', projectId: progressProjectId || undefined });
       await setProgress(82, '自动修复中');
 
@@ -207,7 +211,7 @@ ${validationResult.reasons.map(r => `- ${r}`).join('\n')}
     emitProgress({ type: 'script', id: scriptId, status: 'completed', progress: 100, message: '剧本生成完成', projectId: progressProjectId || undefined });
     await setProgress(100, '剧本生成完成');
   } catch (error) {
-    console.error('Script generation failed:', error);
+    logger.error('Script generation failed:', error);
     const errMsg = error instanceof Error ? error.message : '未知错误';
     const friendlyMsg = (() => {
       const p = [/cannot provide/i, /violen/i, /illegal/i, /safety|harmful|inappropriate/i, /content.*policy/i];
@@ -268,16 +272,16 @@ async function validateScriptStructure(
     }
   }
 
-  const allEmotions = allScenes.map((s: any) => s.emotion?.toLowerCase()).filter(Boolean);
+  const allEmotions = allScenes.map((s: ParsedScene) => s.emotion?.toLowerCase()).filter((e): e is string => Boolean(e));
   const lightOnly = allEmotions.length > 0 && allEmotions.every((e) => LIGHT_EMOTIONS.has(e));
   if (lightOnly && allScenes.length > 6) reasons.push('剧本全程情绪过于轻松，缺少紧张/危机/戏剧性冲突');
 
-  const scenesWithDialogue = allScenes.filter((s: any) => s.dialogue && s.dialogue.length > 10);
+  const scenesWithDialogue = allScenes.filter((s: ParsedScene) => s.dialogue && s.dialogue.length > 10);
   if (scenesWithDialogue.length < allScenes.length * 0.3 && allScenes.length > 5) {
     reasons.push('大部分场景缺少对白，可能导致角色形象单薄');
   }
 
-  const scenesWithDetail = allScenes.filter((s: any) => s.description && s.description.length > 30);
+  const scenesWithDetail = allScenes.filter((s: ParsedScene) => s.description && s.description.length > 30);
   if (scenesWithDetail.length < allScenes.length * 0.5) reasons.push('部分场景视觉描述过于简短（需要至少 30 字）');
 
   // outline 参数保留兼容签名，本地规则已足够时不再强依赖

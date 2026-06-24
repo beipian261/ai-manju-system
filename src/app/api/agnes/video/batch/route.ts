@@ -4,6 +4,7 @@ import { checkApiAuth } from '@/lib/auth';
 import { generateStoryboardVideo } from '@/lib/video-gen';
 import { runWithConcurrencyPool } from '@/lib/concurrency-pool';
 import { emitProgress } from '@/lib/progress-bus';
+import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limiter';
 
 const VIDEO_CONCURRENCY = 2; // 视频生成更慢，并发数降低
 
@@ -14,6 +15,14 @@ interface BatchVideoItem {
 export async function POST(req: NextRequest) {
   const auth = await checkApiAuth();
   if (!auth.ok) return auth.response!;
+
+  const rateLimit = checkRateLimit(getClientIdentifier(req), 'agnes_video_batch', 5);
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      { error: '请求过于频繁，请稍后重试', retryAfterMs: Math.ceil(rateLimit.resetMs / 1000) },
+      { status: 429, headers: { 'X-RateLimit-Remaining': String(rateLimit.remaining) } }
+    );
+  }
 
   let body: Record<string, unknown>;
   try {

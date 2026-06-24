@@ -3,6 +3,7 @@ import prisma from '@/lib/prisma-client';
 import { chatCompletion } from '@/lib/agnes-client';
 import { getSetting } from '@/lib/settings';
 import { checkApiAuth } from '@/lib/auth';
+import { logger } from '@/lib/logger';
 
 // AI 导演分析：根据分镜的剧本内容，生成专业级导演建议
 export async function POST(req: NextRequest) {
@@ -132,7 +133,7 @@ ${characterContext}
     });
   } catch (error) {
     const msg = error instanceof Error ? error.message : 'AI 分析失败';
-    console.error('[director analyze error]', error);
+    logger.error('[director analyze error]', error);
     return NextResponse.json({ error: msg.slice(0, 500) }, { status: 500 });
   }
 }

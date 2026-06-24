@@ -1,12 +1,16 @@
 import { NextRequest } from 'next/server';
 import { progressBus, ProgressEvent } from '@/lib/progress-bus';
 import prisma from '@/lib/prisma-client';
+import { checkApiAuth } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
 // SSE 端点：客户端通过 ?projectId=xxx 订阅项目级进度
 // 事件格式：data: <json>\n\n
 export async function GET(req: NextRequest) {
+  const auth = await checkApiAuth();
+  if (!auth.ok) return auth.response!;
+
   const { searchParams } = new URL(req.url);
   const projectId = searchParams.get('projectId');
   const resourceId = searchParams.get('resourceId'); // 可选：只订阅某个 scriptId / storyboardId

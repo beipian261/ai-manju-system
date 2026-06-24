@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { Navbar } from '@/components/navbar';
 import Link from 'next/link';
+import { apiGet, apiPost, apiPatch } from '@/lib/api-client';
 
 interface Frame {
   id: string;
@@ -98,8 +99,7 @@ export default function ReviewPage() {
   useEffect(() => {
     if (!projectId) return;
     setLoading(true);
-    fetch(`/api/review/comments?projectId=${projectId}`)
-      .then(r => r.json())
+    apiGet<{ frames: Frame[] }>(`/api/review/comments?projectId=${projectId}`)
       .then(data => {
         if (data.frames) {
           setFrames(data.frames);
@@ -113,9 +113,8 @@ export default function ReviewPage() {
   const loadFrameData = useCallback(async () => {
     if (!selectedFrameId) return;
     try {
-      const sbRes = await fetch(`/api/storyboards?projectId=${projectId}`);
-      const sbData = await sbRes.json();
-      const sb = sbData.find((s: any) => s.id === selectedFrameId);
+      const sbData = await apiGet<StoryboardDetail[]>(`/api/storyboards?projectId=${projectId}`);
+      const sb = sbData.find((s: StoryboardDetail) => s.id === selectedFrameId);
       if (sb) setStoryboard({
         id: sb.id, sceneNum: sb.sceneNum, title: sb.title,
         description: sb.description, dialogue: sb.dialogue,
@@ -124,8 +123,7 @@ export default function ReviewPage() {
       });
     } catch { /* ignore */ }
     try {
-      const cmtRes = await fetch(`/api/review/comments?storyboardId=${selectedFrameId}`);
-      const cmtData = await cmtRes.json();
+      const cmtData = await apiGet<{ comments: Comment[] }>(`/api/review/comments?storyboardId=${selectedFrameId}`);
       setComments(cmtData.comments || []);
     } catch { setComments([]); }
   }, [selectedFrameId, projectId]);
@@ -136,12 +134,7 @@ export default function ReviewPage() {
     if (!newComment.trim() || !selectedFrameId) return;
     setSubmitting(true);
     try {
-      const res = await fetch('/api/review/comments', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ storyboardId: selectedFrameId, author: REVIEWER_NAME, text: newComment.trim() }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      const data = await apiPost<{ comment: Comment }>('/api/review/comments', { storyboardId: selectedFrameId, author: REVIEWER_NAME, text: newComment.trim() });
       setComments(prev => [data.comment, ...prev]);
       setNewComment('');
       setFrames(prev => prev.map(f => f.id === selectedFrameId ? { ...f, comments: f.comments + 1, status: 'reviewing' as const } : f));
@@ -152,11 +145,7 @@ export default function ReviewPage() {
   const updateStatus = async (status: 'approved' | 'rejected') => {
     if (!selectedFrameId) return;
     try {
-      const res = await fetch('/api/review/status', {
-        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ storyboardId: selectedFrameId, reviewStatus: status }),
-      });
-      if (!res.ok) throw new Error('更新状态失败');
+      await apiPatch('/api/review/status', { storyboardId: selectedFrameId, reviewStatus: status });
       setStoryboard(prev => prev ? { ...prev, reviewStatus: status } : null);
       setFrames(prev => prev.map(f => f.id === selectedFrameId ? { ...f, status } : f));
     } catch (e) { setError(e instanceof Error ? e.message : '操作失败'); }

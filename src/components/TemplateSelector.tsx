@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import type { ScriptTemplate } from '@/lib/script-templates';
 import { BUILT_IN_TEMPLATES } from '@/lib/script-templates';
+import { apiGet } from '@/lib/api-client';
 
 interface TemplateSelectorProps {
   onSelect: (tpl: ScriptTemplate) => void;
@@ -37,8 +38,7 @@ export function TemplateSelector({ onSelect, selectedId }: TemplateSelectorProps
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('/api/templates')
-      .then((r) => r.json())
+    apiGet<{ templates: ScriptTemplate[] }>('/api/templates')
       .then((data) => {
         if (data.templates) setTemplates(data.templates);
       })

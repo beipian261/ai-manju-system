@@ -1,6 +1,14 @@
 import { chatCompletion } from './agnes-client';
 import { getSetting } from './settings';
 
+interface ParsedConsistencyCharacter {
+  name?: string;
+  score?: number;
+  matched?: boolean;
+  issues?: unknown[];
+}
+import { logger } from './logger';
+
 export interface ImageEvaluation {
   score: number;
   issues: string[];
@@ -126,7 +134,7 @@ export async function evaluateImage(opts: {
       composition: cp,
     };
   } catch (error) {
-    console.error('Image evaluation failed:', error);
+    logger.error('Image evaluation failed:', error);
     return {
       score: 100,
       issues: [],
@@ -227,7 +235,7 @@ export async function evaluateCharacterConsistency(opts: {
 
     const parsed = JSON.parse(jsonMatch[0]);
     const overall = clamp0100(parsed.overall_score);
-    const perChar = (parsed.per_character || []).map((p: any) => ({
+    const perChar = (parsed.per_character || []).map((p: ParsedConsistencyCharacter) => ({
       name: p.name || 'unknown',
       score: clamp0100(p.score),
       matched: Boolean(p.matched),
@@ -240,7 +248,7 @@ export async function evaluateCharacterConsistency(opts: {
       suggestions: typeof parsed.suggestions === 'string' ? parsed.suggestions.slice(0, 400) : '',
     };
   } catch (error) {
-    console.error('Character consistency evaluation failed:', error);
+    logger.error('Character consistency evaluation failed:', error);
     return {
       overall_score: 80,
       per_character: characters.map((c) => ({ name: c.name, score: 80, matched: true, issues: [] })),

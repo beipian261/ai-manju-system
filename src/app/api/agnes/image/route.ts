@@ -2,10 +2,20 @@ import { NextRequest, NextResponse } from 'next/server';
 import { checkApiAuth } from '@/lib/auth';
 import { emitProgress } from '@/lib/progress-bus';
 import { generateStoryboardImage } from '@/lib/image-gen';
+import { logger } from '@/lib/logger';
+import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limiter';
 
 export async function POST(req: NextRequest) {
   const auth = await checkApiAuth();
   if (!auth.ok) return auth.response!;
+
+  const rateLimit = checkRateLimit(getClientIdentifier(req), 'agnes_image', 10);
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      { error: '请求过于频繁，请稍后重试', retryAfterMs: Math.ceil(rateLimit.resetMs / 1000) },
+      { status: 429, headers: { 'X-RateLimit-Remaining': String(rateLimit.remaining) } }
+    );
+  }
 
   let body: Record<string, unknown>;
   try {
@@ -66,7 +76,7 @@ export async function POST(req: NextRequest) {
     });
   } catch (error) {
     const msg = error instanceof Error ? error.message : 'Image generation failed';
-    console.error('Image generation failed:', error);
+    logger.error('Image generation failed:', error);
     emitProgress({ type: 'image', id: storyboardId, status: 'failed', message: msg });
     return NextResponse.json({ error: msg.slice(0, 500) }, { status: 500 });
   }

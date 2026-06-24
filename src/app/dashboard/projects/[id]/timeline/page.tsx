@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { Navbar } from '@/components/navbar';
 import Link from 'next/link';
+import { apiGet } from '@/lib/api-client';
 
 interface StoryboardClip {
   id: string;
@@ -41,10 +42,9 @@ export default function TimelinePage() {
   useEffect(() => {
     if (!projectId) return;
     setLoading(true);
-    fetch(`/api/storyboards?projectId=${projectId}`)
-      .then(r => r.json())
+    apiGet<StoryboardClip[]>(`/api/storyboards?projectId=${projectId}`)
       .then(data => {
-        const sorted = (Array.isArray(data) ? data : []).sort((a: any, b: any) => a.sceneNum - b.sceneNum);
+        const sorted = (Array.isArray(data) ? data : []).sort((a, b) => a.sceneNum - b.sceneNum);
         setClips(sorted);
         if (sorted.length > 0) setSelectedClipId(sorted[0].id);
       })

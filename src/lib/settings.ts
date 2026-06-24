@@ -1,4 +1,5 @@
 import prisma from './prisma-client';
+import { logger } from './logger';
 
 interface AppSettings {
   AGNES_API_BASE?: string;
@@ -66,7 +67,7 @@ export async function getSettings(): Promise<AppSettings> {
     }
     return result;
   } catch (e) {
-    console.error('Failed to read settings from database:', e);
+    logger.error('Failed to read settings from database:', e);
     return {};
   }
 }
@@ -113,7 +114,7 @@ export async function getSetting(key: string): Promise<string> {
       return setting.value;
     }
   } catch (e) {
-    console.error('Failed to read setting from database:', e);
+    logger.error('Failed to read setting from database:', e);
   }
 
   // 3. 回退到环境变量 / 默认值
@@ -142,7 +143,7 @@ export async function saveSettings(settings: Record<string, string | undefined>)
     // 写入成功后失效缓存，下次读取会重新从数据库加载
     invalidateSettingCache();
   } catch (e) {
-    console.error('Failed to save settings to database:', e);
+    logger.error('Failed to save settings to database:', e);
     throw e; // 让上层 API 决定如何响应，避免静默失败
   }
 }

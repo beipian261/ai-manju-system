@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { apiGet, apiPost } from '@/lib/api-client';
 
 interface DNAPanelProps {
   characterId: string;
@@ -31,8 +32,7 @@ export default function DNAPanel({ characterId, projectId, initialDNA }: DNAPane
 
   // 加载 DNA 档案
   useEffect(() => {
-    fetch(`/api/characters/dna/extract?characterId=${characterId}`)
-      .then(r => r.json())
+    apiGet<{ success: boolean; character: { dnaSummary?: string; dnaLocked?: boolean }; assets: DNAAsset[] }>(`/api/characters/dna/extract?characterId=${characterId}`)
       .then(data => {
         if (data.success && data.character) {
           setDnaSummary(data.character.dnaSummary || '');
@@ -48,15 +48,10 @@ export default function DNAPanel({ characterId, projectId, initialDNA }: DNAPane
     setIsExtracting(true);
     setMessage('');
     try {
-      const res = await fetch('/api/characters/dna/extract', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ characterId }),
-      });
-      const data = await res.json();
+      const data = await apiPost<{ success: boolean; error?: string; dnaSummary?: string; dnaLocked?: boolean }>('/api/characters/dna/extract', { characterId });
       if (data.success) {
-        setDnaSummary(data.dnaSummary);
-        setDnaLocked(data.dnaLocked);
+        setDnaSummary(data.dnaSummary || '');
+        setDnaLocked(!!data.dnaLocked);
         setMessage('✅ DNA 提取成功');
       } else {
         setMessage(`❌ ${data.error}`);
@@ -74,12 +69,7 @@ export default function DNAPanel({ characterId, projectId, initialDNA }: DNAPane
     setConsistencyScore(null);
     setMessage('');
     try {
-      const res = await fetch('/api/characters/dna/check', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ characterId }),
-      });
-      const data = await res.json();
+      const data = await apiPost<{ success: boolean; results: { score: number | null; reason?: string }[] }>('/api/characters/dna/check', { characterId });
       if (data.success && data.results.length > 0) {
         const r = data.results[0];
         if (r.score !== null) {

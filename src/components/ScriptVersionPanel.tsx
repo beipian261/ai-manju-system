@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { apiGet, apiPost } from '@/lib/api-client';
 
 interface ScriptVersion {
   id: string;
@@ -37,9 +38,7 @@ export function ScriptVersionPanel({ scriptId, currentContent, onRestored }: Scr
     setLoading(true);
     setError('');
     try {
-      const res = await fetch(`/api/scripts/${scriptId}/versions`);
-      if (!res.ok) throw new Error('加载版本历史失败');
-      const data = await res.json();
+      const data = await apiGet<ScriptVersion[]>(`/api/scripts/${scriptId}/versions`);
       setVersions(Array.isArray(data) ? data : []);
     } catch (e) {
       setError(e instanceof Error ? e.message : '加载失败');
@@ -54,12 +53,7 @@ export function ScriptVersionPanel({ scriptId, currentContent, onRestored }: Scr
 
   const handleSaveCurrent = async () => {
     try {
-      const res = await fetch(`/api/scripts/${scriptId}/versions`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ source: 'manual_edit' }),
-      });
-      const data = await res.json();
+      const data = await apiPost<{ skipped?: boolean }>(`/api/scripts/${scriptId}/versions`, { source: 'manual_edit' });
       if (data.skipped) return;
       await loadVersions();
     } catch {
@@ -70,11 +64,7 @@ export function ScriptVersionPanel({ scriptId, currentContent, onRestored }: Scr
   const handleRestore = async (versionId: string) => {
     setRestoring(versionId);
     try {
-      const res = await fetch(`/api/scripts/${scriptId}/versions/${versionId}/restore`, {
-        method: 'POST',
-      });
-      if (!res.ok) throw new Error('恢复失败');
-      const data = await res.json();
+      const data = await apiPost<{ content: string }>(`/api/scripts/${scriptId}/versions/${versionId}/restore`, {});
       onRestored?.(data.content);
       await loadVersions();
     } catch (e) {

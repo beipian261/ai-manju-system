@@ -17,6 +17,7 @@ import {
 } from './prompt-library';
 import { evaluateImage } from './image-eval';
 import { isSafeExternalUrl } from './url-guard';
+import { logger } from './logger';
 
 // ============================================================
 // 图片生成缓存：基于 prompt 哈希极速命中已生成的图片
@@ -34,7 +35,7 @@ async function getCachedImageUrl(cacheKey: string): Promise<string | null> {
   try {
     const cached = await prisma.imageCache.findUnique({ where: { promptHash: cacheKey } });
     if (cached && cached.imageUrl && isSafeExternalUrl(cached.imageUrl)) {
-      console.log(`[cache HIT] key=${cacheKey.slice(0, 8)}...`);
+      logger.debug(`[cache HIT] key=${cacheKey.slice(0, 8)}...`);
       return cached.imageUrl;
     }
     return null;
@@ -61,9 +62,9 @@ async function saveToCache(cacheKey: string, prompt: string, imageUrl: string, a
         prompt: prompt.slice(0, 5000),
       },
     });
-    console.log(`[cache SAVE] key=${cacheKey.slice(0, 8)}...`);
+    logger.debug(`[cache SAVE] key=${cacheKey.slice(0, 8)}...`);
   } catch (e) {
-    console.warn('[cache] save failed:', e);
+    logger.warn('[cache] save failed:', e);
   }
 }
 
@@ -311,7 +312,7 @@ export async function generateStoryboardImage(
         `Image generation (attempt ${attempt + 1})`
       ).catch((err) => {
         if (attempt === maxRetries) throw err;
-        console.warn(`[image-gen] attempt ${attempt + 1} failed: ${err.message}, retrying...`);
+        logger.warn(`[image-gen] attempt ${attempt + 1} failed: ${err.message}, retrying...`);
         return null;
       });
 

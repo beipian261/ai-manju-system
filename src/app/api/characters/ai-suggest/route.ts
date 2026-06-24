@@ -3,6 +3,7 @@ import prisma from '@/lib/prisma-client';
 import { checkApiAuth } from '@/lib/auth';
 import { chatCompletion } from '@/lib/agnes-client';
 import { getSetting } from '@/lib/settings';
+import { logger } from '@/lib/logger';
 
 // ============================================================
 // POST /api/characters/ai-suggest
@@ -226,7 +227,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(result);
   } catch (e) {
-    console.error('AI suggest failed:', e);
+    logger.error('AI suggest failed:', e);
     const msg = e instanceof Error ? e.message : 'AI 生成失败';
     return NextResponse.json({ error: msg.slice(0, 500) }, { status: 500 });
   }

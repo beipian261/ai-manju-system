@@ -80,7 +80,7 @@ export default function ReviewTab() {
     }, 500);
   };
 
-  const getStatusBadge = (s: ReviewStatus) => {
+  const getStatusBadge = (s: ReviewStatus): { label: string; cls: 'emerald' | 'red' | 'sky' | 'zinc' } => {
     switch (s) {
       case 'approved': return { label: '已通过', cls: 'emerald' };
       case 'rejected': return { label: '已驳回', cls: 'red' };
@@ -131,7 +131,7 @@ export default function ReviewTab() {
                     <div className="flex-1 min-w-0">
                       <p className="text-[11px] text-ink-secondary line-clamp-2">{frame.description}</p>
                       <div className="flex items-center gap-1.5 mt-1">
-                        <Badge variant={badge.cls as any}>{badge.label}</Badge>
+                        <Badge variant={badge.cls}>{badge.label}</Badge>
                         {frame.comments.length > 0 && (
                           <span className="text-[9px] text-ink-muted">💬 {frame.comments.length}</span>
                         )}
@@ -151,7 +151,7 @@ export default function ReviewTab() {
               <>
                 <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-ink">第{selectedFrame.sceneNum} 场</h3>
-                <Badge variant={getStatusBadge(selectedFrame.reviewStatus).cls as any}>
+                <Badge variant={getStatusBadge(selectedFrame.reviewStatus).cls}>
                   {getStatusBadge(selectedFrame.reviewStatus).label}
                 </Badge>
               </div>

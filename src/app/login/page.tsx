@@ -1,6 +1,7 @@
 'use client';
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { apiGet, apiPost } from '@/lib/api-client';
 
 function LoginForm() {
   const router = useRouter();
@@ -22,8 +23,7 @@ function LoginForm() {
   const [enabled, setEnabled] = useState<boolean | null>(null);
 
   useEffect(() => {
-    fetch('/api/auth/status')
-      .then((r) => r.json())
+    apiGet<{ enabled: boolean; authed: boolean }>('/api/auth/status')
       .then((data) => {
         setEnabled(Boolean(data.enabled));
         if (!data.enabled) {
@@ -40,16 +40,7 @@ function LoginForm() {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || '登录失败');
-        return;
-      }
+      await apiPost('/api/auth/login', { password });
       router.replace(safeNext);
     } catch {
       setError('网络错误');

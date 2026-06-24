@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { Navbar } from '@/components/navbar';
 import Link from 'next/link';
+import { apiGet } from '@/lib/api-client';
 
 interface Project {
   id: string;
@@ -25,15 +26,15 @@ export default function PipelineDashboard() {
 
   useEffect(() => {
     Promise.all([
-      fetch('/api/projects').then(r => r.json()).catch(() => []),
-      fetch('/api/characters').then(r => r.json()).catch(() => []),
-      fetch('/api/scripts').then(r => r.json()).catch(() => []),
+      apiGet('/api/projects').catch(() => []),
+      apiGet('/api/characters').catch(() => []),
+      apiGet('/api/scripts').catch(() => []),
     ]).then(([p, c, s]) => {
       const projects = p as Project[];
       setStats({
         projects: projects.length || 0,
-        characters: (c as any[]).length || 0,
-        scripts: (s as any[]).length || 0,
+        characters: Array.isArray(c) ? c.length : 0,
+        scripts: Array.isArray(s) ? s.length : 0,
         completed: projects.filter(x => x.id).length || 0,
       });
       setRecentProjects(projects.slice(0, 3));

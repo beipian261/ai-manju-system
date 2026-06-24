@@ -5,6 +5,7 @@ import { checkApiAuth } from '@/lib/auth';
 import { chatCompletion } from '@/lib/agnes-client';
 import { getSetting } from '@/lib/settings';
 import prisma from '@/lib/prisma-client';
+import type { StoryboardSnapshot } from '@/types';
 
 // 质量检查项
 const QUALITY_CHECKS = {
@@ -90,7 +91,7 @@ export async function POST(req: NextRequest) {
   });
 }
 
-async function performQualityChecks(project: any, storyboards: any[]) {
+async function performQualityChecks(project: { characters: Array<{ name: string }>; scripts: Array<{ id: string }> }, storyboards: StoryboardSnapshot[]) {
   const results: Record<string, { passed: boolean; issues: string[]; suggestions: string[] }> = {};
 
   // 1. 角色一致性检查
@@ -111,7 +112,7 @@ async function performQualityChecks(project: any, storyboards: any[]) {
   return results;
 }
 
-function checkCharacterConsistency(characters: any[], storyboards: any[]) {
+function checkCharacterConsistency(characters: Array<{ name: string }>, storyboards: StoryboardSnapshot[]) {
   const issues: string[] = [];
   const suggestions: string[] = [];
 
@@ -135,7 +136,7 @@ function checkCharacterConsistency(characters: any[], storyboards: any[]) {
   };
 }
 
-function checkTimingConsistency(storyboards: any[]) {
+function checkTimingConsistency(storyboards: StoryboardSnapshot[]) {
   const issues: string[] = [];
   const suggestions: string[] = [];
 
@@ -163,7 +164,7 @@ function checkTimingConsistency(storyboards: any[]) {
   };
 }
 
-function checkEmotionConsistency(storyboards: any[]) {
+function checkEmotionConsistency(storyboards: StoryboardSnapshot[]) {
   const issues: string[] = [];
   const suggestions: string[] = [];
 
@@ -193,7 +194,7 @@ function checkEmotionConsistency(storyboards: any[]) {
   };
 }
 
-function checkVisualQuality(storyboards: any[]) {
+function checkVisualQuality(storyboards: StoryboardSnapshot[]) {
   const issues: string[] = [];
   const suggestions: string[] = [];
 
@@ -211,7 +212,7 @@ function checkVisualQuality(storyboards: any[]) {
   };
 }
 
-function checkContentCompleteness(scripts: any[], storyboards: any[]) {
+function checkContentCompleteness(scripts: Array<{ id: string }>, storyboards: StoryboardSnapshot[]) {
   const issues: string[] = [];
   const suggestions: string[] = [];
 

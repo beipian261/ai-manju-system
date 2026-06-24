@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { Navbar } from '@/components/navbar';
 import DNAPanel from '@/components/DNAPanel';
+import { apiGet } from '@/lib/api-client';
 
 interface Character {
   id: string;
@@ -47,8 +48,7 @@ export default function CharactersPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/characters')
-      .then(r => r.json())
+    apiGet<Character[]>('/api/characters')
       .then(data => {
         const merged = data && data.length > 0 ? data : MOCK_CHARACTERS;
         setCharacters(merged);

@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { apiGet, apiPost, apiPut } from '@/lib/api-client';
 
 export default function SettingsPage() {
   const [form, setForm] = useState({
@@ -23,9 +24,8 @@ export default function SettingsPage() {
   const [showKey, setShowKey] = useState(false);
 
   useEffect(() => {
-    fetch('/api/settings')
-      .then(r => r.json())
-      .then(data => {
+    apiGet('/api/settings')
+      .then((data: any) => {
         setForm({
           AGNES_API_BASE: data.AGNES_API_BASE || 'https://apihub.agnes-ai.com/v1',
           AGNES_API_KEY: '',
@@ -49,12 +49,7 @@ export default function SettingsPage() {
     setTesting(true);
     setTestResult(null);
     try {
-      const res = await fetch('/api/settings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      });
-      const data = await res.json();
+      const data: any = await apiPost('/api/settings', form);
       if (data.success) {
         setTestResult({ ok: true, msg: '连接成功！模型回复正常' });
       } else {
@@ -74,15 +69,7 @@ export default function SettingsPage() {
     try {
       const payload: Record<string, string> = { ...form };
       if (!payload.AGNES_API_KEY) delete payload.AGNES_API_KEY;
-      const res = await fetch('/api/settings', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || '保存失败');
-      }
+      await apiPut('/api/settings', payload);
       setForm(f => ({ ...f, AGNES_API_KEY: '' }));
       setMessage('配置已成功保存');
       setTimeout(() => setMessage(''), 5000);

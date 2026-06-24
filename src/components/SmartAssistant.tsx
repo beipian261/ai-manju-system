@@ -3,6 +3,7 @@
 // 纯白翡翠主题
 
 import { useState, useRef, useEffect } from 'react';
+import { apiPost } from '@/lib/api-client';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -55,13 +56,7 @@ export default function SmartAssistant({ projectId }: SmartAssistantProps) {
     setLoading(true);
     const history = messages.slice(-6).map((m) => ({ role: m.role, content: m.content }));
     try {
-      const res = await fetch('/api/assistant/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: msg, history, ...(projectId ? { projectId } : {}) }),
-      });
-      if (!res.ok) { const data = await res.json().catch(() => ({})); throw new Error(data.error || '请求失败'); }
-      const data = await res.json();
+      const data = await apiPost<{ reply: string; suggestedActions: SuggestedAction[]; followUpQuestions: string[] }>('/api/assistant/chat', { message: msg, history, ...(projectId ? { projectId } : {}) });
       setMessages((prev) => [...prev, {
         role: 'assistant',
         content: data.reply || '抱歉，我暂时没有好的建议，可以换个问题试试。',

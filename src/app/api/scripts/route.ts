@@ -12,6 +12,7 @@ import { enqueueJob } from '@/lib/job-queue';
 import { enhanceScriptQuality } from '@/lib/script-refiner';
 // 触发 job handler 注册（必须在 enqueueJob 前 import）
 import '@/lib/jobs';
+import { logger } from '@/lib/logger';
 
 export async function GET(req: NextRequest) {
   const auth = await checkApiAuth();
@@ -260,7 +261,7 @@ async function streamScriptGeneration(
                   send('progress', { progress: 95, message: `剧本质量达标` });
                 }
               } catch (e) {
-                console.warn('[scripts] Quality enhancement skipped:', e);
+                logger.warn('[scripts] Quality enhancement skipped:', e);
               }
 
               // 保存到数据库（包装为 async IIFE，因为 onChunk 回调不是 async）
@@ -288,7 +289,7 @@ async function streamScriptGeneration(
       } catch (error) {
         const errMsg = error instanceof Error ? error.message : '未知错误';
         const friendlyMsg = formatScriptError(errMsg);
-        console.error('Stream script generation error:', error);
+        logger.error('Stream script generation error:', error);
         await prisma.script
           .update({ where: { id: scriptId }, data: { status: 'failed' } })
           .catch(() => null);

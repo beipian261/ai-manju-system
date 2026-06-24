@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { Navbar } from '@/components/navbar';
 import Link from 'next/link';
+import { apiGet, apiPost, apiPatch } from '@/lib/api-client';
 
 interface Scene {
   id: string;
@@ -80,8 +81,7 @@ export default function DirectorPage() {
   useEffect(() => {
     if (!projectId) return;
     setLoadingScenes(true);
-    fetch(`/api/director/scenes?projectId=${projectId}`)
-      .then(r => r.json())
+    apiGet<{ scenes: Scene[] }>(`/api/director/scenes?projectId=${projectId}`)
       .then(data => {
         if (data.scenes) {
           setScenes(data.scenes);
@@ -103,12 +103,7 @@ export default function DirectorPage() {
     setAnalyzing(true);
     setError('');
     try {
-      const res = await fetch('/api/director/analyze', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ storyboardId: activeSceneId, projectId }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || '分析失败');
+      const data = await apiPost<AnalysisResult>('/api/director/analyze', { storyboardId: activeSceneId, projectId });
       setAnalysis(data);
       setScenes(prev => prev.map(s => s.id === activeSceneId ? { ...s, status: 'reviewed' as const } : s));
     } catch (e) {
@@ -128,10 +123,7 @@ export default function DirectorPage() {
       if (sug.type === '构图' || sug.type === '景别') updatePayload.cameraAngle = sug.content;
       if (sug.type === '色调') updatePayload.emotion = sug.content;
       if (Object.keys(updatePayload).length > 0) {
-        await fetch(`/api/storyboards/${activeSceneId}`, {
-          method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(updatePayload),
-        });
+        await apiPatch(`/api/storyboards/${activeSceneId}`, updatePayload);
       }
       setScenes(prev => prev.map(s => s.id === activeSceneId ? { ...s, status: 'reviewed' as const } : s));
     } catch { /* ignore */ }

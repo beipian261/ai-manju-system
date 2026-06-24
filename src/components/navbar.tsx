@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
+import { apiGet, apiPost } from '@/lib/api-client';
 
 export function Navbar() {
   const [authEnabled, setAuthEnabled] = useState(false);
@@ -9,15 +10,14 @@ export function Navbar() {
   const pathname = usePathname();
 
   useEffect(() => {
-    fetch('/api/auth/status')
-      .then((r) => r.json())
+    apiGet<{ enabled: boolean }>('/api/auth/status')
       .then((d) => setAuthEnabled(!!d.enabled))
       .catch(() => {});
   }, []);
 
   async function logout() {
     try {
-      await fetch('/api/auth/logout', { method: 'POST' });
+      await apiPost('/api/auth/logout', {});
     } finally {
       window.location.href = '/login';
     }

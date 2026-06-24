@@ -3,6 +3,7 @@ import prisma from '@/lib/prisma-client';
 import { chatCompletion } from '@/lib/agnes-client';
 import { getSetting } from '@/lib/settings';
 import { checkApiAuth } from '@/lib/auth';
+import { logger } from '@/lib/logger';
 
 // POST: 为指定台词生成配音脚本（语音方向指导 + SSML）
 export async function POST(req: NextRequest) {
@@ -120,7 +121,7 @@ SSML 使用以下标签：
     });
   } catch (error) {
     const msg = error instanceof Error ? error.message : '配音脚本生成失败';
-    console.error('[voice generate error]', error);
+    logger.error('[voice generate error]', error);
     return NextResponse.json({ error: msg.slice(0, 500) }, { status: 500 });
   }
 }

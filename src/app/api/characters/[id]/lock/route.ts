@@ -6,6 +6,7 @@ import { checkApiAuth } from '@/lib/auth';
 import { getSetting } from '@/lib/settings';
 import { chatCompletion } from '@/lib/agnes-client';
 import { buildCharacterSheet } from '@/lib/character-prompt';
+import { logger } from '@/lib/logger';
 
 // POST: 锁定/解锁角色 DNA
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -70,7 +71,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
         dnaSummary = summaryResponse.choices?.[0]?.message?.content?.trim() || null;
       } catch (e) {
-        console.warn('[character-dna] AI summary generation failed:', e);
+        logger.warn('[character-dna] AI summary generation failed:', e);
         // 失败不阻断锁定流程
       }
     }

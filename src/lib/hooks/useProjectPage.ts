@@ -7,6 +7,7 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
+import { apiGet } from '@/lib/api-client';
 import type { Project, Character, Script, Storyboard } from '../../app/dashboard/projects/[id]/types';
 
 interface ProjectPageData {
@@ -38,14 +39,16 @@ export function useProjectPage(): UseProjectPageResult {
     setData(d => ({ ...d, loading: true }));
 
     Promise.all([
-      fetch(`/api/projects/${projectId}`).then(r => r.json()),
-      fetch(`/api/storyboards?projectId=${projectId}`).then(r => r.json()),
-    ]).then(([projectData, storyboardData]) => {
+      apiGet(`/api/projects/${projectId}`),
+      apiGet(`/api/storyboards?projectId=${projectId}`),
+    ]).then(([rawProject, rawStoryboards]) => {
       if (cancelled) return;
+      const projectData = rawProject as any;
+      const storyboardData = rawStoryboards as any[];
       setData({
-        project: projectData,
-        characters: projectData?.characters || [],
-        scripts: projectData?.scripts || [],
+        project: projectData as any,
+        characters: (projectData as any)?.characters || [],
+        scripts: (projectData as any)?.scripts || [],
         storyboards: Array.isArray(storyboardData) ? storyboardData : [],
         loading: false,
         error: '',

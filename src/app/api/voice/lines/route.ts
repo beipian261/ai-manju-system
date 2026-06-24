@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma-client';
 import { checkApiAuth } from '@/lib/auth';
+import type { CharacterInfo } from '@/types';
 
 // GET: 获取项目中所有有对话的分镜台词
 export async function GET(req: NextRequest) {
@@ -46,13 +47,13 @@ export async function GET(req: NextRequest) {
         const colonMatch = dialogue.match(/^(.+?)[：:]\s*(.+)$/);
         let character = '旁白';
         let text = dialogue;
-        let characterInfo: any = null;
+        let characterInfo: CharacterInfo | null = null;
 
         if (colonMatch) {
           character = colonMatch[1].trim();
           text = colonMatch[2].trim();
           // 匹配项目角色
-          characterInfo = characters.find(c => c.name === character);
+          characterInfo = characters.find(c => c.name === character) || null;
         }
 
         // 尝试从 charactersInScene 提取角色

@@ -1,10 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { checkApiAuth } from '@/lib/auth';
 import { evaluateImage } from '@/lib/image-eval';
+import { logger } from '@/lib/logger';
+import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limiter';
 
 export async function POST(req: NextRequest) {
   const auth = await checkApiAuth();
   if (!auth.ok) return auth.response!;
+
+  const rateLimit = checkRateLimit(getClientIdentifier(req), 'agnes_evaluate', 10);
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      { error: '请求过于频繁，请稍后重试', retryAfterMs: Math.ceil(rateLimit.resetMs / 1000) },
+      { status: 429, headers: { 'X-RateLimit-Remaining': String(rateLimit.remaining) } }
+    );
+  }
 
   let body: Record<string, unknown>;
   try {
@@ -36,7 +46,7 @@ export async function POST(req: NextRequest) {
     });
     return NextResponse.json(result);
   } catch (error) {
-    console.error('Image evaluation failed:', error);
+    logger.error('Image evaluation failed:', error);
     const msg = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json({ score: 100, issues: [], suggestions: '', note: 'eval_error: ' + msg.slice(0, 200) });
   }

@@ -5,6 +5,7 @@ import { parseScriptToStoryboards } from '@/lib/script-parser';
 import { batchGenerateCharacters } from '@/lib/character-batch-generator';
 import { chatCompletion } from '@/lib/agnes-client';
 import { getSetting } from '@/lib/settings';
+import { logger } from '@/lib/logger';
 
 // ============================================================
 // POST /api/characters/extract-from-script
@@ -157,7 +158,7 @@ export async function POST(req: NextRequest) {
         characterNames = characterNames.filter(name => !existingNames2.has(name));
       }
     } catch (e) { 
-      console.warn('[extract-from-script] AI extraction failed:', e);
+      logger.warn('[extract-from-script] AI extraction failed:', e);
     }
 
     if (characterNames.length === 0) {

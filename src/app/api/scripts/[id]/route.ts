@@ -4,6 +4,7 @@ import { checkApiAuth } from '@/lib/auth';
 import { chatCompletion } from '@/lib/agnes-client';
 import { getSetting } from '@/lib/settings';
 import { emitProgress } from '@/lib/progress-bus';
+import { logger } from '@/lib/logger';
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -232,7 +233,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({ success: true, newScenesCount: newScenes.length, mode });
   } catch (error) {
     const msg = error instanceof Error ? error.message : 'Script rewrite failed';
-    console.error('Script rewrite failed:', error);
+    logger.error('Script rewrite failed:', error);
     emitProgress({ type: 'script', id: script.id, status: 'failed', message: msg });
     return NextResponse.json({ error: msg }, { status: 500 });
   }

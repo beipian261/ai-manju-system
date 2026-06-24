@@ -14,6 +14,7 @@
 
 import prisma from './prisma-client';
 import { emitProgress } from './progress-bus';
+import { logger } from './logger';
 
 // 任务类型 → handler 映射
 type JobHandler = (job: {
@@ -29,7 +30,7 @@ const handlers = new Map<string, JobHandler>();
 // 注册 handler（在模块加载阶段由 jobs/*.ts 调用）
 export function registerJobHandler(type: string, handler: JobHandler): void {
   if (handlers.has(type)) {
-    console.warn(`[job-queue] handler for type "${type}" already registered, overwriting`);
+    logger.warn(`[job-queue] handler for type "${type}" already registered, overwriting`);
   }
   handlers.set(type, handler);
 }
@@ -70,9 +71,9 @@ const globalForWorker = globalThis as unknown as {
   __jobWorker?: {
     started: boolean;
     pollTimer?: ReturnType<typeof setInterval>;
-    processing: boolean; // 保留字段避免外部引用报错，实际并发控制改用 _runningCount
+    processing: boolean;
     heartbeatTimer?: ReturnType<typeof setInterval>;
-    _runningCount: number; // 并发计数器（当前正在运行的 Job 数量）
+    _runningCount: number;
   };
 };
 
@@ -87,12 +88,12 @@ export function ensureWorkerStarted(): void {
 
   // 1. 崩溃恢复：扫描上次进程遗留的 running Job，标记为 failed
   recoverStaleRunningJobs().catch((e) =>
-    console.error('[job-queue] recover stale jobs failed:', e)
+    logger.error('[job-queue] recover stale jobs failed:', e)
   );
 
   // 2. 启动轮询
   workerState.pollTimer = setInterval(() => {
-    tick().catch((e) => console.error('[job-queue] tick error:', e));
+    tick().catch((e) => logger.error('[job-queue] tick error:', e));
   }, POLL_INTERVAL_MS);
   // unref：不阻止 Node 优雅退出
   workerState.pollTimer.unref?.();
@@ -100,12 +101,12 @@ export function ensureWorkerStarted(): void {
   // 3. 心跳：running 任务期间定期 touch updatedAt
   workerState.heartbeatTimer = setInterval(() => {
     touchRunningJobsHeartbeat().catch((e) =>
-      console.error('[job-queue] heartbeat error:', e)
+      logger.error('[job-queue] heartbeat error:', e)
     );
   }, HEARTBEAT_INTERVAL_MS);
   workerState.heartbeatTimer.unref?.();
 
-  console.log('[job-queue] worker started (poll every 2s)');
+  logger.info('[job-queue] worker started (poll every 2s)');
 }
 
 // 最大并发数：同时执行的 Job 上限（调大可提升吞吐，但需确保 API 侧能承受）
@@ -118,11 +119,10 @@ async function tick(): Promise<void> {
   if (handlers.size === 0) return; // 无 handler 注册时不消费
 
   // 并发槽已满则跳过
-  const runningCount = (workerState as unknown as { _runningCount?: number })._runningCount ?? 0;
-  if (runningCount >= MAX_CONCURRENT_JOBS) return;
+  if (workerState._runningCount >= MAX_CONCURRENT_JOBS) return;
 
   // 一次 tick 尝试填满空闲槽位
-  const slotsAvailable = MAX_CONCURRENT_JOBS - runningCount;
+  const slotsAvailable = MAX_CONCURRENT_JOBS - workerState._runningCount;
   for (let i = 0; i < slotsAvailable; i++) {
     let job: { id: string; type: string; payload: string; projectId: string | null } | null = null;
 
@@ -142,19 +142,15 @@ async function tick(): Promise<void> {
       if (claimed.count === 0) continue; // 被别人抢了，继续尝试下一个
       job = pending;
     } catch (e) {
-      console.error('[job-queue] fetch pending job error:', e);
+      logger.error('[job-queue] fetch pending job error:', e);
       break;
     }
 
     // 并发计数 +1，任务完成后 -1
-    (workerState as unknown as { _runningCount: number })._runningCount =
-      ((workerState as unknown as { _runningCount?: number })._runningCount ?? 0) + 1;
+    workerState._runningCount += 1;
 
     executeJob(job).finally(() => {
-      (workerState as unknown as { _runningCount: number })._runningCount = Math.max(
-        0,
-        ((workerState as unknown as { _runningCount?: number })._runningCount ?? 1) - 1
-      );
+      workerState._runningCount = Math.max(0, workerState._runningCount - 1);
     });
   }
 }
@@ -264,7 +260,7 @@ async function failJob(jobId: string, errorMessage: string): Promise<void> {
       },
     });
   } catch (e) {
-    console.error('[job-queue] failJob error:', e);
+    logger.error('[job-queue] failJob error:', e);
   }
 }
 
@@ -295,7 +291,7 @@ async function recoverStaleRunningJobs(): Promise<void> {
     });
     if (stale.length === 0) return;
 
-    console.warn(`[job-queue] recovering ${stale.length} stale running jobs from previous crash`);
+    logger.warn(`[job-queue] recovering ${stale.length} stale running jobs from previous crash`);
 
     for (const job of stale) {
       await prisma.job.update({
@@ -317,7 +313,7 @@ async function recoverStaleRunningJobs(): Promise<void> {
       });
     }
   } catch (e) {
-    console.error('[job-queue] recoverStaleRunningJobs error:', e);
+    logger.error('[job-queue] recoverStaleRunningJobs error:', e);
   }
 }
 
@@ -355,7 +351,7 @@ export async function cleanupStaleJobs(timeoutMin = JOB_TIMEOUT_MIN): Promise<nu
     }
     return stale.length;
   } catch (e) {
-    console.error('[job-queue] cleanupStaleJobs error:', e);
+    logger.error('[job-queue] cleanupStaleJobs error:', e);
     return 0;
   }
 }

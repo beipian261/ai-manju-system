@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma-client';
 import { checkApiAuth } from '@/lib/auth';
+import { logger } from '@/lib/logger';
 
 // ============================================================
 // POST /api/characters/batch-delete
@@ -38,7 +39,7 @@ export async function POST(req: NextRequest) {
       deletedCount: result.count 
     }, { status: 200 });
   } catch (e) {
-    console.error('[batch-delete] Failed to delete characters:', e);
+    logger.error('[batch-delete] Failed to delete characters:', e);
     return NextResponse.json({ error: '删除失败' }, { status: 500 });
   }
 }

@@ -7,6 +7,7 @@ import {
   generateSmartPromptsBatch,
   SmartPromptInput,
 } from '@/lib/smart-prompt-engine';
+import { logger } from '@/lib/logger';
 
 // ============================================================
 // POST /api/storyboards/smart-prompt
@@ -138,7 +139,7 @@ export async function POST(req: NextRequest) {
       ...result,
     });
   } catch (e) {
-    console.error('[smart-prompt] error:', e);
+    logger.error('[smart-prompt] error:', e);
     const msg = e instanceof Error ? e.message : '智能提示词生成失败';
     return NextResponse.json({ error: msg.slice(0, 500) }, { status: 500 });
   }

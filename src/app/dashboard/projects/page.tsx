@@ -5,6 +5,8 @@ import { STATUS_CONFIG, genreIcons } from '@/lib/constants';
 import { useConfirmDialog } from '@/components/ConfirmDialog';
 import { TemplateSelector, mapTemplateGenre, mapTemplateStyle } from '@/components/TemplateSelector';
 import type { ScriptTemplate } from '@/lib/script-templates';
+import { apiGet, apiPost, apiDelete } from '@/lib/api-client';
+import { logger } from '@/lib/logger';
 
 interface Project { id: string; title: string; description?: string; genre: string; style: string; status: string; }
 
@@ -48,9 +50,7 @@ export default function ProjectsPage() {
 
   const loadProjects = useCallback(async () => {
     try {
-      const res = await fetch('/api/projects');
-      if (!res.ok) throw new Error('请求失败');
-      setProjects(await res.json());
+      setProjects(await apiGet<Project[]>('/api/projects'));
     } catch { setError('加载项目列表失败'); }
     finally { setLoading(false); }
   }, []);
@@ -88,8 +88,8 @@ export default function ProjectsPage() {
     let deleted = 0;
     for (const id of selectedIds) {
       try {
-        const res = await fetch(`/api/projects/${id}`, { method: 'DELETE' });
-        if (res.ok) deleted++;
+        const res = await apiDelete(`/api/projects/${id}`);
+        if (res) deleted++;
       } catch { /* skip */ }
     }
     setSelectedIds(new Set());
@@ -101,7 +101,7 @@ export default function ProjectsPage() {
     e.preventDefault();
     e.stopPropagation();
     if (!await showConfirm('删除项目', `确定删除「${title}」吗？所有数据将永久丢失。`)) return;
-    await fetch(`/api/projects/${id}`, { method: 'DELETE' });
+    await apiDelete(`/api/projects/${id}`);
     await loadProjects();
   };
 
@@ -110,15 +110,9 @@ export default function ProjectsPage() {
     if (!newTitle.trim()) return;
     setCreateLoading(true);
     try {
-      const res = await fetch('/api/projects', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: newTitle, description: newDesc, genre: newGenre, style: newStyle, outline: newOutline }),
-      });
-      if (res.ok) {
-        window.location.href = `/dashboard/projects/${(await res.json()).id}`;
-      }
-    } catch (e) { console.error(e); }
+      const res = await apiPost<{ id: string }>('/api/projects', { title: newTitle, description: newDesc, genre: newGenre, style: newStyle, outline: newOutline });
+      window.location.href = `/dashboard/projects/${res.id}`;
+    } catch (e) { logger.error('Failed to create project:', e); }
     setCreateLoading(false);
   }
 

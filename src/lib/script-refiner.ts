@@ -18,6 +18,7 @@
 
 import { chatCompletion } from './agnes-client';
 import { getSetting } from './settings';
+import { logger } from './logger';
 
 export interface ScriptCritique {
   overall_score: number;        // 0-100
@@ -141,7 +142,7 @@ export async function critiqueScript(
     const critique = JSON.parse(jsonMatch[0]) as ScriptCritique;
     return critique;
   } catch (e) {
-    console.warn('[script-refiner] Critique failed:', e);
+    logger.warn('[script-refiner] Critique failed:', e);
     return null;
   }
 }
@@ -178,7 +179,7 @@ export async function refineScript(
 
     return jsonMatch[0];
   } catch (e) {
-    console.warn('[script-refiner] Refine failed:', e);
+    logger.warn('[script-refiner] Refine failed:', e);
     return null;
   }
 }

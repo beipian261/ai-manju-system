@@ -12,6 +12,7 @@
 import React, { createContext, useContext, useCallback, useEffect, useRef, useState } from 'react';
 import type { Project, Character, Script, Storyboard, ProgressInfo } from './types';
 import type { TabKey } from './types';
+import { logger } from '@/lib/logger';
 
 // ---- Context Types ----
 
@@ -608,7 +609,7 @@ export function ProjectProvider({ projectId, children }: ProjectProviderProps) {
         await loadData();
       }
     } catch (e) {
-      console.error('Batch delete failed:', e);
+      logger.error('Batch delete failed:', e);
     }
   }, [loadData]);
 

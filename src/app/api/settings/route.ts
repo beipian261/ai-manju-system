@@ -3,6 +3,7 @@ import prisma from '@/lib/prisma-client';
 import { checkApiAuth } from '@/lib/auth';
 import { isAllowedApiBase } from '@/lib/url-guard';
 import { fetchWithRetry } from '@/lib/fetch-with-retry';
+import { logger } from '@/lib/logger';
 
 const ALLOWED_KEYS = [
   'AGNES_API_BASE',
@@ -16,6 +17,9 @@ const ALLOWED_KEYS = [
 
 // GET：返回脱敏后的设置（不含明文 API Key）
 export async function GET() {
+  const auth = await checkApiAuth();
+  if (!auth.ok) return auth.response!;
+
   try {
     const settings = await prisma.setting.findMany();
     const result: Record<string, string> = {};
@@ -92,7 +96,7 @@ export async function PUT(req: NextRequest) {
     );
     return NextResponse.json({ success: true, updated: entries.length });
   } catch (e) {
-    console.error('Save settings error:', e);
+    logger.error('Save settings error:', e);
     return NextResponse.json({ error: '保存设置失败' }, { status: 500 });
   }
 }

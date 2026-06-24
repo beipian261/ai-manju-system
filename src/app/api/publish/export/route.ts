@@ -2,9 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma-client';
 import { checkApiAuth } from '@/lib/auth';
 import { createHash } from 'crypto';
+import { logger } from '@/lib/logger';
+import type { PlatformInfo } from '@/types';
 
 // GET: 获取项目可发布的视频列表
 export async function GET(req: NextRequest) {
+  const auth = await checkApiAuth();
+  if (!auth.ok) return auth.response!;
+
   const { searchParams } = new URL(req.url);
   const projectId = searchParams.get('projectId');
 
@@ -134,7 +139,7 @@ export async function POST(req: NextRequest) {
       format,
       quality,
       watermark,
-      platforms: platforms.map((p: any) => ({
+      platforms: platforms.map((p: PlatformInfo) => ({
         id: p.id,
         name: p.name,
         ratio: p.ratio,
@@ -211,7 +216,7 @@ export async function POST(req: NextRequest) {
           '- README.md — 本文件',
           '',
           '## 目标平台',
-          ...platforms.map((p: any) => `- ${p.name} (${p.ratio} · ${p.resolution})`),
+          ...platforms.map((p: PlatformInfo) => `- ${p.name} (${p.ratio} · ${p.resolution})`),
           '',
           '## 分镜列表',
           ...storyboards.map(sb => `- [${sb.sceneNum}] ${sb.title || ''}: ${(sb.dialogue || '').slice(0, 50)}`),
@@ -252,7 +257,7 @@ export async function POST(req: NextRequest) {
         });
       } catch (zipErr) {
         // JSZip 可能未安装，回退到纯 JSON 清单
-        console.error('[export] ZIP generation failed:', zipErr);
+        logger.error('[export] ZIP generation failed:', zipErr);
         return NextResponse.json({
           success: true,
           manifest,

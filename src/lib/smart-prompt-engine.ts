@@ -13,6 +13,7 @@ import prisma from './prisma-client';
 import { chatCompletion } from './agnes-client';
 import { getSetting } from './settings';
 import { buildCharacterSheet, enrichImagePrompt, CharacterSheet } from './character-prompt';
+import { logger } from './logger';
 import {
   LIGHTING_SCHEMES,
   COMPOSITION_RULES,
@@ -137,7 +138,7 @@ export async function generateSmartStoryboardPrompt(
       characterNames: characterSheets.map((c) => c.name),
     });
   } catch (e) {
-    console.warn('[smart-prompt] LLM plan failed, will fallback:', e instanceof Error ? e.message : e);
+    logger.warn('[smart-prompt] LLM plan failed, will fallback:', e instanceof Error ? e.message : e);
   }
 
   // 4. LLM 失败 → 降级到规则模式

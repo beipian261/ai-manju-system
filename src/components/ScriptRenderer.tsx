@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import type { DialogueObject } from '@/types';
 
 // ============================================================
 // ScriptRenderer — 结构化剧本渲染组件
@@ -141,7 +142,7 @@ function SceneCard({ scene, index }: { scene: SceneData; index: number }) {
             lineHeight: '1.6',
           }}
         >
-          {typeof scene.dialogue === 'string' ? scene.dialogue : (scene.dialogue as any)?.text || JSON.stringify(scene.dialogue)}
+          {typeof scene.dialogue === 'string' ? scene.dialogue : (scene.dialogue as DialogueObject)?.text || JSON.stringify(scene.dialogue)}
         </div>
       )}
 

@@ -1,4 +1,5 @@
 import prisma from './prisma-client';
+import { logger } from './logger';
 
 // 恢复"长时间停留在 generating 状态"的任务，避免后台进程崩溃后任务永远卡住
 // 默认：超过 10 分钟视为超时
@@ -27,7 +28,7 @@ export async function cleanupStaleTasks(timeoutMin = DEFAULT_TIMEOUT_MIN): Promi
     // Storyboard 没有 status 字段，只有 imageUrls 存在与否标识完成
     // 这里不主动重置分镜，但保留接口方便后续扩展
   } catch (e) {
-    console.error('cleanupStaleTasks error:', e);
+    logger.error('cleanupStaleTasks error:', e);
   }
 
   return result;

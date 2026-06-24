@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { Navbar } from '@/components/navbar';
 import Link from 'next/link';
+import { apiGet, apiPost } from '@/lib/api-client';
 
 interface Platform {
   id: string;
@@ -53,8 +54,7 @@ export default function PublishPage() {
   useEffect(() => {
     if (!projectId) return;
     setLoading(true);
-    fetch(`/api/publish/export?projectId=${projectId}`)
-      .then(r => r.json())
+    apiGet<{ videoUrls: VideoInfo[]; stats: typeof stats }>(`/api/publish/export?projectId=${projectId}`)
       .then(data => {
         if (data.videoUrls) setVideos(data.videoUrls);
         if (data.stats) setStats(data.stats);
@@ -82,19 +82,13 @@ export default function PublishPage() {
     setError('');
     setPublishResult('');
     try {
-      const res = await fetch('/api/publish/export', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          projectId,
-          platforms: enabledPlatforms.map(p => ({ id: p.id, name: p.name, ratio: p.ratio, resolution: p.resolution })),
-          format,
-          quality,
-          watermark,
-        }),
+      const data = await apiPost<{ message?: string; error?: string }>('/api/publish/export', {
+        projectId,
+        platforms: enabledPlatforms.map(p => ({ id: p.id, name: p.name, ratio: p.ratio, resolution: p.resolution })),
+        format,
+        quality,
+        watermark,
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
       setPublishResult(data.message || '导出成功');
       if (videos.length > 0) {
         videos.forEach((video, idx) => {

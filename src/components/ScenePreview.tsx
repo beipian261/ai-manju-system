@@ -57,7 +57,7 @@ export default function ScenePreview({ scriptContent, scriptId, projectId, onClo
       if (Array.isArray(parsed.acts)) {
         for (const act of parsed.acts) {
           if (Array.isArray(act.scenes)) {
-            allScenes.push(...act.scenes.map((s: any) => ({ ...s, actName: act.name })));
+            allScenes.push(...act.scenes.map((s: Record<string, unknown>) => ({ ...s, actName: act.name })));
           }
         }
       } else if (Array.isArray(parsed.scenes)) {

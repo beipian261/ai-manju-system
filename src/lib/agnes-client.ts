@@ -1,3 +1,5 @@
+import { logger } from './logger';
+
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
@@ -115,7 +117,7 @@ async function parseApiError(res: Response, label = 'agnes request'): Promise<st
   } catch {
     errMsg = `Agnes API 返回 ${res.status}`;
   }
-  console.error(`[${label} error]`, res.status, errBody || errMsg);
+  logger.error(`[${label} error] ${res.status}`, errBody || errMsg);
   return errMsg;
 }
 
@@ -173,6 +175,7 @@ async function requestGet<T>(
 }
 
 export async function chatCompletion(params: ChatCompletionRequest): Promise<ChatCompletionResponse> {
+  // 将特定请求类型转为 Record<string, unknown> 以适配通用 request() 函数签名
   return request<ChatCompletionResponse>(
     '/chat/completions',
     params as unknown as Record<string, unknown>,
@@ -182,6 +185,7 @@ export async function chatCompletion(params: ChatCompletionRequest): Promise<Cha
 }
 
 export async function generateImage(params: ImageGenerationRequest): Promise<ImageGenerationResponse> {
+  // 将特定请求类型转为 Record<string, unknown> 以适配通用 request() 函数签名
   return request<ImageGenerationResponse>(
     '/images/generations',
     params as unknown as Record<string, unknown>,
@@ -191,6 +195,7 @@ export async function generateImage(params: ImageGenerationRequest): Promise<Ima
 }
 
 export async function generateVideo(params: VideoGenerationRequest): Promise<VideoGenerationResponse> {
+  // 将特定请求类型转为 Record<string, unknown> 以适配通用 request() 函数签名
   return request<VideoGenerationResponse>(
     '/video/generations',
     params as unknown as Record<string, unknown>,

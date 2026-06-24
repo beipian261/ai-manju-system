@@ -4,6 +4,7 @@ import { checkApiAuth } from '@/lib/auth';
 import { parseScriptToStoryboards } from '@/lib/script-parser';
 import { chatCompletion } from '@/lib/agnes-client';
 import { getSetting } from '@/lib/settings';
+import { logger } from '@/lib/logger';
 
 // ============================================================
 // POST /api/characters/extract-from-script/detect
@@ -162,7 +163,7 @@ export async function POST(req: NextRequest) {
         lines.forEach(name => nameSet.add(name));
       }
     } catch (e) {
-      console.warn('[detect-characters] AI detection failed:', e);
+      logger.warn('[detect-characters] AI detection failed:', e);
     }
   }
 

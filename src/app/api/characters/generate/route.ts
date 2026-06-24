@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma-client';
 import { checkApiAuth } from '@/lib/auth';
 import { generateFullCharacter, CharacterSeed, CharacterRole } from '@/lib/character-generator';
+import { logger } from '@/lib/logger';
 
 // ============================================================
 // POST /api/characters/generate
@@ -99,7 +100,7 @@ export async function POST(req: NextRequest) {
     }, { status: savedCharacter ? 201 : 200 });
 
   } catch (e) {
-    console.error('[character-generate] error:', e);
+    logger.error('[character-generate] error:', e);
     const msg = e instanceof Error ? e.message : '角色生成失败';
     return NextResponse.json({ error: msg.slice(0, 500) }, { status: 500 });
   }

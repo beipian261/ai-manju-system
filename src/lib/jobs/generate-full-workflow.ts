@@ -8,6 +8,7 @@ import { extractAndCreateCharacters } from '../extract-characters-from-script';
 import { generateStoryboardImage } from '../image-gen';
 import { emitProgress } from '../progress-bus';
 import { runWithConcurrencyPool } from '../concurrency-pool';
+import { logger } from '../logger';
 
 interface WorkflowSteps {
   script?: { jobId?: string };
@@ -79,7 +80,7 @@ registerJobHandler('full_workflow', async (job) => {
   });
 
   const charResult = await extractAndCreateCharacters(scriptId, projectId);
-  console.log(
+  logger.info(
     `[full_workflow:${job.id}] characters created=${charResult.created}, skipped=${charResult.skipped}`
   );
 
@@ -123,10 +124,10 @@ registerJobHandler('full_workflow', async (job) => {
 
   // 配音/视频：当前为规划步骤，后续可接入 TTS / 视频 API
   if (steps.voices?.auto) {
-    console.log(`[full_workflow:${job.id}] voice auto-generation skipped (not yet implemented in worker)`);
+    logger.info(`[full_workflow:${job.id}] voice auto-generation skipped (not yet implemented in worker)`);
   }
   if (steps.videos?.auto) {
-    console.log(`[full_workflow:${job.id}] video auto-generation skipped (not yet implemented in worker)`);
+    logger.info(`[full_workflow:${job.id}] video auto-generation skipped (not yet implemented in worker)`);
   }
 
   await job.setProgress(100, '全流程完成');

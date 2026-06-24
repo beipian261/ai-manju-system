@@ -3,6 +3,7 @@ import { parseScriptToStoryboards } from './script-parser';
 import { batchGenerateCharacters } from './character-batch-generator';
 import { chatCompletion } from './agnes-client';
 import { getSetting } from './settings';
+import { logger } from './logger';
 
 export interface ExtractCharactersResult {
   created: number;
@@ -60,7 +61,7 @@ export async function extractAndCreateCharacters(
       });
       characterNames = Array.from(nameSet);
     } catch (e) {
-      console.warn('[extract-characters] AI extraction failed:', e);
+      logger.warn('[extract-characters] AI extraction failed:', e);
     }
   }
 
@@ -108,7 +109,7 @@ export async function extractAndCreateCharacters(
       });
       created += 1;
     } catch (e) {
-      console.warn(`[extract-characters] failed to create ${generated.name}:`, e);
+      logger.warn(`[extract-characters] failed to create ${generated.name}:`, e);
     }
   }
 

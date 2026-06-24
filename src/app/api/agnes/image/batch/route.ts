@@ -5,6 +5,7 @@ import { generateStoryboardImage } from '@/lib/image-gen';
 import { emitProgress } from '@/lib/progress-bus';
 import { runWithConcurrencyPool } from '@/lib/concurrency-pool';
 import { getClientIdentifier, checkRateLimit } from '@/lib/rate-limiter';
+import { logger } from '@/lib/logger';
 
 const BATCH_CONCURRENCY = 3; // 最多同时生成 3 张图片，避免 API 限流
 
@@ -153,9 +154,9 @@ export async function POST(req: NextRequest) {
         message: `批量图片生成完成（成功 ${completedCount}，失败 ${failedCount}）`,
       });
 
-      console.log(`[batch] ${batchId} finished: ${completedCount} success, ${failedCount} failed`);
+      logger.info(`[batch] ${batchId} finished: ${completedCount} success, ${failedCount} failed`);
     } catch (e) {
-      console.error(`[batch] ${batchId} fatal error:`, e);
+      logger.error(`[batch] ${batchId} fatal error:`, e);
       emitProgress({
         type: 'image',
         id: batchId,

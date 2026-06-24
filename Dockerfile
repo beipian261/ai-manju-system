@@ -25,8 +25,8 @@ FROM node:20-alpine AS runner
 
 WORKDIR /app
 
-# Runtime deps for better-sqlite3
-RUN apk add --no-cache python3 make g++ curl
+# Runtime deps for better-sqlite3 (curl for healthcheck only)
+RUN apk add --no-cache curl
 
 # Copy production node_modules (re-install to purge devDeps)
 COPY package*.json ./

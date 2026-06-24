@@ -1,4 +1,5 @@
 import prisma from './prisma-client';
+import { logger } from './logger';
 
 // 项目状态自动流转工具
 // 状态机：draft -> scripting -> storyboarding -> producing -> completed
@@ -40,6 +41,6 @@ export async function updateProjectStatus(
       });
     }
   } catch (e) {
-    console.error('updateProjectStatus failed:', e);
+    logger.error('updateProjectStatus failed:', e);
   }
 }

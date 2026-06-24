@@ -3,6 +3,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { checkApiAuth } from '@/lib/auth';
 import prisma from '@/lib/prisma-client';
+import type { StoryboardSnapshot } from '@/types';
 
 export async function POST(req: NextRequest) {
   const auth = await checkApiAuth();
@@ -54,7 +55,7 @@ export async function POST(req: NextRequest) {
   });
 }
 
-async function generatePreviewData(storyboards: any[], resolution: string) {
+async function generatePreviewData(storyboards: StoryboardSnapshot[], resolution: string) {
   const size = resolution === 'low' ? '256x144' : resolution === 'medium' ? '512x288' : '1024x576';
   
   return storyboards.map(sb => {
@@ -76,7 +77,7 @@ async function generatePreviewData(storyboards: any[], resolution: string) {
   });
 }
 
-function generateStorySummary(storyboards: any[]): string {
+function generateStorySummary(storyboards: StoryboardSnapshot[]): string {
   if (storyboards.length === 0) return '暂无内容';
   
   const firstScene = storyboards[0];
@@ -92,13 +93,13 @@ function generateStorySummary(storyboards: any[]): string {
   } else if (descriptions.length === 2) {
     summary = `${descriptions[0]}，然后${descriptions[1]}。`;
   } else if (descriptions.length === 1) {
-    summary = descriptions[0];
+    summary = descriptions[0] || '';
   }
   
   return summary || '故事围绕多个场景展开...';
 }
 
-function calculateTotalDuration(storyboards: any[]): number {
+function calculateTotalDuration(storyboards: StoryboardSnapshot[]): number {
   return storyboards.reduce((acc, sb) => acc + (sb.duration || 5), 0);
 }
 
