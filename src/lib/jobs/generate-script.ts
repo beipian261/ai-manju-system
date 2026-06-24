@@ -209,10 +209,16 @@ ${validationResult.reasons.map(r => `- ${r}`).join('\n')}
   } catch (error) {
     console.error('Script generation failed:', error);
     const errMsg = error instanceof Error ? error.message : '未知错误';
+    const friendlyMsg = (() => {
+      const p = [/cannot provide/i, /violen/i, /illegal/i, /safety|harmful|inappropriate/i, /content.*policy/i];
+      if (p.some(r => r.test(errMsg))) return '内容安全策略拦截，请将大纲中的敏感词替换后重试';
+      if (errMsg.includes('timeout') || errMsg.includes('超时')) return '生成超时，请简化大纲';
+      return errMsg.slice(0, 100);
+    })();
     await prisma.script
       .update({ where: { id: scriptId }, data: { status: 'failed' } })
       .catch(() => null);
-    emitProgress({ type: 'script', id: scriptId, status: 'failed', message: '生成失败: ' + errMsg.slice(0, 300), projectId: progressProjectId || undefined });
+    emitProgress({ type: 'script', id: scriptId, status: 'failed', message: '生成失败: ' + friendlyMsg, projectId: progressProjectId || undefined });
     throw error; // 让 worker 标记 Job 为 failed
   }
 }

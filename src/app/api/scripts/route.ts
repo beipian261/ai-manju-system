@@ -108,6 +108,36 @@ export async function POST(req: NextRequest) {
 // 下面仅保留流式生成路径（streamScriptGeneration）。
 
 // ============================================================
+// 错误信息人性化处理
+// ============================================================
+function formatScriptError(raw: string): string {
+  // 检测内容过滤
+  const filterPatterns = [
+    /cannot provide/i, /violen/i, /illegal/i,
+    /safety|harmful|inappropriate/i,
+    /content.*policy/i,
+  ];
+  const isFiltered = filterPatterns.some(p => p.test(raw));
+
+  if (isFiltered) {
+    return '剧本因内容安全策略被拦截。建议将大纲中的敏感描述（如：谋杀→秘密，纵火→意外，死亡→消失）替换为非敏感表达后重试。';
+  }
+
+  // 超时
+  if (raw.includes('timeout') || raw.includes('超时')) {
+    return '剧本生成超时，请简化故事大纲后重试。';
+  }
+
+  // API 错误
+  if (raw.includes('422') || raw.includes('500') || raw.includes('API')) {
+    return 'AI 服务暂时不可用，请稍后重试。';
+  }
+
+  // 截断过长消息
+  return raw.length > 100 ? raw.slice(0, 100) + '...' : raw;
+}
+
+// ============================================================
 // 流式剧本生成：边生成边推送，用户实时看到剧本内容
 // 通过 progress bus 发送 script_content 事件，前端 SSE 接收
 // ============================================================
@@ -257,12 +287,13 @@ async function streamScriptGeneration(
         );
       } catch (error) {
         const errMsg = error instanceof Error ? error.message : '未知错误';
+        const friendlyMsg = formatScriptError(errMsg);
         console.error('Stream script generation error:', error);
         await prisma.script
           .update({ where: { id: scriptId }, data: { status: 'failed' } })
           .catch(() => null);
-        emitProgress({ type: 'script', id: scriptId, status: 'failed', message: '生成失败: ' + errMsg.slice(0, 300) });
-        send('error', { message: errMsg.slice(0, 500) });
+        emitProgress({ type: 'script', id: scriptId, status: 'failed', message: '生成失败: ' + friendlyMsg });
+        send('error', { message: friendlyMsg, raw: errMsg.slice(0, 200) });
         controller.close();
       }
     },
