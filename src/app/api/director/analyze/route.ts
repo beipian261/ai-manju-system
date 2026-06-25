@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma-client';
-import { chatCompletion } from '@/lib/agnes-client';
-import { getSetting } from '@/lib/settings';
-import { checkApiAuth } from '@/lib/auth';
-import { logger } from '@/lib/logger';
+﻿import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/lib/db/prisma';
+import { chatCompletion } from '@/lib/ai/agnes-client';
+import { getSetting } from '@/lib/config/settings';
+import { checkApiAuth } from '@/lib/auth/auth';
+import { logger } from '@/lib/utils/logger';
 
 // AI 导演分析：根据分镜的剧本内容，生成专业级导演建议
 export async function POST(req: NextRequest) {

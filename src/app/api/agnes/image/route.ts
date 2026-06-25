@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { checkApiAuth } from '@/lib/auth';
-import { emitProgress } from '@/lib/progress-bus';
-import { generateStoryboardImage } from '@/lib/image-gen';
-import { logger } from '@/lib/logger';
-import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limiter';
+﻿import { NextRequest, NextResponse } from 'next/server';
+import { checkApiAuth } from '@/lib/auth/auth';
+import { emitProgress } from '@/lib/bus/progress-bus';
+import { generateStoryboardImage } from '@/features/generation/image-gen';
+import { logger } from '@/lib/utils/logger';
+import { checkRateLimit, getClientIdentifier } from '@/lib/utils/rate-limiter';
 
 export async function POST(req: NextRequest) {
   const auth = await checkApiAuth();

@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma-client';
-import { checkApiAuth } from '@/lib/auth';
+﻿import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/lib/db/prisma';
+import { checkApiAuth } from '@/lib/auth/auth';
 
 // 获取项目的分镜列表（用于导演模式场景选择）
 export async function GET(req: NextRequest) {

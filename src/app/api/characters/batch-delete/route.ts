@@ -1,45 +1,27 @@
-import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma-client';
-import { checkApiAuth } from '@/lib/auth';
-import { logger } from '@/lib/logger';
-
-// ============================================================
-// POST /api/characters/batch-delete
-// 批量删除角色
-//
-// Body: {
-//   ids: string[]    (要删除的角色 ID 数组)
-// }
-// ============================================================
+import { NextRequest } from 'next/server';
+import { checkApiAuth } from '@/lib/auth/auth';
+import { deleteCharacters } from '@/features/characters/character.service';
+import { logger } from '@/lib/utils/logger';
+import { successResponse, errorResponse, handleApiError, parseJsonBody } from '@/lib/api/response';
 
 export async function POST(req: NextRequest) {
   const auth = await checkApiAuth();
   if (!auth.ok) return auth.response!;
 
-  let body: Record<string, unknown>;
   try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ error: '请求体必须为 JSON' }, { status: 400 });
-  }
+    const body = await parseJsonBody<{ ids?: string[] }>(req);
+    const ids = Array.isArray(body.ids)
+      ? body.ids.filter((id): id is string => typeof id === 'string')
+      : [];
 
-  const ids = Array.isArray(body.ids) ? body.ids.filter((id: unknown) => typeof id === 'string') as string[] : [];
+    if (ids.length === 0) {
+      return errorResponse('ids 不能为空', 400);
+    }
 
-  if (ids.length === 0) {
-    return NextResponse.json({ error: 'ids 不能为空' }, { status: 400 });
-  }
-
-  try {
-    const result = await prisma.character.deleteMany({
-      where: { id: { in: ids } },
-    });
-    
-    return NextResponse.json({ 
-      success: true, 
-      deletedCount: result.count 
-    }, { status: 200 });
+    const result = await deleteCharacters(ids);
+    return successResponse({ deletedCount: result.count });
   } catch (e) {
     logger.error('[batch-delete] Failed to delete characters:', e);
-    return NextResponse.json({ error: '删除失败' }, { status: 500 });
+    return handleApiError(e);
   }
 }

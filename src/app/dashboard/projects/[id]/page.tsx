@@ -1,7 +1,8 @@
 'use client';
-// 项目详情页 — 左侧固定工作流导航 + 右侧主内容区
-// 统一线性工作流：概览 → 剧本 → 角色 → 分镜 → 配音 → 时间线 → 评审 → 发布
+import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { Save, Upload, ChevronRight } from 'lucide-react';
 import { ProjectProvider, useProjectContext } from './ProjectContext';
 import { TABS } from './types';
 import type { TabKey } from './types';
@@ -14,9 +15,9 @@ import TimelineTab from './TimelineTab';
 import ReviewTab from './ReviewTab';
 import PublishTab from './PublishTab';
 import WorkflowSidebar from './WorkflowSidebar';
-import SmartAssistant from '@/components/SmartAssistant';
-import { useConfirmDialog } from '@/components/ConfirmDialog';
-import { Navbar } from '@/components/navbar';
+import CommandPalette from './CommandPalette';
+import SmartAssistant from '@/components/features/SmartAssistant';
+import { useConfirmDialog } from '@/components/common/ConfirmDialog';
 
 export default function ProjectDetailPage() {
   const params = useParams();
@@ -31,18 +32,49 @@ export default function ProjectDetailPage() {
 
 function ProjectContent() {
   const {
-    project, loading, error, activeTab, setActiveTab,
-    updateProject, deleteProject, characters, storyboards, scripts,
+    project,
+    loading,
+    error,
+    activeTab,
+    setActiveTab,
+    characters,
+    storyboards,
+    scripts,
     projectId,
   } = useProjectContext();
-  const { showConfirm, dialog } = useConfirmDialog();
+  const { dialog } = useConfirmDialog();
+  const [paletteOpen, setPaletteOpen] = useState(false);
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setPaletteOpen((o) => !o);
+      }
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, []);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex">
-        <Navbar />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="card h-24 w-96 p-6 animate-pulse" />
+      <div className="flex flex-col h-screen overflow-hidden">
+        <header
+          className="flex items-center justify-between px-4 flex-shrink-0"
+          style={{
+            height: '52px',
+            background: 'rgba(255,255,255,0.7)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            borderBottom: '1px solid rgba(226,232,240,0.5)',
+          }}
+        >
+          <div className="h-6 w-32 bg-gray-200 rounded animate-pulse" />
+        </header>
+        <div className="flex-1 flex items-center justify-center" style={{ background: 'var(--color-bg-subtle)' }}>
+          <div className="animate-pulse text-sm" style={{ color: 'var(--color-text-muted)' }}>
+            加载中...
+          </div>
         </div>
       </div>
     );
@@ -50,126 +82,165 @@ function ProjectContent() {
 
   if (error || !project) {
     return (
-      <div className="min-h-screen bg-white">
-        <Navbar />
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="card text-center py-20">
-            <div className="text-6xl mb-6">🔍</div>
-            <h2 className="text-xl font-bold text-ink mb-3">{error || '项目不存在'}</h2>
-            <p className="text-sm text-ink-muted">请检查项目 ID 或返回首页</p>
-          </div>
+      <div className="min-h-screen" style={{ background: 'var(--color-bg-subtle)' }}>
+        <header
+          className="flex items-center justify-between px-4"
+          style={{
+            height: '52px',
+            background: 'rgba(255,255,255,0.7)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            borderBottom: '1px solid rgba(226,232,240,0.5)',
+          }}
+        >
+          <Link href="/dashboard/projects" className="flex items-center gap-2.5">
+            <div
+              className="flex items-center justify-center rounded-md"
+              style={{ width: '28px', height: '28px', background: 'var(--gradient-primary)' }}
+            >
+              <span className="text-white font-bold" style={{ fontSize: '14px' }}>A</span>
+            </div>
+            <span className="font-semibold text-sm" style={{ color: 'var(--color-text)' }}>AI 漫剧</span>
+          </Link>
+        </header>
+        <div className="max-w-2xl mx-auto px-6 py-20 text-center">
+          <div className="text-6xl mb-6">🔍</div>
+          <h2 className="text-xl font-bold mb-3" style={{ color: 'var(--color-text)' }}>
+            {error || '项目不存在'}
+          </h2>
+          <p className="text-sm mb-6" style={{ color: 'var(--color-text-muted)' }}>
+            请检查项目 ID 或返回项目列表
+          </p>
+          <Link
+            href="/dashboard/projects"
+            className="inline-flex items-center justify-center px-5 py-2.5 rounded-lg text-sm font-medium text-white"
+            style={{ background: 'var(--gradient-primary)' }}
+          >
+            返回项目列表
+          </Link>
         </div>
       </div>
     );
   }
 
-  // 计算当前 Tab 在 TABS 中的索引
-  const currentTabIndex = TABS.findIndex(t => t.key === activeTab);
+  const handleSave = () => {
+    // Save functionality - can be extended
+  };
+
+  const handlePublish = () => {
+    setActiveTab('publish');
+  };
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'overview':
+        return <OverviewTab />;
+      case 'script':
+        return <ScriptTab />;
+      case 'characters':
+        return <CharactersTab />;
+      case 'storyboard':
+        return <StoryboardTab />;
+      case 'voice':
+        return <VoiceTab />;
+      case 'timeline':
+        return <TimelineTab />;
+      case 'review':
+        return <ReviewTab />;
+      case 'publish':
+        return <PublishTab />;
+      default:
+        return <OverviewTab />;
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
-      {/* 全局顶栏 */}
-      <div className="h-14 border-b border-border bg-white flex items-center px-6 gap-4 flex-shrink-0 z-10">
-        <Navbar />
-        <div className="flex-1" />
-        {/* 面包屑 */}
-        <div className="flex items-center gap-2 text-sm text-ink-muted">
-          <span>项目</span>
-          <span>/</span>
-          <span className="text-ink font-medium truncate max-w-[200px]">{project.title}</span>
-        </div>
-        {/* 快捷操作 */}
+    <main className="flex flex-col h-screen overflow-hidden">
+      {/* Top Bar - Glass Effect */}
+      <header
+        className="flex items-center justify-between px-4 flex-shrink-0"
+        style={{
+          height: '52px',
+          background: 'rgba(255,255,255,0.7)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          borderBottom: '1px solid rgba(226,232,240,0.5)',
+          zIndex: 50,
+        }}
+      >
+        {/* Left: Logo */}
+        <Link href="/dashboard/projects" className="flex items-center gap-2.5">
+          <div
+            className="flex items-center justify-center rounded-md"
+            style={{ width: '28px', height: '28px', background: 'var(--gradient-primary)' }}
+          >
+            <span className="text-white font-bold" style={{ fontSize: '14px' }}>A</span>
+          </div>
+          <span className="font-semibold text-sm hidden sm:block" style={{ color: 'var(--color-text)' }}>
+            AI 漫剧
+          </span>
+        </Link>
+
+        {/* Center: Breadcrumb */}
+        <nav className="hidden sm:flex items-center gap-1.5">
+          <Link
+            href="/dashboard/projects"
+            className="text-xs transition-colors hover:opacity-70"
+            style={{ color: 'var(--color-text-muted)' }}
+          >
+            项目
+          </Link>
+          <ChevronRight className="w-3 h-3" style={{ color: 'var(--color-text-muted)' }} />
+          <span className="text-xs font-medium truncate max-w-[200px]" style={{ color: 'var(--color-text)' }}>
+            {project.title}
+          </span>
+        </nav>
+
+        {/* Right: Actions */}
         <div className="flex items-center gap-2">
           <button
-            onClick={() => {
-              const newTitle = window.prompt('编辑项目标题', project.title);
-              if (newTitle) updateProject({ title: newTitle });
+            onClick={handleSave}
+            className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-150 hover:opacity-80"
+            style={{
+              border: '1px solid var(--color-border)',
+              color: 'var(--color-text-secondary)',
+              background: 'white',
             }}
-            className="btn-secondary px-3 py-1.5 text-xs"
           >
-            ✏️
+            <Save className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">保存</span>
           </button>
           <button
-            onClick={async () => {
-              if (await showConfirm('删除项目', '确定删除这个项目吗？所有数据将永久丢失')) await deleteProject();
+            onClick={handlePublish}
+            className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-white transition-all duration-150 hover:opacity-90"
+            style={{
+              background: 'var(--gradient-primary)',
+              boxShadow: 'var(--shadow-button)',
             }}
-            className="btn-danger px-3 py-1.5 text-xs"
           >
-            🗑️
+            <Upload className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">发布</span>
           </button>
         </div>
-      </div>
+      </header>
 
-      {/* 主体：左侧导航 + 右侧内容 */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* 左侧工作流导航 */}
+      {/* Body: Sidebar + Content */}
+      <div className="flex flex-1 overflow-hidden flex-col lg:flex-row">
+        {/* Sidebar (includes mobile tab bar) */}
         <WorkflowSidebar activeTab={activeTab} onTabChange={setActiveTab} />
 
-        {/* 右侧主内容区 */}
-        <main className="flex-1 overflow-y-auto">
-          {/* 项目标题区 */}
-          <div className="px-8 pt-6 pb-4 border-b border-border bg-white sticky top-0 z-[5]">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl font-bold text-ink">{project.title}</h1>
-                <div className="flex items-center gap-3 mt-1.5 flex-wrap">
-                  <span className="badge badge-emerald">{project.genre || '未分类'}</span>
-                  <span className="badge badge-zinc">{project.style || '默认风格'}</span>
-                  <span className="text-xs text-ink-muted">
-                    {characters.length} 角色 · {storyboards.length} 分镜 · {scripts.length} 剧本
-                  </span>
-                </div>
-                {project.description && (
-                  <p className="text-sm text-ink-muted mt-1.5 max-w-2xl line-clamp-1">{project.description}</p>
-                )}
-              </div>
-
-              {/* 步骤指示器 */}
-              <div className="flex items-center gap-3 flex-shrink-0">
-                <div className="text-right hidden md:block">
-                  <p className="text-xs text-ink-muted">当前步骤</p>
-                  <p className="text-sm font-semibold text-emerald-600">
-                    {TABS[currentTabIndex]?.icon} {TABS[currentTabIndex]?.label}
-                  </p>
-                </div>
-                <div className="flex gap-1">
-                  {TABS.map((tab, idx) => (
-                    <button
-                      key={tab.key}
-                      onClick={() => setActiveTab(tab.key)}
-                      title={tab.label}
-                      className={`w-7 h-7 rounded-md flex items-center justify-center text-xs transition-all ${
-                        idx === currentTabIndex
-                          ? 'bg-emerald-500 text-white shadow-sm'
-                          : idx < currentTabIndex
-                            ? 'bg-emerald-100 text-emerald-600'
-                            : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
-                      }`}
-                    >
-                      {idx < currentTabIndex ? '✓' : tab.icon}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Tab 内容 */}
-          <div className="p-8">
-            {activeTab === 'overview' && <OverviewTab />}
-            {activeTab === 'script' && <ScriptTab />}
-            {activeTab === 'characters' && <CharactersTab />}
-            {activeTab === 'storyboard' && <StoryboardTab />}
-            {activeTab === 'voice' && <VoiceTab />}
-            {activeTab === 'timeline' && <TimelineTab />}
-            {activeTab === 'review' && <ReviewTab />}
-            {activeTab === 'publish' && <PublishTab />}
-          </div>
-        </main>
+        {/* Main Content */}
+        <div
+          className="flex-1 overflow-y-auto"
+          style={{ background: 'var(--color-bg-subtle)' }}
+        >
+          {renderTabContent()}
+        </div>
       </div>
 
       <SmartAssistant projectId={projectId} />
+      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
       {dialog}
-    </div>
+    </main>
   );
 }

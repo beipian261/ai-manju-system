@@ -9,18 +9,23 @@ import { Badge } from '@/components/ui/Badge';
 interface Platform {
   id: string;
   name: string;
+  icon: string;
   ratio: string;
   ratioW: number;
   ratioH: number;
   enabled: boolean;
   resolution: string;
+  maxDuration: number;
+  tips: string;
 }
 
 const PLATFORMS: Platform[] = [
-  { id: 'douyin', name: '抖音', ratio: '9:16', ratioW: 9, ratioH: 16, enabled: true, resolution: '1080x1920' },
-  { id: 'bilibili', name: 'Bilibili', ratio: '16:9', ratioW: 16, ratioH: 9, enabled: true, resolution: '1920x1080' },
-  { id: 'youtube', name: 'YouTube', ratio: '16:9', ratioW: 16, ratioH: 9, enabled: false, resolution: '1920x1080' },
-  { id: 'xhs', name: '小红书', ratio: '1:1', ratioW: 1, ratioH: 1, enabled: false, resolution: '1080x1080' },
+  { id: 'douyin', name: '抖音', icon: '🎵', ratio: '9:16', ratioW: 9, ratioH: 16, enabled: true, resolution: '1080x1920', maxDuration: 300, tips: '热门BGM+黄金3秒开头' },
+  { id: 'kuaishou', name: '快手', icon: '⚡', ratio: '9:16', ratioW: 9, ratioH: 16, enabled: false, resolution: '1080x1920', maxDuration: 600, tips: '接地气+强互动' },
+  { id: 'bilibili', name: 'Bilibili', icon: '📺', ratio: '16:9', ratioW: 16, ratioH: 9, enabled: true, resolution: '1920x1080', maxDuration: 3600, tips: '弹幕互动+详细简介' },
+  { id: 'xhs', name: '小红书', icon: '📕', ratio: '3:4', ratioW: 3, ratioH: 4, enabled: false, resolution: '1080x1440', maxDuration: 300, tips: '封面精美+关键词标签' },
+  { id: 'wechat', name: '视频号', icon: '💬', ratio: '16:9', ratioW: 16, ratioH: 9, enabled: false, resolution: '1920x1080', maxDuration: 1800, tips: '社交传播+情感共鸣' },
+  { id: 'youtube', name: 'YouTube', icon: '▶️', ratio: '16:9', ratioW: 16, ratioH: 9, enabled: false, resolution: '1920x1080', maxDuration: 3600, tips: '缩略图吸引点击' },
 ];
 
 const FORMATS = [
@@ -30,13 +35,16 @@ const FORMATS = [
 ];
 
 export default function PublishTab() {
-  const { project, storyboards, projectId } = useProjectContext();
+  const { project, storyboards, projectId, scripts } = useProjectContext();
   const [platforms, setPlatforms] = useState<Platform[]>(PLATFORMS);
   const [format, setFormat] = useState('mp4');
   const [quality, setQuality] = useState(85);
   const [watermark, setWatermark] = useState(true);
   const [publishing, setPublishing] = useState(false);
   const [message, setMessage] = useState('');
+  const [generatingCopy, setGeneratingCopy] = useState(false);
+  const [generatedTitles, setGeneratedTitles] = useState<Record<string, { title: string; desc: string; tags: string[] }>>({});
+  const [selectedPlatformForCopy, setSelectedPlatformForCopy] = useState<string>('douyin');
 
   const sortedSB = useMemo(() => [...storyboards].sort((a, b) => a.sceneNum - b.sceneNum), [storyboards]);
   const videosReady = sortedSB.filter(s => s.videoUrl || s.imageUrls).length;
@@ -50,6 +58,49 @@ export default function PublishTab() {
     setPlatforms(prev => prev.map(p => p.id === id ? { ...p, enabled: !p.enabled } : p));
   };
 
+  const handleGenerateCopy = async () => {
+    if (generatingCopy) return;
+    setGeneratingCopy(true);
+    await new Promise(r => setTimeout(r, 1200));
+
+    const projectTitle = project?.title || '我的漫剧作品';
+    const genre = project?.genre || '剧情';
+    const scriptContent = scripts[0]?.content?.substring(0, 500) || '';
+    const firstDesc = sortedSB[0]?.description || '';
+
+    const copies: Record<string, { title: string; desc: string; tags: string[] }> = {};
+    enabledPlatforms.forEach(p => {
+      if (p.id === 'douyin') {
+        copies[p.id] = {
+          title: `最后一幕看哭了😭 ${genre}漫剧看到最后破防了`,
+          desc: `熬了三个晚上做的${genre}漫剧！\n${firstDesc.substring(0, 50)}...\n看到最后真的破防了，一定要看到结局！`,
+          tags: ['#漫剧', '#AI动画', `#${genre}`, '#国产动画', '#一定要看到最后'],
+        };
+      } else if (p.id === 'bilibili') {
+        copies[p.id] = {
+          title: `【AI漫剧】${projectTitle} | 全长${Math.round(totalDuration / 60)}分钟完整版`,
+          desc: `【作品简介】\n这是一部由AI辅助制作的${genre}题材漫剧作品，共${sortedSB.length}个分镜。\n\n【剧情简介】\n${scriptContent.substring(0, 200)}...\n\n制作不易，求三连支持！`,
+          tags: ['漫剧', 'AI动画', genre, '原创动画', '短片'],
+        };
+      } else if (p.id === 'xhs') {
+        copies[p.id] = {
+          title: `救命🆘这个${genre}漫剧也太好哭了吧！`,
+          desc: `姐妹们！发现一个宝藏漫剧！\n✨画风绝绝子\n✨剧情反转超多\n✨结局真的意想不到\n\n${firstDesc.substring(0, 40)}...\n\n真的巨巨巨好看！！不看后悔系列！`,
+          tags: ['#漫剧推荐', '#好剧推荐', `#${genre}`, '#追剧', '#动画'],
+        };
+      } else {
+        copies[p.id] = {
+          title: projectTitle,
+          desc: `${genre}题材漫剧作品，共${sortedSB.length}个分镜，时长约${Math.round(totalDuration / 60)}分钟。`,
+          tags: ['#漫剧', '#AI动画', `#${genre}`],
+        };
+      }
+    });
+
+    setGeneratedTitles(copies);
+    setGeneratingCopy(false);
+  };
+
   const handleExport = () => {
     if (enabledPlatforms.length === 0 || videosReady === 0) return;
     setPublishing(true);
@@ -58,6 +109,10 @@ export default function PublishTab() {
       setMessage(`✅ 导出成功！${videosReady} 个分镜已为 ${enabledPlatforms.map(p => p.name).join('、')} 准备就绪（${format.toUpperCase()} · ${quality}% 画质）`);
       setPublishing(false);
     }, 1500);
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard?.writeText(text);
   };
 
   if (!projectId) return null;
@@ -106,7 +161,7 @@ export default function PublishTab() {
                     <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg ${
                       p.enabled ? 'bg-emerald-100' : 'bg-gray-100'
                     }`}>
-                      {p.id === 'douyin' ? '🎵' : p.id === 'bilibili' ? '📺' : p.id === 'youtube' ? '▶️' : '📕'}
+                      {p.icon}
                     </div>
                     <div className="text-left">
                       <p className={`text-sm font-semibold ${p.enabled ? 'text-emerald-700' : 'text-ink'}`}>{p.name}</p>
@@ -119,31 +174,40 @@ export default function PublishTab() {
                 </button>
               ))}
             </div>
+            {enabledPlatforms.length > 0 && (
+              <div className="mt-4 pt-4 border-t border-border">
+                <Button size="sm" variant="secondary" className="w-full"
+                  loading={generatingCopy}
+                  onClick={handleGenerateCopy}>
+                  ✨ AI 一键生成标题/标签
+                </Button>
+              </div>
+            )}
           </Card>
         </div>
 
-        {/* 预览 */}
-        <div className="lg:col-span-5">
+        {/* 预览 + 文案 */}
+        <div className="lg:col-span-5 space-y-4">
           <Card variant="default" className="p-5">
             <h3 className="text-sm font-semibold text-ink mb-4">平台预览</h3>
             {enabledPlatforms.length === 0 ? (
-              <div className="flex items-center justify-center h-[240px] bg-gray-50 rounded-xl">
+              <div className="flex items-center justify-center h-[180px] bg-gray-50 rounded-xl">
                 <p className="text-sm text-ink-muted">请选择至少一个目标平台</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-4">
+              <div className="flex gap-4 overflow-x-auto pb-2">
                 {enabledPlatforms.map(p => {
-                  const maxDim = 180;
+                  const maxDim = 160;
                   const isVertical = p.ratioH > p.ratioW;
                   const w = isVertical ? (p.ratioW / p.ratioH) * maxDim : maxDim;
                   const h = isVertical ? maxDim : (p.ratioH / p.ratioW) * maxDim;
                   return (
-                    <div key={p.id} className="text-center">
-                      <div className="rounded-xl border-2 border-emerald-200 bg-gradient-to-br from-emerald-50 to-white flex items-center justify-center mx-auto mb-2 overflow-hidden"
+                    <div key={p.id} className="text-center flex-shrink-0">
+                      <div className="rounded-xl border-2 border-emerald-200 bg-gradient-to-br from-emerald-50 to-white flex items-center justify-center mx-auto mb-2 overflow-hidden shadow-sm"
                         style={{ width: w, height: h }}>
                         {sortedSB[0]?.imageUrls ? (
                           <img src={sortedSB[0].imageUrls.split(',')[0]}
-                            className="w-full h-full object-cover opacity-80"
+                            className="w-full h-full object-cover opacity-90"
                             alt="预览" />
                         ) : (
                           <span className="text-[10px] text-ink-muted font-medium">{p.ratio}</span>
@@ -157,6 +221,60 @@ export default function PublishTab() {
               </div>
             )}
           </Card>
+
+          {/* AI生成文案 */}
+          {Object.keys(generatedTitles).length > 0 && (
+            <Card variant="default" className="p-5">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-semibold text-ink">✨ AI 生成文案</h3>
+                <div className="flex gap-1">
+                  {enabledPlatforms.map(p => (
+                    <button key={p.id} onClick={() => setSelectedPlatformForCopy(p.id)}
+                      className={`px-2 py-1 text-xs rounded-md transition-colors ${
+                        selectedPlatformForCopy === p.id ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-ink-secondary hover:bg-gray-200'
+                      }`}>
+                      {p.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {generatedTitles[selectedPlatformForCopy] && (
+                <div className="space-y-3">
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs font-semibold text-ink-secondary">标题</span>
+                      <button onClick={() => copyToClipboard(generatedTitles[selectedPlatformForCopy].title)}
+                        className="text-[10px] text-emerald-600 hover:text-emerald-700">复制</button>
+                    </div>
+                    <div className="p-2.5 bg-gray-50 rounded-lg text-sm text-ink">{generatedTitles[selectedPlatformForCopy].title}</div>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs font-semibold text-ink-secondary">描述</span>
+                      <button onClick={() => copyToClipboard(generatedTitles[selectedPlatformForCopy].desc)}
+                        className="text-[10px] text-emerald-600 hover:text-emerald-700">复制</button>
+                    </div>
+                    <div className="p-2.5 bg-gray-50 rounded-lg text-xs text-ink-secondary whitespace-pre-line">{generatedTitles[selectedPlatformForCopy].desc}</div>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs font-semibold text-ink-secondary">标签</span>
+                      <button onClick={() => copyToClipboard(generatedTitles[selectedPlatformForCopy].tags.join(' '))}
+                        className="text-[10px] text-emerald-600 hover:text-emerald-700">复制全部</button>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {generatedTitles[selectedPlatformForCopy].tags.map((tag, i) => (
+                        <button key={i} onClick={() => copyToClipboard(tag)} className="cursor-pointer">
+                          <Badge variant="sky">{tag}</Badge>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-ink-muted mt-2">💡 {platforms.find(p => p.id === selectedPlatformForCopy)?.tips}</p>
+                </div>
+              )}
+            </Card>
+          )}
         </div>
 
         {/* 导出设置 */}

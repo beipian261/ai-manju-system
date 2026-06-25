@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma-client';
-import { checkApiAuth } from '@/lib/auth';
+﻿import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/lib/db/prisma';
+import { checkApiAuth } from '@/lib/auth/auth';
 
 // 手动触发清理：清理超时仍处于 generating 状态的脚本
 // 可选入参：{ timeoutMin?: number } 默认 10 分钟

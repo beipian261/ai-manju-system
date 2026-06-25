@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 漫剧系统 — 星际迷途 — 分镜</title>
+    <style id="theme-vars">
+/* ===== AI 漫剧系统 — Modern Refined Design System ===== */
+/* Clean structure + modern polish: soft gradients, glass effects, subtle depth */
+
+:root {
+  /* --- Brand Colors (emerald with more depth) --- */
+  --brand-primary: #10B981;
+  --brand-primary-hover: #059669;
+  --brand-primary-light: #34D399;
+  --brand-primary-soft: #6EE7B7;
+
+  /* --- Gradient Presets --- */
+  --gradient-primary: linear-gradient(135deg, #10B981 0%, #06B6D4 100%);
+  --gradient-primary-soft: linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(6,182,212,0.08) 100%);
+  --gradient-hero: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #0F172A 100%);
+  --gradient-card: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.6) 100%);
+  --gradient-glow: radial-gradient(ellipse at 50% 0%, rgba(16,185,129,0.15) 0%, transparent 60%);
+
+  /* --- Character Avatar Gradients --- */
+  --gradient-avatar-emerald: linear-gradient(135deg, #10B981 0%, #06B6D4 100%);
+  --gradient-avatar-purple: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);
+  --gradient-avatar-amber: linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%);
+  --gradient-avatar-red: linear-gradient(135deg, #EF4444 0%, #F87171 100%);
+  --gradient-avatar-pink: linear-gradient(135deg, #EC4899 0%, #F472B6 100%);
+  --gradient-avatar-slate: linear-gradient(135deg, #64748B 0%, #94A3B8 100%);
+
+  /* --- Hero Section --- */
+  --color-hero-text: #FFFFFF;
+  --color-hero-text-secondary: rgba(203,213,225,1);
+  --color-hero-badge-bg: rgba(16,185,129,0.15);
+  --color-hero-badge-text: #34D399;
+  --color-hero-badge-border: rgba(16,185,129,0.2);
+  --color-hero-outline-border: rgba(255,255,255,0.2);
+  --color-hero-outline-hover-border: rgba(255,255,255,0.4);
+  --color-hero-outline-hover-bg: rgba(255,255,255,0.05);
+
+  /* --- Semantic Backgrounds --- */
+  --color-error-bg: #FEF2F2;
+
+  /* --- Base Surfaces --- */
+  --color-bg: #FFFFFF;
+  --color-bg-subtle: #F8FAFC;
+  --color-bg-subtle-2: #F1F5F9;
+  --color-bg-elevated: rgba(255,255,255,0.7);
+
+  /* --- Borders --- */
+  --color-border: #E2E8F0;
+  --color-border-subtle: #F1F5F9;
+  --color-border-input: #CBD5E1;
+
+  /* --- Glass Effect --- */
+  --glass-bg: rgba(255,255,255,0.6);
+  --glass-border: rgba(255,255,255,0.3);
+  --glass-blur: blur(20px);
+
+  /* --- Text (slightly warmer tones) --- */
+  --color-text: #0F172A;
+  --color-text-secondary: #64748B;
+  --color-text-muted: #94A3B8;
+  --color-text-placeholder: #CBD5E1;
+
+  /* --- State Colors --- */
+  --state-success: #10B981;
+  --state-warning: #F59E0B;
+  --state-error: #EF4444;
+  --state-info: #3B82F6;
+
+  /* --- Typography --- */
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-base: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+  --font-size-3xl: 30px;
+  --font-size-4xl: 36px;
+  --font-size-5xl: 48px;
+  --font-size-6xl: 60px;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --line-height-tight: 1.15;
+  --line-height-snug: 1.3;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.625;
+
+  /* --- Radius (modern, slightly larger) --- */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 16px;
+  --radius-button: 10px;
+  --radius-input: 10px;
+  --radius-full: 9999px;
+
+  /* --- Shadows (layered, modern) --- */
+  --shadow-sm: 0 1px 2px rgba(15,23,42,0.04);
+  --shadow-card: 0 1px 3px rgba(15,23,42,0.04), 0 1px 2px rgba(15,23,42,0.02);
+  --shadow-card-hover: 0 8px 25px rgba(15,23,42,0.05), 0 2px 6px rgba(15,23,42,0.04);
+  --shadow-button: 0 2px 8px rgba(16,185,129,0.05);
+  --shadow-button-lg: 0 4px 16px rgba(16,185,129,0.05);
+  --shadow-glow: 0 0 40px rgba(16,185,129,0.05);
+  --shadow-float: 0 12px 40px rgba(15,23,42,0.05);
+
+  /* --- Spacing --- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+  --space-32: 128px;
+}
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+    <style type="text/tailwindcss">
+  @theme inline {
+    --color-primary: var(--brand-primary);
+  }
+  @layer base {
+    body { background: var(--brand-background); color: var(--brand-foreground); }
+    td, th { @apply break-words; word-break: break-all; word-break: auto-phrase; }
+    th { @apply whitespace-nowrap; }
+  }
+    </style>
+    <style>
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      [data-icon] {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        background-color: currentColor;
+      }
+    </style>
+</head>
+<body class="min-h-screen font-sans antialiased" style="background: var(--color-bg-subtle); color: var(--color-text);">
+    <main class="flex flex-col h-screen overflow-hidden">
+
+        <!-- ===== 1. TOP BAR ===== -->
+        <header class="h-13 flex items-center justify-between px-4 flex-shrink-0" style="height: 52px; background: rgba(255,255,255,0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(226,232,240,0.5); z-index: 50;">
+            <div class="flex items-center gap-2.5">
+                <div class="flex items-center justify-center rounded-md" style="width: 28px; height: 28px; background: var(--gradient-primary);">
+                    <span class="text-white font-bold" style="font-size: 14px;">A</span>
+                </div>
+                <span class="font-semibold text-sm" style="color: var(--color-text);">AI 漫剧</span>
+            </div>
+            <nav class="hidden sm:flex items-center gap-1.5">
+                <a href="#" data-dom-id="back-to-projects" class="text-xs transition-colors hover:opacity-70" style="color: var(--color-text-muted);">项目</a>
+                <i data-lucide="chevron-right" class="w-3 h-3" style="color: var(--color-text-muted);"></i>
+                <span class="text-xs font-medium" style="color: var(--color-text);">星际迷途</span>
+            </nav>
+            <div class="flex items-center gap-2">
+                <button class="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-150" style="border: 1px solid var(--color-border); color: var(--color-text-secondary); background: white;">
+                    <i data-lucide="save" class="w-3.5 h-3.5"></i>
+                    <span>保存</span>
+                </button>
+                <button class="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-white transition-all duration-150" style="background: var(--gradient-primary); box-shadow: var(--shadow-button);">
+                    <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+                    <span>发布</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- ===== 2. BODY: Sidebar + Content ===== -->
+        <div class="flex flex-1 overflow-hidden">
+
+            <!-- ===== LEFT SIDEBAR ===== -->
+            <!-- Mobile tab bar (visible below lg) -->
+            <div class="lg:hidden flex-shrink-0 overflow-x-auto" style="background: white; border-bottom: 1px solid var(--color-border);">
+                <div class="flex items-center gap-1 px-4 py-2 min-w-max">
+                    <a class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs whitespace-nowrap" style="color: var(--color-text-secondary);" href="#">概览</a>
+                    <a class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs whitespace-nowrap" style="color: var(--color-text-secondary);" href="#">剧本</a>
+                    <a class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs whitespace-nowrap" style="color: var(--color-text-secondary);" href="#">角色</a>
+                    <a class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap" style="background: var(--gradient-primary-soft); color: var(--brand-primary);" href="#">分镜</a>
+                    <a class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs whitespace-nowrap" style="color: var(--color-text-secondary);" href="#">配音</a>
+                    <a class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs whitespace-nowrap" style="color: var(--color-text-secondary);" href="#">时间线</a>
+                    <a class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs whitespace-nowrap" style="color: var(--color-text-secondary);" href="#">评审</a>
+                    <a class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs whitespace-nowrap" style="color: var(--color-text-secondary);" href="#">发布</a>
+                </div>
+            </div>
+            <aside class="hidden lg:flex flex-col flex-shrink-0" style="width: 224px; background: white; border-right: 1px solid var(--color-border);">
+                <div class="px-4 pt-5 pb-4">
+                    <h2 class="text-sm font-semibold truncate" style="color: var(--color-text);">星际迷途</h2>
+                    <div class="flex items-center gap-1.5 mt-2">
+                        <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium whitespace-nowrap" style="background: var(--gradient-primary-soft); color: var(--brand-primary);">科幻</span>
+                        <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium whitespace-nowrap" style="background: var(--gradient-primary-soft); color: var(--brand-primary);">赛博朋克</span>
+                    </div>
+                </div>
+                <div style="border-bottom: 1px solid var(--color-border);"></div>
+                <nav class="flex-1 px-3 py-2 space-y-0.5 overflow-y-auto">
+                    <a href="#" class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm transition-colors duration-150 hover:opacity-80" style="color: var(--color-text-secondary);">
+                        <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                        <span>概览</span>
+                    </a>
+                    <a href="#" class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm transition-colors duration-150 hover:opacity-80" style="color: var(--color-text-secondary);">
+                        <i data-lucide="file-text" class="w-4 h-4"></i>
+                        <span>剧本</span>
+                    </a>
+                    <a href="#" class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm transition-colors duration-150 hover:opacity-80" style="color: var(--color-text-secondary);">
+                        <i data-lucide="users" class="w-4 h-4"></i>
+                        <span>角色</span>
+                    </a>
+                    <a href="#" class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-150" style="background: var(--gradient-primary-soft); color: var(--brand-primary);">
+                        <i data-lucide="film" class="w-4 h-4"></i>
+                        <span>分镜</span>
+                    </a>
+                    <a href="#" class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm transition-colors duration-150 hover:opacity-80" style="color: var(--color-text-secondary);">
+                        <i data-lucide="mic" class="w-4 h-4"></i>
+                        <span>配音</span>
+                    </a>
+                    <a href="#" class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm transition-colors duration-150 hover:opacity-80" style="color: var(--color-text-secondary);">
+                        <i data-lucide="clock" class="w-4 h-4"></i>
+                        <span>时间线</span>
+                    </a>
+                    <a href="#" class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm transition-colors duration-150 hover:opacity-80" style="color: var(--color-text-secondary);">
+                        <i data-lucide="eye" class="w-4 h-4"></i>
+                        <span>评审</span>
+                    </a>
+                    <a href="#" class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm transition-colors duration-150 hover:opacity-80" style="color: var(--color-text-secondary);">
+                        <i data-lucide="rocket" class="w-4 h-4"></i>
+                        <span>发布</span>
+                    </a>
+                </nav>
+                <div class="px-4 py-4" style="border-top: 1px solid var(--color-border);">
+                    <p class="text-xs font-medium mb-2" style="color: var(--color-text-muted);">成员</p>
+                    <div class="flex items-center">
+                        <div class="flex items-center justify-center rounded-full text-white text-xs font-medium" style="width: 28px; height: 28px; background: var(--brand-primary); z-index: 3;">张</div>
+                        <div class="flex items-center justify-center rounded-full text-white text-xs font-medium -ml-1" style="width: 28px; height: 28px; background: #94A3B8; z-index: 2;">李</div>
+                        <div class="flex items-center justify-center rounded-full text-xs font-medium -ml-1" style="width: 28px; height: 28px; background: #CBD5E1; color: var(--color-text-secondary); z-index: 1;">王</div>
+                        <span class="text-xs ml-1.5" style="color: var(--color-text-muted);">+2</span>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- ===== 3. RIGHT CONTENT ===== -->
+            <div class="flex-1 overflow-y-auto" style="background: var(--color-bg-subtle);">
+
+                <!-- Page Header Card -->
+                <div class="mx-6 mt-6 rounded-2xl p-6" style="background: white; border: 1px solid var(--color-border); box-shadow: var(--shadow-card); border-radius: var(--radius-xl);">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <h1 class="text-xl font-bold" style="color: var(--color-text); text-wrap: balance; word-break: keep-all; overflow-wrap: break-word;">分镜</h1>
+                            <p class="text-sm mt-1" style="color: var(--color-text-secondary);">24 个分镜</p>
+                        </div>
+                        <button class="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-white transition-all duration-150 flex-shrink-0" style="background: var(--gradient-primary); box-shadow: var(--shadow-button);">
+                            <i data-lucide="wand-2" class="w-3.5 h-3.5"></i>
+                            <span>AI 生成分镜</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filter Bar -->
+                <div class="mx-6 mt-4 flex items-center gap-2">
+                    <button class="inline-flex items-center rounded-full px-3 py-1.5 text-xs font-medium text-white whitespace-nowrap" style="background: var(--gradient-primary);">全部</button>
+                    <button class="inline-flex items-center rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-colors duration-150 hover:opacity-80" style="border: 1px solid var(--color-border); color: var(--color-text-secondary); background: white;">第一章</button>
+                    <button class="inline-flex items-center rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-colors duration-150 hover:opacity-80" style="border: 1px solid var(--color-border); color: var(--color-text-secondary); background: white;">第二章</button>
+                    <button class="inline-flex items-center rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-colors duration-150 hover:opacity-80" style="border: 1px solid var(--color-border); color: var(--color-text-secondary); background: white;">第三章</button>
+                </div>
+
+                <!-- Storyboard Grid -->
+                <div class="mx-6 mt-4 mb-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+
+                    <!-- Storyboard #01 -->
+                    <div class="rounded-xl overflow-hidden transition-shadow duration-200" style="background: white; border: 1px solid var(--color-border); box-shadow: var(--shadow-card);">
+                        <div class="flex items-center justify-center" style="height: 128px; background: var(--color-bg-subtle);">
+                            <i data-lucide="image" class="w-8 h-8" style="color: var(--color-text-muted);"></i>
+                        </div>
+                        <div class="p-3">
+                            <p class="text-xs font-medium truncate" style="color: var(--color-text);">分镜 #01</p>
+                            <p class="text-xs mt-0.5 truncate" style="color: var(--color-text-muted);">第一章</p>
+                        </div>
+                    </div>
+
+                    <!-- Storyboard #02 -->
+                    <div class="rounded-xl overflow-hidden transition-shadow duration-200" style="background: white; border: 1px solid var(--color-border); box-shadow: var(--shadow-card);">
+                        <div class="flex items-center justify-center" style="height: 128px; background: var(--color-bg-subtle);">
+                            <i data-lucide="image" class="w-8 h-8" style="color: var(--color-text-muted);"></i>
+                        </div>
+                        <div class="p-3">
+                            <p class="text-xs font-medium truncate" style="color: var(--color-text);">分镜 #02</p>
+                            <p class="text-xs mt-0.5 truncate" style="color: var(--color-text-muted);">第一章</p>
+                        </div>
+                    </div>
+
+                    <!-- Storyboard #03 -->
+                    <div class="rounded-xl overflow-hidden transition-shadow duration-200" style="background: white; border: 1px solid var(--color-border); box-shadow: var(--shadow-card);">
+                        <div class="flex items-center justify-center" style="height: 128px; background: var(--color-bg-subtle);">
+                            <i data-lucide="image" class="w-8 h-8" style="color: var(--color-text-muted);"></i>
+                        </div>
+                        <div class="p-3">
+                            <p class="text-xs font-medium truncate" style="color: var(--color-text);">分镜 #03</p>
+                            <p class="text-xs mt-0.5 truncate" style="color: var(--color-text-muted);">第一章</p>
+                        </div>
+                    </div>
+
+                    <!-- Storyboard #04 -->
+                    <div class="rounded-xl overflow-hidden transition-shadow duration-200" style="background: white; border: 1px solid var(--color-border); box-shadow: var(--shadow-card);">
+                        <div class="flex items-center justify-center" style="height: 128px; background: var(--color-bg-subtle);">
+                            <i data-lucide="image" class="w-8 h-8" style="color: var(--color-text-muted);"></i>
+                        </div>
+                        <div class="p-3">
+                            <p class="text-xs font-medium truncate" style="color: var(--color-text);">分镜 #04</p>
+                            <p class="text-xs mt-0.5 truncate" style="color: var(--color-text-muted);">第一章</p>
+                        </div>
+                    </div>
+
+                    <!-- Storyboard #05 -->
+                    <div class="rounded-xl overflow-hidden transition-shadow duration-200" style="background: white; border: 1px solid var(--color-border); box-shadow: var(--shadow-card);">
+                        <div class="flex items-center justify-center" style="height: 128px; background: var(--color-bg-subtle);">
+                            <i data-lucide="image" class="w-8 h-8" style="color: var(--color-text-muted);"></i>
+                        </div>
+                        <div class="p-3">
+                            <p class="text-xs font-medium truncate" style="color: var(--color-text);">分镜 #05</p>
+                            <p class="text-xs mt-0.5 truncate" style="color: var(--color-text-muted);">第二章</p>
+                        </div>
+                    </div>
+
+                    <!-- Storyboard #06 -->
+                    <div class="rounded-xl overflow-hidden transition-shadow duration-200" style="background: white; border: 1px solid var(--color-border); box-shadow: var(--shadow-card);">
+                        <div class="flex items-center justify-center" style="height: 128px; background: var(--color-bg-subtle);">
+                            <i data-lucide="image" class="w-8 h-8" style="color: var(--color-text-muted);"></i>
+                        </div>
+                        <div class="p-3">
+                            <p class="text-xs font-medium truncate" style="color: var(--color-text);">分镜 #06</p>
+                            <p class="text-xs mt-0.5 truncate" style="color: var(--color-text-muted);">第二章</p>
+                        </div>
+                    </div>
+
+                    <!-- Storyboard #07 -->
+                    <div class="rounded-xl overflow-hidden transition-shadow duration-200" style="background: white; border: 1px solid var(--color-border); box-shadow: var(--shadow-card);">
+                        <div class="flex items-center justify-center" style="height: 128px; background: var(--color-bg-subtle);">
+                            <i data-lucide="image" class="w-8 h-8" style="color: var(--color-text-muted);"></i>
+                        </div>
+                        <div class="p-3">
+                            <p class="text-xs font-medium truncate" style="color: var(--color-text);">分镜 #07</p>
+                            <p class="text-xs mt-0.5 truncate" style="color: var(--color-text-muted);">第二章</p>
+                        </div>
+                    </div>
+
+                    <!-- Storyboard #08 -->
+                    <div class="rounded-xl overflow-hidden transition-shadow duration-200" style="background: white; border: 1px solid var(--color-border); box-shadow: var(--shadow-card);">
+                        <div class="flex items-center justify-center" style="height: 128px; background: var(--color-bg-subtle);">
+                            <i data-lucide="image" class="w-8 h-8" style="color: var(--color-text-muted);"></i>
+                        </div>
+                        <div class="p-3">
+                            <p class="text-xs font-medium truncate" style="color: var(--color-text);">分镜 #08</p>
+                            <p class="text-xs mt-0.5 truncate" style="color: var(--color-text-muted);">第三章</p>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </main>
+    <script>lucide.createIcons();</script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifySessionToken, getCookieName, isAuthEnabled } from '@/lib/auth-core';
+import { verifySessionToken, getCookieName, isAuthEnabled } from '@/lib/auth/auth-core';
 
 // 拦截受保护路径：/dashboard/* 和 /api/*
 // 未鉴权时：API 返回 401 JSON，页面重定向到 /login
@@ -34,7 +34,7 @@ export async function middleware(req: NextRequest) {
   const isProd = process.env.NODE_ENV === 'production';
 
   // 公开页面：始终放行
-  if (pathname === '/login' || pathname.startsWith('/_next') || pathname === '/favicon.ico') {
+  if (pathname === '/' || pathname === '/login' || pathname.startsWith('/_next') || pathname === '/favicon.ico') {
     return NextResponse.next();
   }
 

@@ -1,10 +1,10 @@
-// 智能背景音乐推荐 API
+﻿// 智能背景音乐推荐 API
 // 根据场景情绪推荐合适的背景音乐
 import { NextRequest, NextResponse } from 'next/server';
-import { checkApiAuth } from '@/lib/auth';
-import { chatCompletion } from '@/lib/agnes-client';
-import { getSetting } from '@/lib/settings';
-import { logger } from '@/lib/logger';
+import { checkApiAuth } from '@/lib/auth/auth';
+import { chatCompletion } from '@/lib/ai/agnes-client';
+import { getSetting } from '@/lib/config/settings';
+import { logger } from '@/lib/utils/logger';
 
 // 背景音乐风格库
 const BGM_STYLES = {

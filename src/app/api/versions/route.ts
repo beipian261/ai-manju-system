@@ -1,9 +1,9 @@
-// 版本控制与历史记录 API
+﻿// 版本控制与历史记录 API
 // 追踪创作历史，支持版本对比和回滚
 import { NextRequest, NextResponse } from 'next/server';
-import { checkApiAuth } from '@/lib/auth';
-import prisma from '@/lib/prisma-client';
-import { logger } from '@/lib/logger';
+import { checkApiAuth } from '@/lib/auth/auth';
+import prisma from '@/lib/db/prisma';
+import { logger } from '@/lib/utils/logger';
 
 function safeParseJSON(json: string | null | undefined, context: string): any {
   try {

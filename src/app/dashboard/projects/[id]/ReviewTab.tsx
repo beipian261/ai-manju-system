@@ -44,13 +44,13 @@ export default function ReviewTab() {
         id: sb.id,
         sceneNum: sb.sceneNum,
         description: sb.description,
-        imageUrls: sb.imageUrls,
-        reviewStatus: normalizeReviewStatus(sb.reviewStatus),
+        imageUrls: sb.imageUrls ?? undefined,
+        reviewStatus: normalizeReviewStatus(sb.reviewStatus ?? undefined),
         comments: (sb.comments || []).map((c) =>
           typeof c === 'string' ? c : c.text
         ),
-        dialogue: sb.dialogue,
-        emotion: sb.emotion,
+        dialogue: sb.dialogue ?? undefined,
+        emotion: sb.emotion ?? undefined,
       }))
       .sort((a, b) => a.sceneNum - b.sceneNum);
     setFrames(f);

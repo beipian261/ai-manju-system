@@ -1,17 +1,17 @@
-// 角色定妆照生成 API
+﻿// 角色定妆照生成 API
 // 为每个角色生成标准参考图，确保所有分镜中角色外貌一致
 import { NextRequest, NextResponse } from 'next/server';
-import { checkApiAuth } from '@/lib/auth';
-import prisma from '@/lib/prisma-client';
-import { getSetting } from '@/lib/settings';
-import { generateImage as agnesGenerateImage } from '@/lib/agnes-client';
+import { checkApiAuth } from '@/lib/auth/auth';
+import prisma from '@/lib/db/prisma';
+import { getSetting } from '@/lib/config/settings';
+import { generateImage as agnesGenerateImage } from '@/lib/ai/agnes-client';
 import {
   buildCharacterSheet,
   buildCharacterPortraitPrompt,
   buildNegativePrompt,
   CharacterSheet,
-} from '@/lib/character-prompt';
-import { normalizeStyleKey } from '@/lib/prompt-library';
+} from '@/features/characters/character-prompt';
+import { normalizeStyleKey } from '@/features/generation/prompt-library';
 
 // 定妆照视角配置
 const PORTRAIT_VIEWS = [
@@ -160,7 +160,7 @@ async function generateCharacterPortrait(
   view: string
 ): Promise<{ imageUrl: string }> {
   const sheet = buildCharacterSheet(character);
-  const portraitPrompt = buildCharacterPortraitPrompt(sheet, styleKey as keyof typeof import('@/lib/prompt-library').ART_STYLES);
+  const portraitPrompt = buildCharacterPortraitPrompt(sheet, styleKey as keyof typeof import('@/features/generation/prompt-library').ART_STYLES);
   
   // 增加视角描述
   const viewConfig = PORTRAIT_VIEWS.find(v => v.key === view) || PORTRAIT_VIEWS[0];

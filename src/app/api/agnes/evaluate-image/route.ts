@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { checkApiAuth } from '@/lib/auth';
-import { evaluateImage } from '@/lib/image-eval';
-import { logger } from '@/lib/logger';
-import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limiter';
+﻿import { NextRequest, NextResponse } from 'next/server';
+import { checkApiAuth } from '@/lib/auth/auth';
+import { evaluateImage } from '@/features/generation/image-eval';
+import { logger } from '@/lib/utils/logger';
+import { checkRateLimit, getClientIdentifier } from '@/lib/utils/rate-limiter';
 
 export async function POST(req: NextRequest) {
   const auth = await checkApiAuth();

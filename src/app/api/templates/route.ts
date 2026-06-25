@@ -1,9 +1,9 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
-import { checkApiAuth } from '@/lib/auth';
-import { BUILT_IN_TEMPLATES } from '@/lib/script-templates';
+import { checkApiAuth } from '@/lib/auth/auth';
+import { BUILT_IN_TEMPLATES } from '@/features/scripts/script-templates';
 
-export type { ScriptTemplate } from '@/lib/script-templates';
+export type { ScriptTemplate } from '@/features/scripts/script-templates';
 
 // GET /api/templates — 获取模板列表
 export async function GET(req: NextRequest) {

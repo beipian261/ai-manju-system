@@ -1,7 +1,7 @@
-'use client';
+﻿'use client';
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { apiGet, apiPost } from '@/lib/api-client';
+import { apiGet, apiPost } from '@/lib/utils/api-client';
 
 function LoginForm() {
   const router = useRouter();

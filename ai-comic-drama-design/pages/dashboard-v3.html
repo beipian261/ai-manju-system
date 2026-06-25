@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 漫剧系统 — 工作台</title>
+    <style id="theme-vars">
+/* ===== AI 漫剧系统 — Modern Refined Design System ===== */
+/* Clean structure + modern polish: soft gradients, glass effects, subtle depth */
+
+:root {
+  /* --- Brand Colors (emerald with more depth) --- */
+  --brand-primary: #10B981;
+  --brand-primary-hover: #059669;
+  --brand-primary-light: #34D399;
+  --brand-primary-soft: #6EE7B7;
+
+  /* --- Gradient Presets --- */
+  --gradient-primary: linear-gradient(135deg, #10B981 0%, #06B6D4 100%);
+  --gradient-primary-soft: linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(6,182,212,0.08) 100%);
+  --gradient-hero: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #0F172A 100%);
+  --gradient-card: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.6) 100%);
+  --gradient-glow: radial-gradient(ellipse at 50% 0%, rgba(16,185,129,0.15) 0%, transparent 60%);
+
+  /* --- Character Avatar Gradients --- */
+  --gradient-avatar-emerald: linear-gradient(135deg, #10B981 0%, #06B6D4 100%);
+  --gradient-avatar-purple: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);
+  --gradient-avatar-amber: linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%);
+  --gradient-avatar-red: linear-gradient(135deg, #EF4444 0%, #F87171 100%);
+  --gradient-avatar-pink: linear-gradient(135deg, #EC4899 0%, #F472B6 100%);
+  --gradient-avatar-slate: linear-gradient(135deg, #64748B 0%, #94A3B8 100%);
+
+  /* --- Hero Section --- */
+  --color-hero-text: #FFFFFF;
+  --color-hero-text-secondary: rgba(203,213,225,1);
+  --color-hero-badge-bg: rgba(16,185,129,0.15);
+  --color-hero-badge-text: #34D399;
+  --color-hero-badge-border: rgba(16,185,129,0.2);
+  --color-hero-outline-border: rgba(255,255,255,0.2);
+  --color-hero-outline-hover-border: rgba(255,255,255,0.4);
+  --color-hero-outline-hover-bg: rgba(255,255,255,0.05);
+
+  /* --- Semantic Backgrounds --- */
+  --color-error-bg: #FEF2F2;
+
+  /* --- Base Surfaces --- */
+  --color-bg: #FFFFFF;
+  --color-bg-subtle: #F8FAFC;
+  --color-bg-subtle-2: #F1F5F9;
+  --color-bg-elevated: rgba(255,255,255,0.7);
+
+  /* --- Borders --- */
+  --color-border: #E2E8F0;
+  --color-border-subtle: #F1F5F9;
+  --color-border-input: #CBD5E1;
+
+  /* --- Glass Effect --- */
+  --glass-bg: rgba(255,255,255,0.6);
+  --glass-border: rgba(255,255,255,0.3);
+  --glass-blur: blur(20px);
+
+  /* --- Text (slightly warmer tones) --- */
+  --color-text: #0F172A;
+  --color-text-secondary: #64748B;
+  --color-text-muted: #94A3B8;
+  --color-text-placeholder: #CBD5E1;
+
+  /* --- State Colors --- */
+  --state-success: #10B981;
+  --state-warning: #F59E0B;
+  --state-error: #EF4444;
+  --state-info: #3B82F6;
+
+  /* --- Typography --- */
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-base: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+  --font-size-3xl: 30px;
+  --font-size-4xl: 36px;
+  --font-size-5xl: 48px;
+  --font-size-6xl: 60px;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --line-height-tight: 1.15;
+  --line-height-snug: 1.3;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.625;
+
+  /* --- Radius (modern, slightly larger) --- */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 16px;
+  --radius-button: 10px;
+  --radius-input: 10px;
+  --radius-full: 9999px;
+
+  /* --- Shadows (layered, modern) --- */
+  --shadow-sm: 0 1px 2px rgba(15,23,42,0.04);
+  --shadow-card: 0 1px 3px rgba(15,23,42,0.04), 0 1px 2px rgba(15,23,42,0.02);
+  --shadow-card-hover: 0 8px 25px rgba(15,23,42,0.05), 0 2px 6px rgba(15,23,42,0.04);
+  --shadow-button: 0 2px 8px rgba(16,185,129,0.05);
+  --shadow-button-lg: 0 4px 16px rgba(16,185,129,0.05);
+  --shadow-glow: 0 0 40px rgba(16,185,129,0.05);
+  --shadow-float: 0 12px 40px rgba(15,23,42,0.05);
+
+  /* --- Spacing --- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+  --space-32: 128px;
+}
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+    <style type="text/tailwindcss">
+  @theme inline {
+    --color-primary: var(--brand-primary);
+  }
+  @layer base {
+    body { background: var(--brand-background); color: var(--brand-foreground); }
+    td, th { @apply break-words; word-break: break-all; word-break: auto-phrase; }
+    th { @apply whitespace-nowrap; }
+  }
+    </style>
+    <style>
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      [data-icon] {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        background-color: currentColor;
+      }
+    </style>
+</head>
+<body class="min-h-screen font-sans antialiased">
+    <main>
+        <!-- NAV — Glass effect -->
+        <nav class="sticky top-0 z-50 border-b relative" style="background:rgba(255,255,255,0.7);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-color:rgba(226,232,240,0.5);">
+            <div class="max-w-7xl mx-auto flex items-center justify-between px-6 py-3">
+                <!-- Left: Logo -->
+                <a href="#" data-dom-id="nav-home" class="flex items-center gap-2.5 no-underline">
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm" style="background:var(--gradient-primary);">A</div>
+                    <span class="text-sm font-semibold" style="color:var(--color-text);">AI 漫剧</span>
+                </a>
+                <!-- Hamburger (mobile only) -->
+                <button class="md:hidden flex items-center justify-center rounded-lg" style="width: 36px; height: 36px; background: var(--color-bg-subtle);" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
+                    <i data-lucide="menu" class="w-5 h-5" style="color: var(--color-text-secondary);"></i>
+                </button>
+                <!-- Center: Nav items -->
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="#" class="text-sm font-semibold relative pb-0.5" style="color:var(--color-text);">
+                        工作台
+                        <span class="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full" style="background:var(--brand-primary);"></span>
+                    </a>
+                    <a href="#" class="text-sm transition-colors duration-150 hover:opacity-80" style="color:var(--color-text-secondary);">项目</a>
+                    <a href="#" class="text-sm transition-colors duration-150 hover:opacity-80" style="color:var(--color-text-secondary);">角色库</a>
+                    <a href="#" class="text-sm transition-colors duration-150 hover:opacity-80" style="color:var(--color-text-secondary);">设置</a>
+                </div>
+                <!-- Right: Search + CTA -->
+                <div class="flex items-center gap-3">
+                    <button class="w-9 h-9 rounded-lg flex items-center justify-center transition-colors duration-150 hover:opacity-80" style="background:var(--color-bg-subtle);">
+                        <i data-lucide="search" class="w-4 h-4" style="color:var(--color-text-secondary);"></i>
+                    </button>
+                    <button class="rounded-lg text-sm font-medium text-white px-4 py-2 transition-all duration-200 hover:translate-y-[-1px]" style="background:var(--gradient-primary);box-shadow:var(--shadow-button);">
+                        新建项目
+                    </button>
+                </div>
+            </div>
+            <!-- Mobile menu -->
+            <div id="mobile-menu" class="hidden md:hidden absolute top-full left-0 right-0 border-b" style="background: var(--glass-bg); backdrop-filter: var(--glass-blur); border-color: var(--color-border);">
+                <div class="max-w-7xl mx-auto px-6 py-3 flex flex-col gap-1">
+                    <a class="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium" style="color: var(--color-text); background: rgba(16,185,129,0.08);" href="#">工作台</a>
+                    <a class="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm" style="color: var(--color-text-secondary);" href="#">项目</a>
+                    <a class="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm" style="color: var(--color-text-secondary);" href="#">角色库</a>
+                    <a class="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm" style="color: var(--color-text-secondary);" href="#">设置</a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- PAGE HEADER — Greeting + Search -->
+        <div class="max-w-7xl mx-auto px-6 pt-8 pb-6">
+            <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+                <div>
+                    <p class="text-sm mb-1" style="color:var(--color-text-secondary);">早上好</p>
+                    <h1 class="text-2xl font-bold" style="color:var(--color-text);">创作者</h1>
+                </div>
+                <div class="relative w-full sm:w-72 shrink-0">
+                    <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style="color:var(--color-text-muted);"></i>
+                    <input type="text" placeholder="搜索项目..." class="w-full rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none transition-shadow duration-150 focus:ring-2" style="background:var(--color-bg-subtle);border:1px solid var(--color-border);color:var(--color-text);--tw-ring-color:rgba(16,185,129,0.3);">
+                </div>
+            </div>
+        </div>
+
+        <!-- STATS — Modern cards with gradient accents -->
+        <div class="max-w-7xl mx-auto px-6 mb-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <!-- Stat 1: 项目总数 -->
+                <div class="rounded-xl p-5 transition-all duration-200 hover:-translate-y-px" style="background:var(--color-bg);border:1px solid var(--color-border);box-shadow:var(--shadow-card);">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-medium" style="color:var(--color-text-muted);">项目总数</span>
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:var(--gradient-primary-soft);">
+                            <i data-lucide="folder" class="w-4 h-4" style="color:var(--brand-primary);"></i>
+                        </div>
+                    </div>
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-2xl font-bold" style="color:var(--color-text);">12</span>
+                        <span class="text-xs font-medium" style="color:var(--brand-primary);">+3 本周</span>
+                    </div>
+                </div>
+                <!-- Stat 2: 角色数量 -->
+                <div class="rounded-xl p-5 transition-all duration-200 hover:-translate-y-px" style="background:var(--color-bg);border:1px solid var(--color-border);box-shadow:var(--shadow-card);">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-medium" style="color:var(--color-text-muted);">角色数量</span>
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:var(--gradient-primary-soft);">
+                            <i data-lucide="users" class="w-4 h-4" style="color:var(--brand-primary);"></i>
+                        </div>
+                    </div>
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-2xl font-bold" style="color:var(--color-text);">48</span>
+                        <span class="text-xs font-medium" style="color:var(--brand-primary);">+5 本周</span>
+                    </div>
+                </div>
+                <!-- Stat 3: 剧本数量 -->
+                <div class="rounded-xl p-5 transition-all duration-200 hover:-translate-y-px" style="background:var(--color-bg);border:1px solid var(--color-border);box-shadow:var(--shadow-card);">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-medium" style="color:var(--color-text-muted);">剧本数量</span>
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:var(--gradient-primary-soft);">
+                            <i data-lucide="file-text" class="w-4 h-4" style="color:var(--brand-primary);"></i>
+                        </div>
+                    </div>
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-2xl font-bold" style="color:var(--color-text);">23</span>
+                        <span class="text-xs font-medium" style="color:var(--brand-primary);">+2 今日</span>
+                    </div>
+                </div>
+                <!-- Stat 4: 已发布 (with accent border-left) -->
+                <div class="rounded-xl p-5 transition-all duration-200 hover:-translate-y-px" style="background:var(--color-bg);border:1px solid var(--color-border);border-left:3px solid var(--brand-primary);box-shadow:var(--shadow-card);">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-medium" style="color:var(--color-text-muted);">已发布</span>
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:var(--gradient-primary-soft);">
+                            <i data-lucide="check-circle" class="w-4 h-4" style="color:var(--brand-primary);"></i>
+                        </div>
+                    </div>
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-2xl font-bold" style="color:var(--color-text);">5</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PROJECTS — Card grid with progress -->
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-base font-semibold" style="color:var(--color-text);">最近项目</h2>
+                <a href="#" class="text-sm transition-colors duration-150 hover:opacity-80" style="color:var(--color-text-muted);">查看全部 <span aria-hidden="true">&rarr;</span></a>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Project 1 -->
+                <div data-dom-id="project-card-1" class="rounded-xl p-5 transition-all duration-200 hover:-translate-y-px cursor-pointer" style="background:var(--color-bg);border:1px solid var(--color-border);box-shadow:var(--shadow-card);">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-medium rounded-full px-2.5 py-0.5 whitespace-nowrap" style="background:var(--gradient-primary-soft);color:var(--brand-primary);">科幻</span>
+                        <span class="text-xs whitespace-nowrap" style="color:var(--color-text-muted);">6月20日</span>
+                    </div>
+                    <h3 class="text-sm font-semibold mt-3 truncate" style="color:var(--color-text);">星际迷途</h3>
+                    <p class="text-xs mt-1 line-clamp-1" style="color:var(--color-text-secondary);">探索未知星系的冒险旅程，寻找失落文明的秘密</p>
+                    <div class="mt-4">
+                        <div class="h-1.5 rounded-full" style="background:var(--color-bg-subtle-2);">
+                            <div class="h-1.5 rounded-full" style="width:40%;background:var(--gradient-primary);"></div>
+                        </div>
+                        <div class="flex items-center justify-between mt-1.5">
+                            <span class="text-xs" style="color:var(--color-text-muted);">分镜创作中</span>
+                            <span class="text-xs" style="color:var(--color-text-muted);">40%</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Project 2 -->
+                <div class="rounded-xl p-5 transition-all duration-200 hover:-translate-y-px cursor-pointer" style="background:var(--color-bg);border:1px solid var(--color-border);box-shadow:var(--shadow-card);">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-medium rounded-full px-2.5 py-0.5 whitespace-nowrap" style="background:var(--gradient-primary-soft);color:var(--brand-primary);">青春</span>
+                        <span class="text-xs whitespace-nowrap" style="color:var(--color-text-muted);">6月18日</span>
+                    </div>
+                    <h3 class="text-sm font-semibold mt-3 truncate" style="color:var(--color-text);">校园时光</h3>
+                    <p class="text-xs mt-1 line-clamp-1" style="color:var(--color-text-secondary);">记录青春岁月里的友情与成长故事</p>
+                    <div class="mt-4">
+                        <div class="h-1.5 rounded-full" style="background:var(--color-bg-subtle-2);">
+                            <div class="h-1.5 rounded-full" style="width:25%;background:var(--gradient-primary);"></div>
+                        </div>
+                        <div class="flex items-center justify-between mt-1.5">
+                            <span class="text-xs" style="color:var(--color-text-muted);">剧本编写中</span>
+                            <span class="text-xs" style="color:var(--color-text-muted);">25%</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Project 3 -->
+                <div class="rounded-xl p-5 transition-all duration-200 hover:-translate-y-px cursor-pointer" style="background:var(--color-bg);border:1px solid var(--color-border);box-shadow:var(--shadow-card);">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-medium rounded-full px-2.5 py-0.5 whitespace-nowrap" style="background:var(--gradient-primary-soft);color:var(--brand-primary);">古风</span>
+                        <span class="text-xs whitespace-nowrap" style="color:var(--color-text-muted);">6月15日</span>
+                    </div>
+                    <h3 class="text-sm font-semibold mt-3 truncate" style="color:var(--color-text);">古风传奇</h3>
+                    <p class="text-xs mt-1 line-clamp-1" style="color:var(--color-text-secondary);">穿越千年的爱恨情仇，江湖恩怨录</p>
+                    <div class="mt-4">
+                        <div class="h-1.5 rounded-full" style="background:var(--color-bg-subtle-2);">
+                            <div class="h-1.5 rounded-full" style="width:15%;background:var(--gradient-primary);"></div>
+                        </div>
+                        <div class="flex items-center justify-between mt-1.5">
+                            <span class="text-xs" style="color:var(--color-text-muted);">角色设计中</span>
+                            <span class="text-xs" style="color:var(--color-text-muted);">15%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOTTOM ROW — Two columns -->
+        <div class="max-w-7xl mx-auto px-6 pt-6 pb-12">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Left: 最近动态 -->
+                <div class="rounded-xl p-5" style="background:var(--color-bg);border:1px solid var(--color-border);box-shadow:var(--shadow-card);">
+                    <h2 class="text-sm font-semibold mb-3" style="color:var(--color-text);">最近动态</h2>
+                    <!-- Activity 1 -->
+                    <div class="flex items-center gap-3 py-2.5" style="border-bottom:1px solid var(--color-border-subtle);">
+                        <span class="w-2 h-2 rounded-full shrink-0" style="background:var(--brand-primary);"></span>
+                        <span class="text-sm truncate" style="color:var(--color-text-secondary);">更新了「星际迷途」第三章</span>
+                        <span class="text-xs whitespace-nowrap ml-auto shrink-0" style="color:var(--color-text-muted);">2小时前</span>
+                    </div>
+                    <!-- Activity 2 -->
+                    <div class="flex items-center gap-3 py-2.5" style="border-bottom:1px solid var(--color-border-subtle);">
+                        <span class="w-2 h-2 rounded-full shrink-0" style="background:var(--brand-primary);"></span>
+                        <span class="text-sm truncate" style="color:var(--color-text-secondary);">新增角色「林队长」</span>
+                        <span class="text-xs whitespace-nowrap ml-auto shrink-0" style="color:var(--color-text-muted);">5小时前</span>
+                    </div>
+                    <!-- Activity 3 -->
+                    <div class="flex items-center gap-3 py-2.5" style="border-bottom:1px solid var(--color-border-subtle);">
+                        <span class="w-2 h-2 rounded-full shrink-0" style="background:var(--color-text-muted);"></span>
+                        <span class="text-sm truncate" style="color:var(--color-text-secondary);">生成了 8 张分镜</span>
+                        <span class="text-xs whitespace-nowrap ml-auto shrink-0" style="color:var(--color-text-muted);">1天前</span>
+                    </div>
+                    <!-- Activity 4 -->
+                    <div class="flex items-center gap-3 py-2.5">
+                        <span class="w-2 h-2 rounded-full shrink-0" style="background:var(--color-text-muted);"></span>
+                        <span class="text-sm truncate" style="color:var(--color-text-secondary);">创建了项目</span>
+                        <span class="text-xs whitespace-nowrap ml-auto shrink-0" style="color:var(--color-text-muted);">5天前</span>
+                    </div>
+                </div>
+                <!-- Right: 快速操作 -->
+                <div class="rounded-xl p-5" style="background:var(--color-bg);border:1px solid var(--color-border);box-shadow:var(--shadow-card);">
+                    <h2 class="text-sm font-semibold mb-3" style="color:var(--color-text);">快速操作</h2>
+                    <!-- Action 1 -->
+                    <div class="flex items-center gap-3 py-3 px-1 rounded-lg cursor-pointer transition-colors duration-150 hover:opacity-80" style="background:transparent;">
+                        <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style="background:var(--gradient-primary-soft);">
+                            <i data-lucide="plus" class="w-4 h-4" style="color:var(--brand-primary);"></i>
+                        </div>
+                        <span class="text-sm font-medium" style="color:var(--color-text);">新建项目</span>
+                        <i data-lucide="chevron-right" class="w-4 h-4 ml-auto shrink-0" style="color:var(--color-text-muted);"></i>
+                    </div>
+                    <!-- Action 2 -->
+                    <div class="flex items-center gap-3 py-3 px-1 rounded-lg cursor-pointer transition-colors duration-150 hover:opacity-80" style="background:transparent;">
+                        <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style="background:var(--gradient-primary-soft);">
+                            <i data-lucide="users" class="w-4 h-4" style="color:var(--brand-primary);"></i>
+                        </div>
+                        <span class="text-sm font-medium" style="color:var(--color-text);">角色管理</span>
+                        <i data-lucide="chevron-right" class="w-4 h-4 ml-auto shrink-0" style="color:var(--color-text-muted);"></i>
+                    </div>
+                    <!-- Action 3 -->
+                    <div class="flex items-center gap-3 py-3 px-1 rounded-lg cursor-pointer transition-colors duration-150 hover:opacity-80" style="background:transparent;">
+                        <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style="background:var(--gradient-primary-soft);">
+                            <i data-lucide="git-branch" class="w-4 h-4" style="color:var(--brand-primary);"></i>
+                        </div>
+                        <span class="text-sm font-medium" style="color:var(--color-text);">全链路视图</span>
+                        <i data-lucide="chevron-right" class="w-4 h-4 ml-auto shrink-0" style="color:var(--color-text-muted);"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Custom styles for hover shadow transitions -->
+    <style>
+        /* Stat card hover shadow */
+        .grid > div:hover,
+        .grid > a:hover {
+            box-shadow: var(--shadow-card-hover) !important;
+        }
+        /* Quick action row hover bg */
+        [style*="cursor-pointer"]:hover {
+            background: var(--color-bg-subtle) !important;
+        }
+    </style>
+
+    <script>lucide.createIcons();</script>
+</body>
+</html>

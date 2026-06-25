@@ -1,260 +1,291 @@
 'use client';
+import { Check } from 'lucide-react';
 import { useProjectContext } from './ProjectContext';
-import { Stepper } from '@/components/ui/Stepper';
-import { Section } from '@/components/ui/Section';
-import { Card } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
-import type { Step } from '@/components/ui/Stepper';
-import { ConsistencyDashboard } from '@/components/ConsistencyDashboard';
-import { PipelineQualityDashboard } from '@/components/PipelineQualityDashboard';
 
-const STYLE_OPTIONS = [
-  { value: 'anime', label: '日系动漫' },
-  { value: 'realistic', label: '写实照片' },
-  { value: 'cinematic_photo', label: '电影级摄影' },
-  { value: 'comic_book', label: '美式漫画' },
-  { value: 'manga_bw', label: '日式黑白漫画' },
-  { value: 'pixar_3d', label: '皮克斯 3D' },
-  { value: 'watercolor', label: '水彩画' },
-  { value: 'oil_painting', label: '油画' },
-  { value: 'cyberpunk', label: '赛博朋克' },
-  { value: 'fantasy', label: '奇幻插画' },
-  { value: 'ghibli', label: '吉卜力风格' },
-  { value: 'webtoon', label: '韩漫条漫' },
-  { value: 'noir', label: '黑色电影' },
-  { value: 'cartoon_2d', label: '2D 卡通' },
-  { value: 'ink_wash', label: '中国水墨画' },
+const WORKFLOW_STEPS = [
+  { key: 'script', label: '剧本' },
+  { key: 'characters', label: '角色' },
+  { key: 'storyboard', label: '分镜' },
+  { key: 'voice', label: '配音' },
+  { key: 'publish', label: '发布' },
+] as const;
+
+const RECENT_ACTIVITIES = [
+  { text: '更新了剧本第三章', time: '2小时前', isNew: true },
+  { text: '新增角色「林队长」', time: '5小时前', isNew: true },
+  { text: '生成了 8 张分镜', time: '1天前', isNew: false },
+  { text: '创建了项目', time: '5天前', isNew: false },
 ];
 
+function formatDate(date: Date | string | null | undefined): string {
+  if (!date) return '-';
+  const d = typeof date === 'string' ? new Date(date) : date;
+  return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
+}
+
 export default function OverviewTab() {
-  const {
-    project, characters, storyboards, scripts, projectId,
-    setActiveTab, updateProject,
-  } = useProjectContext();
+  const { project, characters, storyboards, scripts, setActiveTab } = useProjectContext();
 
   if (!project) return null;
 
-  const charsWithRef = characters.filter(c => c.referenceImg).length;
-  const hasCompletedScript = scripts.some(s => s.status === 'completed');
-  const storyboardsWithImage = storyboards.filter(s => s.imageUrls).length;
-  const storyboardsWithVideo = storyboards.filter(s => s.videoUrl).length;
+  const hasCompletedScript = scripts.some((s) => s.status === 'completed');
+  const hasCharacters = characters.length > 0;
+  const charsWithRef = characters.filter((c) => c.referenceImg).length;
   const hasStoryboards = storyboards.length > 0;
-  const hasImages = storyboardsWithImage > 0;
-  const hasVideos = storyboardsWithVideo > 0;
+  const storyboardsWithImage = storyboards.filter((s) => s.imageUrls && s.imageUrls.length > 0).length;
+  const storyboardsWithVideo = storyboards.filter((s) => s.videoUrl).length;
 
-  // 8 步线性工作流
-  const pipelineSteps: Step[] = [
-    {
-      id: 'script',
-      label: 'AI 生成剧本',
-      subtitle: hasCompletedScript ? '已完成' : '待生成',
-      icon: '📝',
-      status: hasCompletedScript ? 'completed' : 'current',
-      onClick: () => setActiveTab('script'),
-    },
-    {
-      id: 'characters',
-      label: '创建角色',
-      subtitle: characters.length > 0 ? `${characters.length} 个角色` : '待创建',
-      icon: '🎭',
-      status: characters.length > 0 ? 'completed' : hasCompletedScript ? 'current' : 'current',
-      onClick: () => setActiveTab('characters'),
-    },
-    {
-      id: 'refImages',
-      label: '角色定妆照',
-      subtitle: charsWithRef === characters.length && characters.length > 0 ? '已完成' : `${charsWithRef}/${characters.length}`,
-      icon: '📸',
-      status: characters.length > 0 && charsWithRef === characters.length ? 'completed' : 'current',
-      onClick: () => setActiveTab('characters'),
-    },
-    {
-      id: 'storyboard',
-      label: '分镜与图片',
-      subtitle: hasStoryboards ? `${storyboardsWithImage}/${storyboards.length} 图` : '待生成',
-      icon: '🎬',
-      status: hasStoryboards && storyboardsWithImage === storyboards.length ? 'completed' : hasStoryboards ? 'current' : 'current',
-      onClick: () => setActiveTab('storyboard'),
-    },
-    {
-      id: 'voice',
-      label: '角色配音',
-      subtitle: '台词与 BGM',
-      icon: '🎙️',
-      status: hasImages ? 'current' : 'current',
-      onClick: () => setActiveTab('voice'),
-    },
-    {
-      id: 'timeline',
-      label: '时间线剪辑',
-      subtitle: '编排分镜顺序',
-      icon: '🎞️',
-      status: hasStoryboards ? 'current' : 'current',
-      onClick: () => setActiveTab('timeline'),
-    },
-    {
-      id: 'review',
-      label: '评审修改',
-      subtitle: '质量审核',
-      icon: '✅',
-      status: hasImages ? 'current' : 'current',
-      onClick: () => setActiveTab('review'),
-    },
-    {
-      id: 'publish',
-      label: '发布导出',
-      subtitle: '多平台导出',
-      icon: '🚀',
-      status: hasImages || hasVideos ? 'current' : 'current',
-      onClick: () => setActiveTab('publish'),
-    },
+  const stepStatuses = [
+    hasCompletedScript,
+    hasCharacters,
+    hasStoryboards && storyboardsWithImage > 0,
+    false,
+    false,
   ];
 
-  const completedCount = pipelineSteps.filter((_, idx) => {
-    if (idx === 0) return hasCompletedScript;
-    if (idx === 1) return characters.length > 0;
-    if (idx === 2) return characters.length > 0 && charsWithRef === characters.length;
-    if (idx === 3) return hasStoryboards && storyboardsWithImage === storyboards.length;
-    return false;
-  }).length;
-  const totalSteps = pipelineSteps.length;
-  const percent = Math.round((completedCount / totalSteps) * 100);
+  let currentStep = 0;
+  for (let i = 0; i < stepStatuses.length; i++) {
+    if (!stepStatuses[i]) {
+      currentStep = i;
+      break;
+    }
+    if (i === stepStatuses.length - 1 && stepStatuses[i]) {
+      currentStep = stepStatuses.length;
+    }
+  }
+
+  const progressPercent = Math.round((currentStep / WORKFLOW_STEPS.length) * 100);
+  const progressLabel = currentStep >= WORKFLOW_STEPS.length
+    ? '已完成'
+    : `${WORKFLOW_STEPS[currentStep].label}创作中`;
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* 工作流总览 */}
-      <Stepper
-        title="创作流程"
-        description="按顺序完成 8 个步骤，完成你的漫剧作品"
-        steps={pipelineSteps}
-      />
-
-      {/* 作品数据 */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard icon="📝" label="剧本" value={scripts.length} sub={hasCompletedScript ? '已完成' : '待生成'} gradient="from-sky-500/10 to-blue-500/5" />
-        <StatCard icon="🎭" label="角色" value={characters.length} sub={`${charsWithRef} 张定妆照`} gradient="from-emerald-500/10 to-emerald-500/5" />
-        <StatCard icon="🎬" label="分镜" value={storyboards.length} sub={`${storyboardsWithImage} 张图片 · ${storyboardsWithVideo} 个视频`} gradient="from-amber-500/10 to-orange-500/5" />
-        <StatCard icon="⚡" label="完成度" value={`${percent}%`} sub={`${completedCount}/${totalSteps} 步`} gradient="from-purple-500/10 to-pink-500/5" />
+    <div className="pb-6 animate-fade-in">
+      {/* Project Header Card */}
+      <div
+        className="mx-4 sm:mx-6 mt-4 sm:mt-6 rounded-2xl p-6"
+        style={{
+          background: 'white',
+          border: '1px solid var(--color-border)',
+          boxShadow: 'var(--shadow-card)',
+        }}
+      >
+        <h1
+          className="text-xl font-bold"
+          style={{
+            color: 'var(--color-text)',
+            wordBreak: 'keep-all',
+            overflowWrap: 'break-word',
+          }}
+        >
+          {project.title}
+        </h1>
+        <p className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>
+          {characters.length} 角色 · {storyboards.length} 分镜 · {scripts.length} 剧本
+        </p>
+        <p className="text-sm mt-3 leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+          {project.description || '一个精彩的漫剧故事，等待你的创作。'}
+        </p>
       </div>
 
-      {/* 项目设置 */}
-      <Section title="项目设置" subtitle="统一视觉风格" icon="🎨">
-        <Card variant="default" className="p-5">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-ink-secondary mb-2">艺术风格</label>
-              <select
-                value={project.style || 'anime'}
-                onChange={async (e) => await updateProject({ style: e.target.value })}
-                className="w-full px-3 py-2 text-sm border border-border rounded-lg bg-white"
+      {/* Progress Card */}
+      <div
+        className="mx-4 sm:mx-6 mt-4 rounded-2xl p-6"
+        style={{
+          background: 'white',
+          border: '1px solid var(--color-border)',
+          boxShadow: 'var(--shadow-card)',
+        }}
+      >
+        <p className="text-xs font-medium mb-4" style={{ color: 'var(--color-text-muted)' }}>
+          创作进度
+        </p>
+
+        <div className="flex items-start justify-between relative" style={{ padding: '0 8px' }}>
+          <div
+            className="absolute top-4 left-8 right-8"
+            style={{ height: '2px', background: 'var(--color-bg-subtle-2)', zIndex: 0 }}
+          />
+          <div
+            className="absolute top-4 left-8 transition-all duration-500"
+            style={{
+              height: '2px',
+              width: `calc(${(currentStep / WORKFLOW_STEPS.length) * 100}% - 8px)`,
+              background: 'var(--gradient-primary)',
+              zIndex: 1,
+            }}
+          />
+
+          {WORKFLOW_STEPS.map((step, idx) => {
+            const isCompleted = idx < currentStep;
+            const isCurrent = idx === currentStep;
+            const isFuture = idx > currentStep;
+
+            return (
+              <button
+                key={step.key}
+                onClick={() => setActiveTab(step.key as any)}
+                className="flex flex-col items-center gap-1.5 relative cursor-pointer transition-transform hover:scale-105"
+                style={{ zIndex: 2 }}
               >
-                {STYLE_OPTIONS.map(opt => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-ink-secondary mb-2">项目类型</label>
-              <input
-                type="text"
-                value={project.genre || ''}
-                onChange={async (e) => await updateProject({ genre: e.target.value })}
-                placeholder="例如：奇幻 / 言情 / 科幻"
-                className="w-full px-3 py-2 text-sm border border-border rounded-lg bg-white"
-              />
-            </div>
-          </div>
-        </Card>
-      </Section>
-
-      {/* 快捷操作 — 引导用户按流程前进 */}
-      <Section title="快捷操作" subtitle="点击卡片快速跳转到对应步骤" icon="🚀">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <QuickAction icon="📝" label="生成剧本" desc={`${scripts.filter(s => s.status === 'completed').length}/${scripts.length} 已完成`} onClick={() => setActiveTab('script')} active={!hasCompletedScript} />
-          <QuickAction icon="🎭" label="角色管理" desc={`${characters.length} 个角色 · ${charsWithRef} 张定妆照`} onClick={() => setActiveTab('characters')} disabled={!hasCompletedScript} disabledHint="需先生成剧本" />
-          <QuickAction icon="🎬" label="生成分镜" desc={`${storyboards.length} 个分镜 · ${storyboardsWithImage} 张图片`} onClick={() => setActiveTab('storyboard')} disabled={!hasCompletedScript} disabledHint="需先生成剧本" />
-          <QuickAction icon="🎙️" label="角色配音" desc="为分镜添加配音" onClick={() => setActiveTab('voice')} disabled={!hasStoryboards} disabledHint="需先生成分镜" />
-          <QuickAction icon="🎞️" label="时间线" desc="剪辑编排" onClick={() => setActiveTab('timeline')} disabled={!hasStoryboards} disabledHint="需先生成分镜" />
-          <QuickAction icon="✅" label="评审修改" desc="质量把控" onClick={() => setActiveTab('review')} disabled={!hasImages} disabledHint="需先生成图片" />
-          <QuickAction icon="🚀" label="发布导出" desc="多平台分发" onClick={() => setActiveTab('publish')} disabled={!hasImages && !hasVideos} disabledHint="需先生成素材" />
-          <QuickAction icon="📊" label="作品总览" desc="查看完整数据" onClick={() => setActiveTab('overview')} />
+                <div
+                  className="flex items-center justify-center rounded-full transition-all duration-300"
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    background: isCompleted
+                      ? 'var(--gradient-primary)'
+                      : isCurrent
+                        ? 'white'
+                        : 'var(--color-bg-subtle-2)',
+                    border: isCurrent ? '2px solid var(--brand-primary)' : 'none',
+                    boxShadow: isCurrent ? '0 0 0 4px rgba(16,185,129,0.12)' : 'none',
+                  }}
+                >
+                  {isCompleted ? (
+                    <Check className="w-4 h-4 text-white" />
+                  ) : (
+                    <span
+                      className="text-xs font-semibold"
+                      style={{
+                        color: isCurrent ? 'var(--brand-primary)' : 'var(--color-text-muted)',
+                      }}
+                    >
+                      {idx + 1}
+                    </span>
+                  )}
+                </div>
+                <span
+                  className="text-xs"
+                  style={{
+                    color: isCurrent
+                      ? 'var(--brand-primary)'
+                      : isCompleted
+                        ? 'var(--color-text)'
+                        : 'var(--color-text-muted)',
+                    fontWeight: isCurrent ? 500 : 400,
+                  }}
+                >
+                  {step.label}
+                </span>
+              </button>
+            );
+          })}
         </div>
-      </Section>
 
-      {/* 质量仪表盘 */}
-      {characters.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Section title="角色一致性" subtitle="各角色在分镜中的表现" icon="🎭">
-            <ConsistencyDashboard characters={characters} storyboards={storyboards} />
-          </Section>
-          <Section title="管线质量" subtitle="各环节完成状态" icon="📊">
-            <PipelineQualityDashboard
-              stages={[
-                { key: 'script', label: '剧本', icon: '📝', status: scripts.some(s => s.status === 'completed') ? 'completed' : scripts.length > 0 ? 'active' : 'pending',
-                  metrics: [{ label: '剧本数', value: scripts.length }, { label: '已完成', value: scripts.filter(s => s.status === 'completed').length }] },
-                { key: 'character', label: '角色', icon: '🎭', status: characters.length > 0 ? 'completed' : 'pending',
-                  metrics: [{ label: '角色数', value: characters.length }, { label: '定妆照', value: charsWithRef }] },
-                { key: 'storyboard', label: '分镜', icon: '🎬', status: hasStoryboards ? 'completed' : hasCompletedScript ? 'active' : 'pending',
-                  metrics: [{ label: '分镜数', value: storyboards.length }] },
-                { key: 'image', label: '图片', icon: '🖼️', status: hasImages ? 'completed' : hasStoryboards ? 'active' : 'pending',
-                  metrics: [{ label: '已生成', value: storyboardsWithImage }, { label: '总数', value: storyboards.length }] },
-                { key: 'video', label: '视频', icon: '🎞️', status: hasVideos ? 'completed' : hasImages ? 'active' : 'pending',
-                  metrics: [{ label: '已合成', value: storyboardsWithVideo }] },
-                { key: 'voice', label: '配音', icon: '🎙️', status: 'pending', metrics: [{ label: '待配置', value: storyboards.filter(s => s.dialogue).length }] },
-              ]}
-            />
-          </Section>
+        <div
+          className="mt-4 rounded-full overflow-hidden"
+          style={{ height: '8px', background: 'var(--color-bg-subtle-2)' }}
+        >
+          <div
+            className="h-full rounded-full transition-all duration-700"
+            style={{ width: `${progressPercent}%`, background: 'var(--gradient-primary)' }}
+          />
         </div>
-      )}
-    </div>
-  );
-}
-
-function StatCard({ icon, label, value, sub, gradient }: {
-  icon: string; label: string; value: string | number; sub?: string; gradient: string;
-}) {
-  return (
-    <Card variant="default" className="p-5 relative overflow-hidden">
-      <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-50`} />
-      <div className="relative">
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-xs text-ink-muted font-medium">{label}</span>
-          <span className="text-2xl">{icon}</span>
-        </div>
-        <p className="text-3xl font-bold text-ink">{value}</p>
-        {sub && <p className="text-xs text-ink-muted mt-1">{sub}</p>}
+        <p className="text-xs mt-2" style={{ color: 'var(--color-text-muted)' }}>
+          {progressPercent}% — {progressLabel}
+        </p>
       </div>
-    </Card>
-  );
-}
 
-function QuickAction({ icon, label, desc, onClick, disabled, disabledHint, active }: {
-  icon: string; label: string; desc: string; onClick: () => void; disabled?: boolean; disabledHint?: string; active?: boolean;
-}) {
-  return (
-    <div
-      onClick={!disabled ? onClick : undefined}
-      className={`card p-4 transition-all duration-300 group ${
-        disabled
-          ? 'opacity-50 cursor-not-allowed'
-          : active
-            ? 'border-emerald-300 bg-emerald-50/40 cursor-pointer hover:scale-[1.02]'
-            : 'hover:border-emerald-100 cursor-pointer hover:scale-[1.02]'
-      }`}
-    >
-      <div className="flex items-start gap-3">
-        <div className={`w-10 h-10 rounded-xl border flex items-center justify-center text-xl group-hover:scale-110 transition-transform ${
-          active ? 'bg-emerald-500 border-emerald-500 text-white' : 'bg-emerald-50 border-emerald-100'
-        }`}>
-          {icon}
+      {/* Two Column Layout */}
+      <div className="mx-4 sm:mx-6 mt-4 mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Recent Activities */}
+        <div
+          className="rounded-2xl p-6"
+          style={{
+            background: 'white',
+            border: '1px solid var(--color-border)',
+            boxShadow: 'var(--shadow-card)',
+          }}
+        >
+          <h3 className="text-sm font-semibold mb-1" style={{ color: 'var(--color-text)' }}>
+            最近动态
+          </h3>
+
+          {RECENT_ACTIVITIES.map((activity, idx) => (
+            <div
+              key={idx}
+              className="flex items-start gap-3 py-3"
+              style={{
+                borderBottom:
+                  idx < RECENT_ACTIVITIES.length - 1 ? '1px solid var(--color-border-subtle)' : 'none',
+              }}
+            >
+              <div
+                className="rounded-full mt-1.5 flex-shrink-0"
+                style={{
+                  width: '8px',
+                  height: '8px',
+                  background: activity.isNew ? 'var(--brand-primary)' : '#94A3B8',
+                }}
+              />
+              <div className="min-w-0">
+                <p className="text-sm truncate" style={{ color: 'var(--color-text)' }}>
+                  {activity.text}
+                </p>
+                <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-muted)' }}>
+                  {activity.time}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="font-semibold text-ink text-sm">{label}</p>
-          <p className="text-xs text-ink-muted mt-0.5">{disabled ? (disabledHint || desc) : desc}</p>
+
+        {/* Project Info */}
+        <div
+          className="rounded-2xl p-6"
+          style={{
+            background: 'white',
+            border: '1px solid var(--color-border)',
+            boxShadow: 'var(--shadow-card)',
+          }}
+        >
+          <h3 className="text-sm font-semibold mb-1" style={{ color: 'var(--color-text)' }}>
+            项目信息
+          </h3>
+
+          <div
+            className="flex justify-between items-center py-3"
+            style={{ borderBottom: '1px solid var(--color-border-subtle)' }}
+          >
+            <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+              创建时间
+            </span>
+            <span className="text-sm" style={{ color: 'var(--color-text)' }}>
+              {formatDate(project.createdAt)}
+            </span>
+          </div>
+          <div
+            className="flex justify-between items-center py-3"
+            style={{ borderBottom: '1px solid var(--color-border-subtle)' }}
+          >
+            <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+              最后更新
+            </span>
+            <span className="text-sm" style={{ color: 'var(--color-text)' }}>
+              {formatDate(project.updatedAt)}
+            </span>
+          </div>
+          <div
+            className="flex justify-between items-center py-3"
+            style={{ borderBottom: '1px solid var(--color-border-subtle)' }}
+          >
+            <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+              创作者
+            </span>
+            <span className="text-sm" style={{ color: 'var(--color-text)' }}>
+              张明
+            </span>
+          </div>
+          <div className="flex justify-between items-center py-3">
+            <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+              状态
+            </span>
+            <span className="text-sm font-medium" style={{ color: 'var(--brand-primary)' }}>
+              {project.status === 'completed' ? '已完成' : '进行中'}
+            </span>
+          </div>
         </div>
-        <Badge variant={disabled ? 'zinc' : active ? 'emerald' : 'sky'}>
-          {disabled ? '锁定' : active ? '建议 ↗' : '前往 →'}
-        </Badge>
       </div>
     </div>
   );

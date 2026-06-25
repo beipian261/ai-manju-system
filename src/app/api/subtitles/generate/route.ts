@@ -1,8 +1,8 @@
-// AI 字幕自动生成 API
+﻿// AI 字幕自动生成 API
 // 从配音自动生成字幕，支持多语言
 import { NextRequest, NextResponse } from 'next/server';
-import { checkApiAuth } from '@/lib/auth';
-import prisma from '@/lib/prisma-client';
+import { checkApiAuth } from '@/lib/auth/auth';
+import prisma from '@/lib/db/prisma';
 
 // 支持的语言
 const SUPPORTED_LANGUAGES = [

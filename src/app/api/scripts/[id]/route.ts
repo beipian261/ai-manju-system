@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma-client';
-import { checkApiAuth } from '@/lib/auth';
-import { chatCompletion } from '@/lib/agnes-client';
-import { getSetting } from '@/lib/settings';
-import { emitProgress } from '@/lib/progress-bus';
-import { logger } from '@/lib/logger';
+import prisma from '@/lib/db/prisma';
+import { checkApiAuth } from '@/lib/auth/auth';
+import { chatCompletion } from '@/lib/ai/agnes-client';
+import { getSetting } from '@/lib/config/settings';
+import { emitProgress } from '@/lib/bus/progress-bus';
+import { logger } from '@/lib/utils/logger';
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

@@ -8,7 +8,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { useConfirmDialog } from '@/components/ConfirmDialog';
+import { useConfirmDialog } from '@/components/common/ConfirmDialog';
 import type { Character } from './types';
 import type { ConsistencyIssue } from '@/types';
 

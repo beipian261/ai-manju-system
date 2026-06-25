@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSettings } from './settings';
-import { isAllowedApiBase } from './url-guard';
+import { getSettings } from '@/lib/config/settings';
+import { isAllowedApiBase } from '@/lib/utils/url-guard';
 
 // 共享测试逻辑（settings/route.ts POST 与 settings/test/route.ts 复用）
 export async function testConnectionImpl(req: NextRequest) {

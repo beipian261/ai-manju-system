@@ -1,0 +1,210 @@
+{
+  "project": {
+    "name": "AI 漫剧系统",
+    "path": "c:\\Users\\28406\\Desktop\\新建文件夹\\ai-comic-drama-system\\ai-comic-drama-design",
+    "operation": "create",
+    "deviceType": "desktop",
+    "language": "zh-CN",
+    "dashboardMode": false,
+    "replicationMode": null,
+    "sourceUrl": null,
+    "visualSpecExcerpt": null,
+    "styleDefinitionBrief": "AI creative platform, pure white base + emerald green accent, clean modern SaaS, system-ui font stack, card-based layout with subtle shadows",
+    "designRead": "SaaS creative tool / content creators / clean modern / medium density / avoid heavy shadows and dark themes",
+    "designDials": {
+      "layoutVariance": 3,
+      "motionIntensity": 2,
+      "visualDensity": 3
+    },
+    "styleContinuityAnchors": {
+      "colorSystem": {
+        "primaryColorRole": "emerald green #10B981 for CTAs, active states, and brand accents",
+        "brandHuePolicy": "single emerald hue; no secondary/accent brand hue",
+        "stateColors": "semantic success=emerald, warning=amber, error=red, info=blue"
+      },
+      "shapeSystem": "rounded-lg cards (12px), rounded-button (10px), rounded-input (10px)",
+      "typographySystem": "system-ui stack with PingFang SC + Microsoft YaHei CJK fallback",
+      "spacingSystem": "4px base grid, 16-24px section padding, 24-32px component gaps",
+      "componentLanguage": "card-based with 1px #F0F0F0 borders, subtle box-shadows, emerald hover accents",
+      "surfaceAndDepth": "border-first cards with alpha<=0.04 shadows; floating layers may use deeper shadows",
+      "imageryAndIconography": "emoji-based icons inline, gradient decorative backgrounds",
+      "interactionTone": "smooth transitions 200-300ms, translateY hover lifts, scale micro-animations"
+    },
+    "specsConstraints": null,
+    "sharedProjectShellContract": {
+      "navigationShell": "top sticky navbar with logo left, nav items center, CTA right; emerald gradient logo square",
+      "primaryColorSystem": "emerald #10B981 primary, #059669 hover, #34D399 light accent",
+      "typographySystem": "system-ui font stack, 14px body, 16-18px section titles, 24-48px hero headings",
+      "radiusScale": "4px sm, 8px md, 12px card, 10px button/input, 9999px pill",
+      "surfaceDepthModel": "white cards with #F0F0F0 border + 0.04 alpha shadow; hover adds emerald border tint + 0.06 shadow",
+      "ctaStyle": "emerald gradient bg, white text, rounded-button, shadow-button, translateY(-1px) hover",
+      "alignmentRules": "max-w-6xl/7xl centered, px-6 horizontal padding, py-5/8 vertical rhythm"
+    },
+    "generationTree": {
+      "root": {
+        "nodeId": "gen-project-shell",
+        "kind": "project-shell",
+        "pageIds": ["page-index", "page-dashboard", "page-project-detail"],
+        "output": "partials/project-shell.html",
+        "sharedRegions": ["global-styles", "font-stack", "color-system"],
+        "privateRegions": [],
+        "mutableSlots": [],
+        "status": "planned",
+        "children": [
+          {
+            "nodeId": "gen-page-index",
+            "kind": "page-leaf",
+            "pageIds": ["page-index"],
+            "output": "pages/index.html",
+            "sharedRegions": [],
+            "privateRegions": ["full page body"],
+            "mutableSlots": [],
+            "status": "planned",
+            "children": []
+          },
+          {
+            "nodeId": "gen-page-dashboard",
+            "kind": "page-leaf",
+            "pageIds": ["page-dashboard"],
+            "output": "pages/dashboard.html",
+            "sharedRegions": [],
+            "privateRegions": ["full page body"],
+            "mutableSlots": [],
+            "status": "planned",
+            "children": []
+          },
+          {
+            "nodeId": "gen-page-project-detail",
+            "kind": "page-leaf",
+            "pageIds": ["page-project-detail"],
+            "output": "pages/project-detail.html",
+            "sharedRegions": [],
+            "privateRegions": ["full page body"],
+            "mutableSlots": [],
+            "status": "planned",
+            "children": []
+          }
+        ]
+      }
+    }
+  },
+  "designSource": {
+    "operatingMode": "free-explore",
+    "libraryIdentity": null,
+    "libraryPath": null,
+    "cssFilePath": "c:\\Users\\28406\\Desktop\\新建文件夹\\ai-comic-drama-system\\ai-comic-drama-design\\colors_and_type.css",
+    "brandPrefix": "",
+    "themeMode": "light",
+    "designDecisionSummary": "Pure white base with emerald green (#10B981) accent. System-ui font stack with CJK support. Card-based layout with subtle borders and shadows. Clean modern SaaS aesthetic.",
+    "componentContractKind": null,
+    "forbiddenInventedComponents": [],
+    "allowedComponents": ["card", "button", "badge", "tab", "nav", "input", "textarea", "select", "progress", "stat-card"],
+    "styleConstraints": {
+      "radiusMax": 14,
+      "spacingBase": 4,
+      "fontSizeBody": 14,
+      "fontSizeMin": 12,
+      "controlHeightDefault": 40,
+      "controlHeightLarge": 48
+    },
+    "productContext": {
+      "kitType": "saas-creative-platform",
+      "productType": "B2C AI comic drama creation tool"
+    },
+    "actualTokenNameReference": [
+      { "semanticPurpose": "Primary brand color", "tokenName": "--brand-primary" },
+      { "semanticPurpose": "Primary hover", "tokenName": "--brand-primary-hover" },
+      { "semanticPurpose": "Background", "tokenName": "--color-bg" },
+      { "semanticPurpose": "Text primary", "tokenName": "--color-text" },
+      { "semanticPurpose": "Text secondary", "tokenName": "--color-text-secondary" },
+      { "semanticPurpose": "Border default", "tokenName": "--color-border" },
+      { "semanticPurpose": "Card shadow", "tokenName": "--shadow-card" }
+    ]
+  },
+  "pages": [
+    {
+      "nodeId": "page-index",
+      "slug": "index",
+      "title": "首页",
+      "htmlSrc": "pages/index.html",
+      "pageIndex": 1,
+      "stateGroupId": null,
+      "stateRole": null,
+      "baseStatePageId": null,
+      "sharedShellContract": [],
+      "mutableRegions": [],
+      "derivedFromHtmlSrc": null,
+      "derivationType": "original",
+      "sourcePageId": null,
+      "sourceHtmlSrc": null,
+      "pageType": "showcase",
+      "businessScenario": "Landing page for AI comic drama creation platform",
+      "visualNorthStar": "Clean white hero with emerald gradient text, 4-step pipeline cards, feature grid, bottom CTA",
+      "compositionPattern": "hero-center → 4-column steps → 2-column features → centered CTA → footer",
+      "continuityAnchors": ["emerald gradient text", "card border+shadow pattern", "btn-primary emerald style"],
+      "libraryRestraintMode": false,
+      "chartsRequired": false,
+      "miniProgramStyle": false,
+      "imagePlan": []
+    },
+    {
+      "nodeId": "page-dashboard",
+      "slug": "dashboard",
+      "title": "工作台",
+      "htmlSrc": "pages/dashboard.html",
+      "pageIndex": 2,
+      "stateGroupId": null,
+      "stateRole": null,
+      "baseStatePageId": null,
+      "sharedShellContract": [],
+      "mutableRegions": [],
+      "derivedFromHtmlSrc": null,
+      "derivationType": "original",
+      "sourcePageId": null,
+      "sourceHtmlSrc": null,
+      "pageType": "information-dense",
+      "businessScenario": "Creator dashboard with stats, quick actions, and recent projects",
+      "visualNorthStar": "Sticky navbar with emerald logo, stat cards grid, quick action cards, recent project list",
+      "compositionPattern": "navbar → welcome header → 4-column stats → 3-column quick actions → recent projects grid",
+      "continuityAnchors": ["navbar emerald logo", "stat-card pattern", "card hover emerald border", "badge-emerald style"],
+      "libraryRestraintMode": false,
+      "chartsRequired": false,
+      "miniProgramStyle": false,
+      "imagePlan": []
+    },
+    {
+      "nodeId": "page-project-detail",
+      "slug": "project-detail",
+      "title": "项目详情",
+      "htmlSrc": "pages/project-detail.html",
+      "pageIndex": 3,
+      "stateGroupId": null,
+      "stateRole": null,
+      "baseStatePageId": null,
+      "sharedShellContract": [],
+      "mutableRegions": [],
+      "derivedFromHtmlSrc": null,
+      "derivationType": "original",
+      "sourcePageId": null,
+      "sourceHtmlSrc": null,
+      "pageType": "task-driven",
+      "businessScenario": "Project workspace with linear workflow sidebar and tab-based content area",
+      "visualNorthStar": "Top bar with breadcrumbs + actions, left workflow sidebar with emerald active state, right content area with project header",
+      "compositionPattern": "top-bar → sidebar + main content split → project header with badges + step indicators → tab content area",
+      "continuityAnchors": ["workflow sidebar nav-item active", "step indicator emerald squares", "badge-emerald/zinc", "breadcrumb text-muted"],
+      "libraryRestraintMode": false,
+      "chartsRequired": false,
+      "miniProgramStyle": false,
+      "imagePlan": []
+    }
+  ],
+  "assets": [],
+  "wiringPlan": [
+    { "from": "page-index", "to": "page-dashboard", "domId": "nav-dashboard", "label": "开始创作" },
+    { "from": "page-dashboard", "to": "page-project-detail", "domId": "project-card-1", "label": "打开项目" }
+  ],
+  "hiddenInteractionPlan": [
+    { "from": "page-dashboard", "to": "page-index", "domId": "nav-home", "hideEdge": true, "label": "返回首页" },
+    { "from": "page-project-detail", "to": "page-dashboard", "domId": "back-to-projects", "hideEdge": true, "label": "返回工作台" }
+  ]
+}

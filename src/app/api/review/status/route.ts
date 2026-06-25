@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma-client';
-import { checkApiAuth } from '@/lib/auth';
+﻿import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/lib/db/prisma';
+import { checkApiAuth } from '@/lib/auth/auth';
 
 // PATCH: 更新分镜的评审状态
 export async function PATCH(req: NextRequest) {

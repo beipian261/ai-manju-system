@@ -8,11 +8,11 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { StreamingContent } from '@/components/StreamingContent';
-import { ProgressSteps } from '@/components/ProgressSteps';
-import { ScriptRenderer } from '@/components/ScriptRenderer';
-import { ScriptVersionPanel } from '@/components/ScriptVersionPanel';
-import { OutlineAnalyzer } from '@/components/OutlineAnalyzer';
+import { StreamingContent } from '@/components/common/StreamingContent';
+import { ProgressSteps } from '@/components/common/ProgressSteps';
+import { ScriptRenderer } from '@/components/features/ScriptRenderer';
+import { ScriptVersionPanel } from '@/components/features/ScriptVersionPanel';
+import { OutlineAnalyzer } from '@/components/features/OutlineAnalyzer';
 import type { Script } from './types';
 
 export default function ScriptTab() {

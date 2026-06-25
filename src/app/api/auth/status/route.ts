@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { isAuthEnabled, checkAuthFromCookies } from '@/lib/auth';
+import { isAuthEnabled, checkAuthFromCookies } from '@/lib/auth/auth';
 
 export async function GET() {
   const enabled = isAuthEnabled();

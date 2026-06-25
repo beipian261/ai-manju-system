@@ -1,11 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma-client';
-import { checkApiAuth } from '@/lib/auth';
-import { generateStoryboardImage } from '@/lib/image-gen';
-import { emitProgress } from '@/lib/progress-bus';
-import { runWithConcurrencyPool } from '@/lib/concurrency-pool';
-import { getClientIdentifier, checkRateLimit } from '@/lib/rate-limiter';
-import { logger } from '@/lib/logger';
+﻿import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/lib/db/prisma';
+import { checkApiAuth } from '@/lib/auth/auth';
+import { generateStoryboardImage } from '@/features/generation/image-gen';
+import { emitProgress } from '@/lib/bus/progress-bus';
+import { runWithConcurrencyPool } from '@/lib/utils/concurrency-pool';
+import { getClientIdentifier, checkRateLimit } from '@/lib/utils/rate-limiter';
+import { logger } from '@/lib/utils/logger';
 
 const BATCH_CONCURRENCY = 3; // 最多同时生成 3 张图片，避免 API 限流
 

@@ -1,9 +1,9 @@
-// 角色一致性检查与修复 API
+﻿// 角色一致性检查与修复 API
 // 检查角色信息完整性、定妆照状态、分镜角色匹配
 import { NextRequest, NextResponse } from 'next/server';
-import { checkApiAuth } from '@/lib/auth';
-import prisma from '@/lib/prisma-client';
-import { buildCharacterSheet } from '@/lib/character-prompt';
+import { checkApiAuth } from '@/lib/auth/auth';
+import prisma from '@/lib/db/prisma';
+import { buildCharacterSheet } from '@/features/characters/character-prompt';
 
 export async function POST(req: NextRequest) {
   const auth = await checkApiAuth();

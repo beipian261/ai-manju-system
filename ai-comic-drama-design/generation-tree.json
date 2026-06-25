@@ -1,0 +1,47 @@
+{
+  "root": {
+    "nodeId": "gen-project-shell",
+    "kind": "project-shell",
+    "pageIds": ["page-index", "page-dashboard", "page-project-detail"],
+    "output": "partials/project-shell.html",
+    "sharedRegions": ["global-styles", "font-stack", "color-system", "animation-keyframes"],
+    "privateRegions": [],
+    "mutableSlots": [],
+    "status": "planned",
+    "children": [
+      {
+        "nodeId": "gen-page-index",
+        "kind": "page-leaf",
+        "pageIds": ["page-index"],
+        "output": "pages/index.html",
+        "sharedRegions": [],
+        "privateRegions": ["full page body — hero, pipeline, features, CTA, footer"],
+        "mutableSlots": [],
+        "status": "planned",
+        "children": []
+      },
+      {
+        "nodeId": "gen-page-dashboard",
+        "kind": "page-leaf",
+        "pageIds": ["page-dashboard"],
+        "output": "pages/dashboard.html",
+        "sharedRegions": [],
+        "privateRegions": ["full page body — navbar, stats, actions, projects"],
+        "mutableSlots": [],
+        "status": "planned",
+        "children": []
+      },
+      {
+        "nodeId": "gen-page-project-detail",
+        "kind": "page-leaf",
+        "pageIds": ["page-project-detail"],
+        "output": "pages/project-detail.html",
+        "sharedRegions": [],
+        "privateRegions": ["full page body — topbar, sidebar, content area"],
+        "mutableSlots": [],
+        "status": "planned",
+        "children": []
+      }
+    ]
+  }
+}

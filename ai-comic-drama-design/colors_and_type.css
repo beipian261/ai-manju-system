@@ -1,0 +1,120 @@
+/* ===== AI 漫剧系统 — Modern Refined Design System ===== */
+/* Clean structure + modern polish: soft gradients, glass effects, subtle depth */
+
+:root {
+  /* --- Brand Colors (emerald with more depth) --- */
+  --brand-primary: #10B981;
+  --brand-primary-hover: #059669;
+  --brand-primary-light: #34D399;
+  --brand-primary-soft: #6EE7B7;
+
+  /* --- Gradient Presets --- */
+  --gradient-primary: linear-gradient(135deg, #10B981 0%, #06B6D4 100%);
+  --gradient-primary-soft: linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(6,182,212,0.08) 100%);
+  --gradient-hero: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #0F172A 100%);
+  --gradient-card: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.6) 100%);
+  --gradient-glow: radial-gradient(ellipse at 50% 0%, rgba(16,185,129,0.15) 0%, transparent 60%);
+
+  /* --- Character Avatar Gradients --- */
+  --gradient-avatar-emerald: linear-gradient(135deg, #10B981 0%, #06B6D4 100%);
+  --gradient-avatar-purple: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);
+  --gradient-avatar-amber: linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%);
+  --gradient-avatar-red: linear-gradient(135deg, #EF4444 0%, #F87171 100%);
+  --gradient-avatar-pink: linear-gradient(135deg, #EC4899 0%, #F472B6 100%);
+  --gradient-avatar-slate: linear-gradient(135deg, #64748B 0%, #94A3B8 100%);
+
+  /* --- Hero Section --- */
+  --color-hero-text: #FFFFFF;
+  --color-hero-text-secondary: rgba(203,213,225,1);
+  --color-hero-badge-bg: rgba(16,185,129,0.15);
+  --color-hero-badge-text: #34D399;
+  --color-hero-badge-border: rgba(16,185,129,0.2);
+  --color-hero-outline-border: rgba(255,255,255,0.2);
+  --color-hero-outline-hover-border: rgba(255,255,255,0.4);
+  --color-hero-outline-hover-bg: rgba(255,255,255,0.05);
+
+  /* --- Semantic Backgrounds --- */
+  --color-error-bg: #FEF2F2;
+
+  /* --- Base Surfaces --- */
+  --color-bg: #FFFFFF;
+  --color-bg-subtle: #F8FAFC;
+  --color-bg-subtle-2: #F1F5F9;
+  --color-bg-elevated: rgba(255,255,255,0.7);
+
+  /* --- Borders --- */
+  --color-border: #E2E8F0;
+  --color-border-subtle: #F1F5F9;
+  --color-border-input: #CBD5E1;
+
+  /* --- Glass Effect --- */
+  --glass-bg: rgba(255,255,255,0.6);
+  --glass-border: rgba(255,255,255,0.3);
+  --glass-blur: blur(20px);
+
+  /* --- Text (slightly warmer tones) --- */
+  --color-text: #0F172A;
+  --color-text-secondary: #64748B;
+  --color-text-muted: #94A3B8;
+  --color-text-placeholder: #CBD5E1;
+
+  /* --- State Colors --- */
+  --state-success: #10B981;
+  --state-warning: #F59E0B;
+  --state-error: #EF4444;
+  --state-info: #3B82F6;
+
+  /* --- Typography --- */
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-base: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+  --font-size-3xl: 30px;
+  --font-size-4xl: 36px;
+  --font-size-5xl: 48px;
+  --font-size-6xl: 60px;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --line-height-tight: 1.15;
+  --line-height-snug: 1.3;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.625;
+
+  /* --- Radius (modern, slightly larger) --- */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 16px;
+  --radius-button: 10px;
+  --radius-input: 10px;
+  --radius-full: 9999px;
+
+  /* --- Shadows (layered, modern) --- */
+  --shadow-sm: 0 1px 2px rgba(15,23,42,0.04);
+  --shadow-card: 0 1px 3px rgba(15,23,42,0.04), 0 1px 2px rgba(15,23,42,0.02);
+  --shadow-card-hover: 0 8px 25px rgba(15,23,42,0.05), 0 2px 6px rgba(15,23,42,0.04);
+  --shadow-button: 0 2px 8px rgba(16,185,129,0.05);
+  --shadow-button-lg: 0 4px 16px rgba(16,185,129,0.05);
+  --shadow-glow: 0 0 40px rgba(16,185,129,0.05);
+  --shadow-float: 0 12px 40px rgba(15,23,42,0.05);
+
+  /* --- Spacing --- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+  --space-32: 128px;
+}

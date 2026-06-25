@@ -1,8 +1,8 @@
-// 快速预览模式 API
+﻿// 快速预览模式 API
 // 低分辨率快速预览整个作品
 import { NextRequest, NextResponse } from 'next/server';
-import { checkApiAuth } from '@/lib/auth';
-import prisma from '@/lib/prisma-client';
+import { checkApiAuth } from '@/lib/auth/auth';
+import prisma from '@/lib/db/prisma';
 import type { StoryboardSnapshot } from '@/types';
 
 export async function POST(req: NextRequest) {

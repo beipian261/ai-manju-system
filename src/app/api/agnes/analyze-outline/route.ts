@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { checkApiAuth } from '@/lib/auth';
-import { getClientIdentifier, checkRateLimit } from '@/lib/rate-limiter';
-import { chatCompletion } from '@/lib/agnes-client';
-import { getSetting } from '@/lib/settings';
+﻿import { NextRequest, NextResponse } from 'next/server';
+import { checkApiAuth } from '@/lib/auth/auth';
+import { getClientIdentifier, checkRateLimit } from '@/lib/utils/rate-limiter';
+import { chatCompletion } from '@/lib/ai/agnes-client';
+import { getSetting } from '@/lib/config/settings';
 
 // ==============================
 // POST /api/agnes/analyze-outline

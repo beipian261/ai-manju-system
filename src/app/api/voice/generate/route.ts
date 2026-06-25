@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma-client';
-import { chatCompletion } from '@/lib/agnes-client';
-import { getSetting } from '@/lib/settings';
-import { checkApiAuth } from '@/lib/auth';
-import { logger } from '@/lib/logger';
+﻿import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/lib/db/prisma';
+import { chatCompletion } from '@/lib/ai/agnes-client';
+import { getSetting } from '@/lib/config/settings';
+import { checkApiAuth } from '@/lib/auth/auth';
+import { logger } from '@/lib/utils/logger';
 
 // POST: 为指定台词生成配音脚本（语音方向指导 + SSML）
 export async function POST(req: NextRequest) {

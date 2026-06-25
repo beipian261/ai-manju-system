@@ -1,9 +1,9 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { Navbar } from '@/components/navbar';
+import { Navbar } from '@/components/common/Navbar';
 import Link from 'next/link';
-import { apiGet, apiPost } from '@/lib/api-client';
+import { apiGet, apiPost } from '@/lib/utils/api-client';
 
 interface Platform {
   id: string;

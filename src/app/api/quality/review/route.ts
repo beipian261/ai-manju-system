@@ -1,10 +1,10 @@
-// 智能质量评审助手 API
+﻿// 智能质量评审助手 API
 // AI 自动检查作品质量，提供改进建议
 import { NextRequest, NextResponse } from 'next/server';
-import { checkApiAuth } from '@/lib/auth';
-import { chatCompletion } from '@/lib/agnes-client';
-import { getSetting } from '@/lib/settings';
-import prisma from '@/lib/prisma-client';
+import { checkApiAuth } from '@/lib/auth/auth';
+import { chatCompletion } from '@/lib/ai/agnes-client';
+import { getSetting } from '@/lib/config/settings';
+import prisma from '@/lib/db/prisma';
 import type { StoryboardSnapshot } from '@/types';
 
 // 质量检查项

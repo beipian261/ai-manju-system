@@ -1,12 +1,12 @@
-// 全流程自动化 API
+﻿// 全流程自动化 API
 // 用户输入大纲 → AI 自动完成全部创作步骤
 import { NextRequest, NextResponse } from 'next/server';
-import { checkApiAuth } from '@/lib/auth';
-import prisma from '@/lib/prisma-client';
-import { enqueueJob } from '@/lib/job-queue';
-import '@/lib/jobs';
-import { updateProjectStatus } from '@/lib/project-status';
-import { emitProgress } from '@/lib/progress-bus';
+import { checkApiAuth } from '@/lib/auth/auth';
+import prisma from '@/lib/db/prisma';
+import { enqueueJob } from '@/lib/queue/job-queue';
+import '@/lib/queue/jobs';
+import { updateProjectStatus } from '@/lib/utils/project-status';
+import { emitProgress } from '@/lib/bus/progress-bus';
 
 export async function POST(req: NextRequest) {
   const auth = await checkApiAuth();

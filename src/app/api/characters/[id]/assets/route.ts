@@ -1,9 +1,9 @@
 // 角色 DNA 资产管理 API
 // 支持上传多张参考图（正面/侧面/全身/表情/服装），生图时自动注入
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma-client';
-import { checkApiAuth } from '@/lib/auth';
-import { isSafeExternalUrl } from '@/lib/url-guard';
+import prisma from '@/lib/db/prisma';
+import { checkApiAuth } from '@/lib/auth/auth';
+import { isSafeExternalUrl } from '@/lib/utils/url-guard';
 
 const ALLOWED_TYPES = ['front', 'side', 'fullbody', 'expression', 'outfit', 'custom'];
 const MAX_URL_LEN = 2000;

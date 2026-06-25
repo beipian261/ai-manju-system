@@ -1,8 +1,8 @@
-// 智能批量配音 API
+﻿// 智能批量配音 API
 // 自动为所有分镜台词匹配角色声线和情绪，一键生成全部配音
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma-client';
-import { checkApiAuth } from '@/lib/auth';
+import prisma from '@/lib/db/prisma';
+import { checkApiAuth } from '@/lib/auth/auth';
 
 // 声线类型映射
 const VOICE_TYPES = {

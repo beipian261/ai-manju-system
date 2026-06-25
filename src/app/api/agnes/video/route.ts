@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { checkApiAuth } from '@/lib/auth';
-import { generateStoryboardVideo } from '@/lib/video-gen';
-import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limiter';
+﻿import { NextRequest, NextResponse } from 'next/server';
+import { checkApiAuth } from '@/lib/auth/auth';
+import { generateStoryboardVideo } from '@/features/generation/video-gen';
+import { checkRateLimit, getClientIdentifier } from '@/lib/utils/rate-limiter';
 
 export async function POST(req: NextRequest) {
   const auth = await checkApiAuth();

@@ -1,13 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma-client';
-import { checkApiAuth } from '@/lib/auth';
-import { emitProgress } from '@/lib/progress-bus';
+﻿import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/lib/db/prisma';
+import { checkApiAuth } from '@/lib/auth/auth';
+import { emitProgress } from '@/lib/bus/progress-bus';
 import {
   generateSmartStoryboardPrompt,
   generateSmartPromptsBatch,
   SmartPromptInput,
-} from '@/lib/smart-prompt-engine';
-import { logger } from '@/lib/logger';
+} from '@/features/generation/smart-prompt-engine';
+import { logger } from '@/lib/utils/logger';
 
 // ============================================================
 // POST /api/storyboards/smart-prompt

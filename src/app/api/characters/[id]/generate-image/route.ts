@@ -1,16 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma-client';
-import { generateImage } from '@/lib/agnes-client';
-import { getSetting } from '@/lib/settings';
-import { emitProgress } from '@/lib/progress-bus';
+import prisma from '@/lib/db/prisma';
+import { generateImage } from '@/lib/ai/agnes-client';
+import { getSetting } from '@/lib/config/settings';
+import { emitProgress } from '@/lib/bus/progress-bus';
 import {
   buildCharacterPrompt,
   buildCharacterPortraitPrompt,
   buildCharacterSheet,
-} from '@/lib/character-prompt';
-import { normalizeStyleKey } from '@/lib/prompt-library';
-import { checkApiAuth } from '@/lib/auth';
-import { logger } from '@/lib/logger';
+} from '@/features/characters/character-prompt';
+import { normalizeStyleKey } from '@/features/generation/prompt-library';
+import { checkApiAuth } from '@/lib/auth/auth';
+import { logger } from '@/lib/utils/logger';
 
 // 生成角色主形象图：根据角色属性生成 1 张肖像图，存到 Character.referenceImg
 // 该图作为后续分镜图生成的"角色一致性"参考

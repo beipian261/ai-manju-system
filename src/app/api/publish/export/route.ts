@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma-client';
-import { checkApiAuth } from '@/lib/auth';
+﻿import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/lib/db/prisma';
+import { checkApiAuth } from '@/lib/auth/auth';
 import { createHash } from 'crypto';
-import { logger } from '@/lib/logger';
+import { logger } from '@/lib/utils/logger';
 import type { PlatformInfo } from '@/types';
 
 // GET: 获取项目可发布的视频列表

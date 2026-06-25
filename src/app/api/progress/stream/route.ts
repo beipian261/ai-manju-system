@@ -1,7 +1,7 @@
-import { NextRequest } from 'next/server';
-import { progressBus, ProgressEvent } from '@/lib/progress-bus';
-import prisma from '@/lib/prisma-client';
-import { checkApiAuth } from '@/lib/auth';
+﻿import { NextRequest } from 'next/server';
+import { progressBus, ProgressEvent } from '@/lib/bus/progress-bus';
+import prisma from '@/lib/db/prisma';
+import { checkApiAuth } from '@/lib/auth/auth';
 
 export const dynamic = 'force-dynamic';
 

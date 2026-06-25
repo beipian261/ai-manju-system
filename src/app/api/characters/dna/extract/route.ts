@@ -1,11 +1,11 @@
-// POST /api/characters/dna/extract
+﻿// POST /api/characters/dna/extract
 // AI 从角色描述提取结构化 DNA 摘要，写入 dnaSummary 字段
 
 import { NextRequest, NextResponse } from 'next/server';
-import { checkApiAuth } from '@/lib/auth';
-import prisma from '@/lib/prisma-client';
-import { chatCompletion } from '@/lib/agnes-client';
-import { getSetting } from '@/lib/settings';
+import { checkApiAuth } from '@/lib/auth/auth';
+import prisma from '@/lib/db/prisma';
+import { chatCompletion } from '@/lib/ai/agnes-client';
+import { getSetting } from '@/lib/config/settings';
 
 export async function POST(req: NextRequest) {
   const auth = await checkApiAuth();

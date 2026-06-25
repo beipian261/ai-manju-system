@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyPassword, makeSessionToken, getCookieName, getSessionCookieOptions, isAuthEnabled } from '@/lib/auth';
+import { verifyPassword, makeSessionToken, getCookieName, getSessionCookieOptions, isAuthEnabled } from '@/lib/auth/auth';
 
 export async function POST(req: NextRequest) {
   if (!isAuthEnabled()) {

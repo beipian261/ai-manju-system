@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma-client';
-import { checkApiAuth } from '@/lib/auth';
-import { generateFullCharacter, CharacterSeed, CharacterRole } from '@/lib/character-generator';
-import { logger } from '@/lib/logger';
+﻿import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/lib/db/prisma';
+import { checkApiAuth } from '@/lib/auth/auth';
+import { generateFullCharacter, CharacterSeed, CharacterRole } from '@/features/characters/character-generator';
+import { logger } from '@/lib/utils/logger';
 
 // ============================================================
 // POST /api/characters/generate

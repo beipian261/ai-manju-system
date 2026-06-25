@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma-client';
-import { checkApiAuth } from '@/lib/auth';
-import { generateStoryboardVideo } from '@/lib/video-gen';
-import { runWithConcurrencyPool } from '@/lib/concurrency-pool';
-import { emitProgress } from '@/lib/progress-bus';
-import { checkRateLimit, getClientIdentifier } from '@/lib/rate-limiter';
+﻿import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/lib/db/prisma';
+import { checkApiAuth } from '@/lib/auth/auth';
+import { generateStoryboardVideo } from '@/features/generation/video-gen';
+import { runWithConcurrencyPool } from '@/lib/utils/concurrency-pool';
+import { emitProgress } from '@/lib/bus/progress-bus';
+import { checkRateLimit, getClientIdentifier } from '@/lib/utils/rate-limiter';
 
 const VIDEO_CONCURRENCY = 2; // 视频生成更慢，并发数降低
 

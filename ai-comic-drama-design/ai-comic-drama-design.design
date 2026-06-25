@@ -1,0 +1,335 @@
+{
+  "data": [
+    {
+      "id": "page-index-v3",
+      "title": "首页",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1782311514000,
+      "canvasData": {
+        "x": 0,
+        "y": 0,
+        "group": 0
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/index-v3.html",
+        "interactions": [
+          {
+            "domId": "nav-dashboard",
+            "targetPageId": "page-dashboard-v3",
+            "transitionLabel": "开始使用"
+          },
+          {
+            "domId": "cta-start",
+            "targetPageId": "page-dashboard-v3",
+            "hideEdge": true,
+            "transitionLabel": "免费开始创作"
+          },
+          {
+            "domId": "cta-bottom",
+            "targetPageId": "page-dashboard-v3",
+            "hideEdge": true,
+            "transitionLabel": "免费开始"
+          }
+        ]
+      }
+    },
+    {
+      "id": "page-dashboard-v3",
+      "title": "工作台",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1782311514000,
+      "canvasData": {
+        "x": 620,
+        "y": 0,
+        "group": 1
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/dashboard-v3.html",
+        "interactions": [
+          {
+            "domId": "project-card-1",
+            "targetPageId": "page-project-detail-v3",
+            "transitionLabel": "打开项目"
+          },
+          {
+            "domId": "nav-home",
+            "targetPageId": "page-index-v3",
+            "hideEdge": true,
+            "transitionLabel": "返回首页"
+          }
+        ]
+      }
+    },
+    {
+      "id": "page-project-detail-v3",
+      "title": "概览",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1782311514000,
+      "canvasData": {
+        "x": 1240,
+        "y": 0,
+        "group": 2
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/project-detail-v3.html",
+        "interactions": [
+          {
+            "domId": "back-to-projects",
+            "targetPageId": "page-dashboard-v3",
+            "hideEdge": true,
+            "transitionLabel": "返回工作台"
+          }
+        ]
+      }
+    },
+    {
+      "id": "page-projects",
+      "title": "项目",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1782312779000,
+      "canvasData": {
+        "x": 620,
+        "y": 377,
+        "group": 3
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/projects.html",
+        "interactions": [
+          {
+            "domId": "nav-home",
+            "targetPageId": "page-index-v3",
+            "hideEdge": true,
+            "transitionLabel": "返回首页"
+          },
+          {
+            "domId": "project-card-1",
+            "targetPageId": "page-project-detail-v3",
+            "transitionLabel": "打开项目"
+          }
+        ]
+      }
+    },
+    {
+      "id": "page-characters",
+      "title": "角色库",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1782312779000,
+      "canvasData": {
+        "x": 0,
+        "y": 754,
+        "group": 4
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/characters.html",
+        "interactions": [
+          {
+            "domId": "nav-home",
+            "targetPageId": "page-index-v3",
+            "hideEdge": true,
+            "transitionLabel": "返回首页"
+          }
+        ]
+      }
+    },
+    {
+      "id": "page-settings",
+      "title": "设置",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1782312779000,
+      "canvasData": {
+        "x": 620,
+        "y": 754,
+        "group": 5
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/settings.html",
+        "interactions": [
+          {
+            "domId": "nav-home",
+            "targetPageId": "page-index-v3",
+            "hideEdge": true,
+            "transitionLabel": "返回首页"
+          }
+        ]
+      }
+    },
+    {
+      "id": "page-project-script",
+      "title": "剧本",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1782316200000,
+      "canvasData": {
+        "x": 1240,
+        "y": 754,
+        "group": 6
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/project-script.html",
+        "interactions": [
+          {
+            "domId": "back-to-projects",
+            "targetPageId": "page-dashboard-v3",
+            "hideEdge": true,
+            "transitionLabel": "返回工作台"
+          }
+        ]
+      }
+    },
+    {
+      "id": "page-project-characters",
+      "title": "角色",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1782316200000,
+      "canvasData": {
+        "x": 1860,
+        "y": 754,
+        "group": 6
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/project-characters.html",
+        "interactions": [
+          {
+            "domId": "back-to-projects",
+            "targetPageId": "page-dashboard-v3",
+            "hideEdge": true,
+            "transitionLabel": "返回工作台"
+          }
+        ]
+      }
+    },
+    {
+      "id": "page-project-storyboard",
+      "title": "分镜",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1782316200000,
+      "canvasData": {
+        "x": 2480,
+        "y": 754,
+        "group": 6
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/project-storyboard.html",
+        "interactions": [
+          {
+            "domId": "back-to-projects",
+            "targetPageId": "page-dashboard-v3",
+            "hideEdge": true,
+            "transitionLabel": "返回工作台"
+          }
+        ]
+      }
+    },
+    {
+      "id": "page-project-voiceover",
+      "title": "配音",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1782316200000,
+      "canvasData": {
+        "x": 3100,
+        "y": 754,
+        "group": 6
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/project-voiceover.html",
+        "interactions": [
+          {
+            "domId": "back-to-projects",
+            "targetPageId": "page-dashboard-v3",
+            "hideEdge": true,
+            "transitionLabel": "返回工作台"
+          }
+        ]
+      }
+    },
+    {
+      "id": "page-project-timeline",
+      "title": "时间线",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1782316200000,
+      "canvasData": {
+        "x": 3720,
+        "y": 754,
+        "group": 6
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/project-timeline.html",
+        "interactions": [
+          {
+            "domId": "back-to-projects",
+            "targetPageId": "page-dashboard-v3",
+            "hideEdge": true,
+            "transitionLabel": "返回工作台"
+          }
+        ]
+      }
+    },
+    {
+      "id": "page-project-review",
+      "title": "评审",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1782316200000,
+      "canvasData": {
+        "x": 4340,
+        "y": 754,
+        "group": 6
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/project-review.html",
+        "interactions": [
+          {
+            "domId": "back-to-projects",
+            "targetPageId": "page-dashboard-v3",
+            "hideEdge": true,
+            "transitionLabel": "返回工作台"
+          }
+        ]
+      }
+    },
+    {
+      "id": "page-project-publish",
+      "title": "发布",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1782316200000,
+      "canvasData": {
+        "x": 4960,
+        "y": 754,
+        "group": 6
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/project-publish.html",
+        "interactions": [
+          {
+            "domId": "back-to-projects",
+            "targetPageId": "page-dashboard-v3",
+            "hideEdge": true,
+            "transitionLabel": "返回工作台"
+          }
+        ]
+      }
+    }
+  ],
+  "config": {
+    "autoLayout": true,
+    "deviceType": "desktop",
+    "projectName": "AI 漫剧系统",
+    "designLibrary": null,
+    "windowSize": {
+      "width": 800,
+      "height": 600
+    },
+    "showEdge": true
+  }
+}

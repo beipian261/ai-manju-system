@@ -4,19 +4,19 @@
 // 将原来在 prisma-client.ts 模块加载时的隐式副作用（启动定时清理器）
 // 移到此处，变成显式、可控的初始化逻辑。
 
-import { logger } from './lib/logger';
+import { logger } from '@/lib/utils/logger';
 
 export async function register() {
   if (process.env.NEXT_RUNTIME === 'nodejs') {
-    const { startCleanupScheduler } = await import('./lib/cleanup-scheduler');
+    const { startCleanupScheduler } = await import('@/lib/utils/cleanup-scheduler');
     startCleanupScheduler();
 
-    const { startRateLimitCleanup } = await import('./lib/rate-limiter');
+    const { startRateLimitCleanup } = await import('@/lib/utils/rate-limiter');
     startRateLimitCleanup();
 
     // 启动 Job Worker，处理重启前遗留的 pending 任务
-    const { ensureWorkerStarted } = await import('./lib/job-queue');
-    await import('./lib/jobs');
+    const { ensureWorkerStarted } = await import('@/lib/queue/job-queue');
+    await import('@/lib/queue/jobs');
     ensureWorkerStarted();
 
     logger.info('[instrumentation] Server-side initialization complete (cleanup + rate-limit + job-worker)');

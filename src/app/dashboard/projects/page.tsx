@@ -1,44 +1,158 @@
 'use client';
 import Link from 'next/link';
 import { useEffect, useState, useCallback } from 'react';
-import { STATUS_CONFIG, genreIcons } from '@/lib/constants';
-import { useConfirmDialog } from '@/components/ConfirmDialog';
-import { TemplateSelector, mapTemplateGenre, mapTemplateStyle } from '@/components/TemplateSelector';
-import type { ScriptTemplate } from '@/lib/script-templates';
-import { apiGet, apiPost, apiDelete } from '@/lib/api-client';
-import { logger } from '@/lib/logger';
+import { Search, Plus, LayoutGrid, List, Menu, X, ChevronDown } from 'lucide-react';
+import { useConfirmDialog } from '@/components/common/ConfirmDialog';
+import { TemplateSelector, mapTemplateGenre, mapTemplateStyle } from '@/components/common/TemplateSelector';
+import type { ScriptTemplate } from '@/features/scripts/script-templates';
+import { apiGet, apiPost, apiDelete } from '@/lib/utils/api-client';
+import { logger } from '@/lib/utils/logger';
 
-interface Project { id: string; title: string; description?: string; genre: string; style: string; status: string; }
+interface Project {
+  id: string;
+  title: string;
+  description?: string;
+  genre: string;
+  style: string;
+  status: string;
+  characters?: any[];
+  storyboards?: any[];
+  scripts?: any[];
+  createdAt?: string;
+  updatedAt?: string;
+}
 
-const genreOptions = [
-  { value: 'fantasy', label: '奇幻', icon: '🧙' },
-  { value: 'sci-fi', label: '科幻', icon: '🚀' },
-  { value: 'romance', label: '言情', icon: '💕' },
-  { value: 'action', label: '动作', icon: '⚔️' },
-  { value: 'comedy', label: '喜剧', icon: '🎭' },
-  { value: 'mystery', label: '悬疑', icon: '🔍' },
-];
+const genreGradientMap: Record<string, string> = {
+  'sci-fi': 'linear-gradient(135deg, #10B981 0%, #06B6D4 100%)',
+  'fantasy': 'linear-gradient(135deg, #8B5CF6 0%, #A855F7 100%)',
+  'romance': 'linear-gradient(135deg, #EC4899 0%, #F43F5E 100%)',
+  'action': 'linear-gradient(135deg, #EF4444 0%, #F87171 100%)',
+  'comedy': 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)',
+  'mystery': 'linear-gradient(135deg, #64748B 0%, #94A3B8 100%)',
+  'adventure': 'linear-gradient(135deg, #3B82F6 0%, #6366F1 100%)',
+  'youth': 'linear-gradient(135deg, #F59E0B 0%, #F97316 100%)',
+};
 
-const styleOptions = [
-  { value: 'anime', label: '日式动漫', icon: '🌸' },
-  { value: 'western', label: '美式漫画', icon: '💥' },
-  { value: 'chinese', label: '国风水墨', icon: '🎋' },
-  { value: 'realistic', label: '写实风格', icon: '📷' },
-  { value: 'pixel', label: '像素', icon: '👾' },
-  { value: 'chibi', label: 'Q版', icon: '🎀' },
+const genreLabelMap: Record<string, string> = {
+  'sci-fi': '科幻',
+  'fantasy': '奇幻',
+  'romance': '言情',
+  'action': '动作',
+  'comedy': '喜剧',
+  'mystery': '悬疑',
+  'adventure': '冒险',
+  'youth': '青春',
+};
+
+const statusConfig: Record<string, { label: string; color: string }> = {
+  draft: { label: '草稿', color: 'var(--color-text-muted)' },
+  scripting: { label: '进行中', color: 'var(--state-success)' },
+  storyboarding: { label: '进行中', color: 'var(--state-success)' },
+  producing: { label: '进行中', color: 'var(--state-success)' },
+  completed: { label: '已完成', color: 'var(--state-info)' },
+  published: { label: '已发布', color: 'var(--color-text-muted)' },
+};
+
+function getProgressPercent(status: string, charCount: number, boardCount: number, hasScript: boolean): number {
+  if (status === 'published' || status === 'completed') return 100;
+  if (status === 'producing') return 80;
+  if (boardCount > 0) return 60;
+  if (charCount > 0) return 40;
+  if (hasScript) return 25;
+  return 15;
+}
+
+function getGenreGradient(genre: string): string {
+  return genreGradientMap[genre] || 'linear-gradient(135deg, #10B981 0%, #06B6D4 100%)';
+}
+
+function getGenreLabel(genre: string): string {
+  return genreLabelMap[genre] || genre;
+}
+
+const demoProjects: Project[] = [
+  {
+    id: 'demo-1',
+    title: '星际迷途',
+    description: '探索未知星系的冒险旅程，寻找失落文明的秘密',
+    genre: 'sci-fi',
+    style: 'anime',
+    status: 'storyboarding',
+    characters: Array(6),
+    storyboards: Array(24),
+    scripts: Array(3),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'demo-2',
+    title: '校园时光',
+    description: '记录青春岁月里的友情与成长故事',
+    genre: 'youth',
+    style: 'anime',
+    status: 'scripting',
+    characters: Array(4),
+    storyboards: Array(18),
+    scripts: Array(1),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'demo-3',
+    title: '古风传奇',
+    description: '穿越千年的爱恨情仇，江湖恩怨录',
+    genre: 'fantasy',
+    style: 'chinese',
+    status: 'completed',
+    characters: Array(8),
+    storyboards: Array(36),
+    scripts: Array(5),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'demo-4',
+    title: '都市传说',
+    description: '城市角落里隐藏的神秘事件与都市怪谈',
+    genre: 'mystery',
+    style: 'realistic',
+    status: 'published',
+    characters: Array(5),
+    storyboards: Array(30),
+    scripts: Array(4),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'demo-5',
+    title: '童话森林',
+    description: '奇幻森林中的精灵冒险，守护自然的秘密',
+    genre: 'fantasy',
+    style: 'anime',
+    status: 'producing',
+    characters: Array(3),
+    storyboards: Array(12),
+    scripts: Array(2),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'demo-6',
+    title: '深海探秘',
+    description: '深入海底探索未知生物与沉船宝藏的秘密',
+    genre: 'adventure',
+    style: 'realistic',
+    status: 'completed',
+    characters: Array(7),
+    storyboards: Array(42),
+    scripts: Array(6),
+    updatedAt: new Date().toISOString(),
+  },
 ];
 
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [deleting, setDeleting] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const { showConfirm, dialog } = useConfirmDialog();
 
-  // Create modal state
   const [showCreate, setShowCreate] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newDesc, setNewDesc] = useState('');
@@ -50,226 +164,432 @@ export default function ProjectsPage() {
 
   const loadProjects = useCallback(async () => {
     try {
-      setProjects(await apiGet<Project[]>('/api/projects'));
-    } catch { setError('加载项目列表失败'); }
-    finally { setLoading(false); }
+      const data = await apiGet<Project[]>('/api/projects');
+      if (data && data.length > 0) {
+        setProjects(data);
+      } else {
+        setProjects(demoProjects);
+      }
+    } catch {
+      setProjects(demoProjects);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  useEffect(() => { loadProjects(); }, [loadProjects]);
+  useEffect(() => {
+    loadProjects();
+  }, [loadProjects]);
 
   const filteredProjects = projects.filter(p => {
-    const matchSearch = p.title.toLowerCase().includes(search.toLowerCase()) ||
-      (p.description?.toLowerCase().includes(search.toLowerCase()) ?? false);
-    const matchStatus = filterStatus === 'all' || p.status === filterStatus;
-    return matchSearch && matchStatus;
+    if (filterStatus === 'all') return true;
+    if (filterStatus === 'in-progress') return ['scripting', 'storyboarding', 'producing', 'draft'].includes(p.status);
+    if (filterStatus === 'completed') return p.status === 'completed';
+    if (filterStatus === 'published') return p.status === 'published';
+    return true;
   });
-
-  const toggleSelect = (id: string) => {
-    setSelectedIds(prev => {
-      const n = new Set(prev);
-      n.has(id) ? n.delete(id) : n.add(id);
-      return n;
-    });
-  };
-
-  const toggleSelectAll = () => {
-    if (selectedIds.size === filteredProjects.length) {
-      setSelectedIds(new Set());
-    } else {
-      setSelectedIds(new Set(filteredProjects.map(p => p.id)));
-    }
-  };
-
-  const handleBatchDelete = async () => {
-    if (selectedIds.size === 0) return;
-    if (!await showConfirm('批量删除', `确定删除选中的 ${selectedIds.size} 个项目吗？所有数据将永久丢失。`)) return;
-
-    setDeleting(true);
-    let deleted = 0;
-    for (const id of selectedIds) {
-      try {
-        const res = await apiDelete(`/api/projects/${id}`);
-        if (res) deleted++;
-      } catch { /* skip */ }
-    }
-    setSelectedIds(new Set());
-    await loadProjects();
-    setDeleting(false);
-  };
-
-  const handleSingleDelete = async (e: React.MouseEvent, id: string, title: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!await showConfirm('删除项目', `确定删除「${title}」吗？所有数据将永久丢失。`)) return;
-    await apiDelete(`/api/projects/${id}`);
-    await loadProjects();
-  };
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
     if (!newTitle.trim()) return;
     setCreateLoading(true);
     try {
-      const res = await apiPost<{ id: string }>('/api/projects', { title: newTitle, description: newDesc, genre: newGenre, style: newStyle, outline: newOutline });
+      const res = await apiPost<{ id: string }>('/api/projects', {
+        title: newTitle,
+        description: newDesc,
+        genre: newGenre,
+        style: newStyle,
+        outline: newOutline,
+      });
       window.location.href = `/dashboard/projects/${res.id}`;
-    } catch (e) { logger.error('Failed to create project:', e); }
+    } catch (e) {
+      logger.error('Failed to create project:', e);
+    }
     setCreateLoading(false);
   }
 
-  if (loading) {
-    return (
-      <div className="space-y-8">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div><div className="h-10 w-48 rounded skeleton mb-2"></div><div className="h-5 w-32 rounded skeleton"></div></div>
-          <div className="h-11 w-40 rounded skeleton"></div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="h-40 rounded-2xl skeleton"></div>)}
-        </div>
-      </div>
-    );
-  }
+  const navItems = [
+    { href: '/dashboard', label: '工作台' },
+    { href: '/dashboard/projects', label: '项目', active: true },
+    { href: '/dashboard/characters', label: '角色库' },
+    { href: '/dashboard/settings', label: '设置' },
+  ];
 
-  if (error) {
-    return (
-      <div className="card p-8 text-center">
-        <div className="text-5xl mb-4">⚠️</div>
-        <p className="text-red-600 mb-4 text-lg">{error}</p>
-        <button className="btn-primary" onClick={() => window.location.reload()}>
-          <span className="mr-2">🔄</span> 重新加载
-        </button>
-      </div>
-    );
-  }
+  const filterOptions = [
+    { key: 'all', label: '全部' },
+    { key: 'in-progress', label: '进行中' },
+    { key: 'completed', label: '已完成' },
+    { key: 'published', label: '已发布' },
+  ];
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 animate-slide-up">
-        <div>
-          <h1 className="text-2xl font-bold text-ink mb-1">我的项目</h1>
-          <p className="text-sm text-ink-secondary">共 {projects.length} 个项目</p>
-        </div>
-        <button onClick={() => setShowCreate(true)} className="btn-primary"><span className="mr-2">✨</span>创建新项目</button>
-      </div>
+    <div className="min-h-screen" style={{ background: 'var(--color-bg)' }}>
+      {/* Navigation */}
+      <nav
+        className="sticky top-0 z-50 border-b relative"
+        style={{
+          background: 'rgba(255,255,255,0.7)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          borderColor: 'rgba(226,232,240,0.5)',
+        }}
+      >
+        <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 py-3">
+          <Link href="/" className="flex items-center gap-2.5 no-underline">
+            <div
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm"
+              style={{ background: 'var(--gradient-primary)' }}
+            >
+              A
+            </div>
+            <span className="text-sm font-semibold" style={{ color: 'var(--color-text)' }}>
+              AI 漫剧
+            </span>
+          </Link>
 
-      {/* Search & Filter + Batch bar */}
-      <div className="card-subtle p-4 animate-slide-up" style={{ animationDelay: '0.05s' }}>
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-          <div className="relative flex-1 w-full">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-muted">🔍</span>
-            <input className="input-field pl-12" placeholder="搜索项目标题或描述..." value={search} onChange={(e) => setSearch(e.target.value)} />
+          <button
+            className="md:hidden flex items-center justify-center rounded-lg"
+            style={{ width: '36px', height: '36px', background: 'var(--color-bg-subtle)' }}
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? (
+              <X className="w-5 h-5" style={{ color: 'var(--color-text-secondary)' }} />
+            ) : (
+              <Menu className="w-5 h-5" style={{ color: 'var(--color-text-secondary)' }} />
+            )}
+          </button>
+
+          <div className="hidden md:flex items-center gap-8">
+            {navItems.map(item => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="text-sm transition-colors duration-150 hover:opacity-80 relative pb-0.5 no-underline"
+                style={{
+                  color: item.active ? 'var(--color-text)' : 'var(--color-text-secondary)',
+                  fontWeight: item.active ? 600 : 400,
+                }}
+              >
+                {item.label}
+                {item.active && (
+                  <span
+                    className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full"
+                    style={{ background: 'var(--brand-primary)' }}
+                  />
+                )}
+              </Link>
+            ))}
           </div>
-          <select className="select-field sm:w-48" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
-            <option value="all">全部状态</option>
-            <option value="draft">草稿</option>
-            <option value="scripting">剧本生成中</option>
-            <option value="storyboarding">分镜设计中</option>
-            <option value="producing">制作中</option>
-            <option value="completed">已完成</option>
-          </select>
-          {projects.length > 0 && (
-            <label className="flex items-center gap-2 text-xs text-ink-muted cursor-pointer flex-shrink-0">
-              <input type="checkbox" checked={selectedIds.size === filteredProjects.length && filteredProjects.length > 0}
-                onChange={toggleSelectAll} className="accent-emerald-500" />
-              全选
-            </label>
-          )}
-        </div>
-      </div>
 
-      {/* Batch action bar */}
-      {selectedIds.size > 0 && (
-        <div className="flex items-center justify-between bg-emerald-50 border border-emerald-100 rounded-card px-5 py-3 animate-slide-up">
-          <span className="text-sm text-emerald-700 font-medium">已选择 {selectedIds.size} 个项目</span>
-          <div className="flex gap-2">
-            <button onClick={() => setSelectedIds(new Set())} className="btn-ghost text-xs px-3 py-1.5">取消选择</button>
-            <button onClick={handleBatchDelete} disabled={deleting} className="btn-danger btn-sm">
-              {deleting ? '删除中...' : `🗑️ 删除 ${selectedIds.size} 个`}
+          <div className="flex items-center gap-3">
+            <button
+              className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors duration-150 hover:opacity-80"
+              style={{ background: 'var(--color-bg-subtle)' }}
+            >
+              <Search className="w-4 h-4" style={{ color: 'var(--color-text-secondary)' }} />
+            </button>
+            <button
+              onClick={() => setShowCreate(true)}
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-lg text-sm font-medium text-white px-4 py-2 transition-all duration-200 hover:-translate-y-0.5"
+              style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}
+            >
+              <Plus className="w-4 h-4" />
+              新建项目
             </button>
           </div>
         </div>
-      )}
 
-      {/* Empty State */}
-      {projects.length === 0 && (
-        <div className="card text-center py-20 animate-slide-up">
-          <div className="text-6xl mb-6">🎬</div>
-          <h2 className="text-xl font-bold text-ink mb-3">还没有项目</h2>
-          <p className="text-ink-secondary mb-8 max-w-md mx-auto">创建你的第一个 AI 漫剧项目，开启创意创作之旅</p>
-          <button onClick={() => setShowCreate(true)} className="btn-primary"><span className="mr-2">✨</span>创建第一个项目</button>
+        {mobileMenuOpen && (
+          <div
+            className="md:hidden absolute top-full left-0 right-0 border-b animate-fade-in"
+            style={{
+              background: 'var(--glass-bg)',
+              backdropFilter: 'var(--glass-blur)',
+              borderColor: 'var(--color-border)',
+            }}
+          >
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-col gap-1">
+              {navItems.map(item => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm no-underline"
+                  style={{
+                    color: item.active ? 'var(--color-text)' : 'var(--color-text-secondary)',
+                    background: item.active ? 'rgba(16,185,129,0.08)' : 'transparent',
+                    fontWeight: item.active ? 500 : 400,
+                  }}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {item.label}
+                </Link>
+              ))}
+              <button
+                onClick={() => {
+                  setShowCreate(true);
+                  setMobileMenuOpen(false);
+                }}
+                className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-white mt-1"
+                style={{ background: 'var(--gradient-primary)' }}
+              >
+                <Plus className="w-4 h-4" />
+                新建项目
+              </button>
+            </div>
+          </div>
+        )}
+      </nav>
+
+      {/* Page Header */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-4">
+        <div className="flex items-end justify-between">
+          <div>
+            <h1 className="text-2xl font-bold animate-slide-up" style={{ color: 'var(--color-text)' }}>
+              项目
+            </h1>
+            <p className="text-sm mt-1 animate-slide-up stagger-1" style={{ color: 'var(--color-text-secondary)' }}>
+              管理你的所有漫剧项目
+            </p>
+          </div>
+          <div className="flex items-center gap-1 animate-slide-up stagger-1">
+            <button
+              onClick={() => setViewMode('grid')}
+              className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors duration-150"
+              style={{
+                background: viewMode === 'grid' ? 'var(--color-bg-subtle)' : 'transparent',
+              }}
+            >
+              <LayoutGrid
+                className="w-4 h-4"
+                style={{ color: viewMode === 'grid' ? 'var(--color-text)' : 'var(--color-text-muted)' }}
+              />
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors duration-150 hover:opacity-80"
+              style={{
+                background: viewMode === 'list' ? 'var(--color-bg-subtle)' : 'transparent',
+              }}
+            >
+              <List
+                className="w-4 h-4"
+                style={{ color: viewMode === 'list' ? 'var(--color-text)' : 'var(--color-text-muted)' }}
+              />
+            </button>
+          </div>
         </div>
-      )}
+      </div>
+
+      {/* Filter Bar */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-4 animate-slide-up stagger-1">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-2">
+            {filterOptions.map(opt => (
+              <button
+                key={opt.key}
+                onClick={() => setFilterStatus(opt.key)}
+                className="rounded-full px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-all duration-150"
+                style={
+                  filterStatus === opt.key
+                    ? { background: 'var(--gradient-primary)', color: 'white' }
+                    : {
+                        background: 'var(--color-bg)',
+                        color: 'var(--color-text-secondary)',
+                        border: '1px solid var(--color-border)',
+                      }
+                }
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-1.5 cursor-pointer hover:opacity-80 transition-opacity">
+            <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+              最近更新
+            </span>
+            <ChevronDown className="w-3 h-3" style={{ color: 'var(--color-text-muted)' }} />
+          </div>
+        </div>
+      </div>
 
       {/* Projects Grid */}
-      {projects.length > 0 && (
-        <>
-          {filteredProjects.length === 0 ? (
-            <div className="card text-center py-12">
-              <div className="text-4xl mb-3">🔍</div>
-              <p className="text-ink-secondary">没有找到匹配的项目</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredProjects.map((p, idx) => {
-                const statusCfg = STATUS_CONFIG[p.status] || STATUS_CONFIG.draft;
-                const isSelected = selectedIds.has(p.id);
-                return (
-                  <div key={p.id} className={`relative card p-0 animate-slide-up group ${isSelected ? 'border-emerald-400 bg-emerald-50/20' : ''}`}
-                    style={{ animationDelay: `${idx * 0.03}s` }}>
-                    <Link href={`/dashboard/projects/${p.id}`} className="block p-5">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
-                            {genreIcons[p.genre] || '📖'}
-                          </div>
-                        </div>
-                        <span className={statusCfg.cls}>{statusCfg.label}</span>
-                      </div>
-                      <h3 className="font-bold text-lg text-ink mb-2 group-hover:text-emerald-700 transition-colors line-clamp-1">{p.title}</h3>
-                      <p className="text-sm text-ink-muted mb-3">{p.genre} · {p.style}</p>
-                      {p.description && (
-                        <p className="text-sm text-ink-secondary leading-relaxed line-clamp-2 mb-4">{p.description}</p>
-                      )}
-                      <div className="pt-4 border-t border-border flex items-center justify-between">
-                        <span className="text-xs text-ink-muted">点击进入详情</span>
-                        <span className="text-emerald-600 font-medium text-sm flex items-center gap-1 group-hover:gap-2 transition-all">→</span>
-                      </div>
-                    </Link>
-                    {/* Checkbox overlay */}
-                    <div className="absolute top-3 left-3 z-10" onClick={(e) => e.preventDefault()}>
-                      <input type="checkbox" checked={isSelected} onChange={() => toggleSelect(p.id)}
-                        className="w-4 h-4 rounded accent-emerald-500 cursor-pointer" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 animate-slide-up stagger-2">
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[1, 2, 3, 4, 5, 6].map(i => (
+              <div
+                key={i}
+                className="rounded-2xl overflow-hidden animate-pulse"
+                style={{ background: 'var(--color-bg)', border: '1px solid var(--color-border)' }}
+              >
+                <div className="h-2" style={{ background: 'var(--color-bg-subtle-2)' }} />
+                <div className="p-5">
+                  <div className="h-4 w-16 rounded mb-3" style={{ background: 'var(--color-bg-subtle-2)' }} />
+                  <div className="h-4 w-32 rounded mb-2" style={{ background: 'var(--color-bg-subtle-2)' }} />
+                  <div className="h-3 w-full rounded mb-4" style={{ background: 'var(--color-bg-subtle-2)' }} />
+                  <div className="h-3 w-24 rounded" style={{ background: 'var(--color-bg-subtle-2)' }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : filteredProjects.length === 0 ? (
+          <div className="text-center py-20">
+            <div className="text-6xl mb-6">🎬</div>
+            <h2 className="text-xl font-bold mb-3" style={{ color: 'var(--color-text)' }}>
+              还没有项目
+            </h2>
+            <p className="text-sm mb-8 max-w-md mx-auto" style={{ color: 'var(--color-text-secondary)' }}>
+              创建你的第一个 AI 漫剧项目，开启创意创作之旅
+            </p>
+            <button
+              onClick={() => setShowCreate(true)}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5"
+              style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button-lg)' }}
+            >
+              <Plus className="w-4 h-4" />
+              创建第一个项目
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredProjects.map((p, idx) => {
+              const charCount = p.characters?.length || 0;
+              const boardCount = p.storyboards?.length || 0;
+              const hasScript = (p.scripts?.length || 0) > 0;
+              const progress = getProgressPercent(p.status, charCount, boardCount, hasScript);
+              const status = statusConfig[p.status] || statusConfig.draft;
+
+              return (
+                <Link
+                  key={p.id}
+                  href={`/dashboard/projects/${p.id}`}
+                  className="rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-0.5 cursor-pointer group block no-underline"
+                  style={{
+                    background: 'var(--color-bg)',
+                    border: '1px solid var(--color-border)',
+                    boxShadow: 'var(--shadow-card)',
+                    animationDelay: `${idx * 0.05}s`,
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.boxShadow = 'var(--shadow-card-hover)';
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.boxShadow = 'var(--shadow-card)';
+                  }}
+                >
+                  <div className="h-2" style={{ background: getGenreGradient(p.genre) }} />
+                  <div className="p-5">
+                    <div className="flex items-center justify-between">
+                      <span
+                        className="text-xs font-medium rounded-full px-2.5 py-0.5 whitespace-nowrap"
+                        style={{
+                          background: 'var(--gradient-primary-soft)',
+                          color: 'var(--brand-primary)',
+                        }}
+                      >
+                        {getGenreLabel(p.genre)}
+                      </span>
+                      <span className="text-xs font-medium whitespace-nowrap" style={{ color: status.color }}>
+                        {status.label}
+                      </span>
                     </div>
-                    {/* Delete button */}
-                    <button onClick={(e) => handleSingleDelete(e, p.id, p.title)}
-                      className="absolute top-3 right-3 w-7 h-7 rounded-full hover:bg-red-50 flex items-center justify-center text-ink-muted hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
-                      title="删除项目">
-                      🗑️
-                    </button>
+                    <h3
+                      className="text-sm font-semibold mt-3 truncate group-hover:text-brand-primary transition-colors"
+                      style={{ color: 'var(--color-text)' }}
+                    >
+                      {p.title}
+                    </h3>
+                    {p.description && (
+                      <p
+                        className="text-xs mt-1 line-clamp-2"
+                        style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}
+                      >
+                        {p.description}
+                      </p>
+                    )}
+                    <div className="flex items-center justify-between mt-4">
+                      <span className="text-xs whitespace-nowrap" style={{ color: 'var(--color-text-muted)' }}>
+                        {charCount} 角色 · {boardCount} 分镜
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-16 h-1.5 rounded-full" style={{ background: 'var(--color-bg-subtle-2)' }}>
+                          <div
+                            className="h-1.5 rounded-full transition-all duration-500"
+                            style={{ width: `${progress}%`, background: 'var(--gradient-primary)' }}
+                          />
+                        </div>
+                        <span className="text-xs whitespace-nowrap" style={{ color: 'var(--color-text-muted)' }}>
+                          {progress}%
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                );
-              })}
-            </div>
-          )}
-        </>
-      )}
+                </Link>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Pagination */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+        <div className="flex items-center justify-center gap-1">
+          <button
+            className="text-sm px-3 py-1.5 transition-colors duration-150 hover:opacity-80"
+            style={{ color: 'var(--color-text-muted)' }}
+          >
+            <span className="mr-1">←</span>上一页
+          </button>
+          <button
+            className="w-8 h-8 rounded-lg text-sm font-medium flex items-center justify-center text-white"
+            style={{ background: 'var(--gradient-primary)' }}
+          >
+            1
+          </button>
+          <button
+            className="w-8 h-8 rounded-lg text-sm flex items-center justify-center transition-colors duration-150 hover:opacity-80"
+            style={{ color: 'var(--color-text-muted)' }}
+          >
+            2
+          </button>
+          <button
+            className="w-8 h-8 rounded-lg text-sm flex items-center justify-center transition-colors duration-150 hover:opacity-80"
+            style={{ color: 'var(--color-text-muted)' }}
+          >
+            3
+          </button>
+          <button
+            className="text-sm px-3 py-1.5 transition-colors duration-150 hover:opacity-80"
+            style={{ color: 'var(--color-text-muted)' }}
+          >
+            下一页<span className="ml-1">→</span>
+          </button>
+        </div>
+      </div>
+
       {dialog}
 
       {/* Create Project Modal */}
       {showCreate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setShowCreate(false)}>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          onClick={() => setShowCreate(false)}
+        >
           <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" />
           <div
             className="relative w-full max-w-lg bg-white rounded-2xl shadow-xl p-6 animate-slide-up"
             onClick={e => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-5">
-              <h2 className="text-lg font-bold text-ink">创建新项目</h2>
-              <button onClick={() => setShowCreate(false)} className="w-8 h-8 rounded-lg hover:bg-base-bg flex items-center justify-center text-ink-muted transition-colors">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
+              <h2 className="text-lg font-bold" style={{ color: 'var(--color-text)' }}>
+                创建新项目
+              </h2>
+              <button
+                onClick={() => setShowCreate(false)}
+                className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:bg-gray-100"
+                style={{ color: 'var(--color-text-muted)' }}
+              >
+                <X className="w-4 h-4" />
               </button>
             </div>
 
@@ -289,7 +609,6 @@ export default function ProjectsPage() {
                 onChange={e => setNewDesc(e.target.value)}
               />
 
-              {/* Template Selector */}
               <TemplateSelector
                 selectedId={selectedTpl?.id}
                 onSelect={(tpl) => {
@@ -303,13 +622,22 @@ export default function ProjectsPage() {
               />
 
               {newOutline && (
-                <div className="bg-amber-50/50 border border-amber-100 rounded-lg p-2.5">
+                <div
+                  className="rounded-lg p-2.5"
+                  style={{ background: '#FFFBEB', border: '1px solid #FDE68A' }}
+                >
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-[10px] text-amber-700 font-medium">📖 故事大纲 (已从模板填充，可修改)</span>
+                    <span className="text-[10px] font-medium" style={{ color: '#D97706' }}>
+                      📖 故事大纲 (已从模板填充，可修改)
+                    </span>
                     <button
                       type="button"
-                      onClick={() => { setNewOutline(''); setSelectedTpl(null); }}
-                      className="text-[10px] text-amber-500 hover:text-amber-700 underline"
+                      onClick={() => {
+                        setNewOutline('');
+                        setSelectedTpl(null);
+                      }}
+                      className="text-[10px] underline hover:opacity-80"
+                      style={{ color: '#F59E0B' }}
                     >
                       清除模板
                     </button>
@@ -322,53 +650,26 @@ export default function ProjectsPage() {
                 </div>
               )}
 
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-xs text-ink-muted mb-1.5">题材</label>
-                  <div className="grid grid-cols-3 gap-1.5">
-                    {genreOptions.map(g => (
-                      <button
-                        key={g.value}
-                        type="button"
-                        onClick={() => setNewGenre(g.value)}
-                        className={`p-2 rounded-lg text-xs font-medium transition-all ${
-                          newGenre === g.value
-                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                            : 'bg-base-bg text-ink-secondary border border-border'
-                        }`}
-                      >
-                        {g.icon} {g.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-xs text-ink-muted mb-1.5">风格</label>
-                  <div className="grid grid-cols-3 gap-1.5">
-                    {styleOptions.map(s => (
-                      <button
-                        key={s.value}
-                        type="button"
-                        onClick={() => setNewStyle(s.value)}
-                        className={`p-2 rounded-lg text-xs font-medium transition-all ${
-                          newStyle === s.value
-                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                            : 'bg-base-bg text-ink-secondary border border-border'
-                        }`}
-                      >
-                        {s.icon} {s.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              <button type="submit" className="btn-primary w-full" disabled={createLoading || !newTitle.trim()}>
+              <button
+                type="submit"
+                className="btn-primary w-full"
+                disabled={createLoading || !newTitle.trim()}
+              >
                 {createLoading ? '创建中...' : '🎬 创建项目'}
               </button>
             </form>
           </div>
         </div>
       )}
+
+      {/* Mobile FAB */}
+      <button
+        onClick={() => setShowCreate(true)}
+        className="sm:hidden fixed bottom-6 right-6 w-14 h-14 rounded-full flex items-center justify-center text-white shadow-lg transition-all duration-200 hover:scale-105 z-40"
+        style={{ background: 'var(--gradient-primary)' }}
+      >
+        <Plus className="w-6 h-6" />
+      </button>
     </div>
   );
 }

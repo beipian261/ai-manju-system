@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma-client';
-import { checkApiAuth } from '@/lib/auth';
-import { isAllowedApiBase } from '@/lib/url-guard';
-import { fetchWithRetry } from '@/lib/fetch-with-retry';
-import { logger } from '@/lib/logger';
+﻿import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/lib/db/prisma';
+import { checkApiAuth } from '@/lib/auth/auth';
+import { isAllowedApiBase } from '@/lib/utils/url-guard';
+import { fetchWithRetry } from '@/lib/utils/fetch-with-retry';
+import { logger } from '@/lib/utils/logger';
 
 const ALLOWED_KEYS = [
   'AGNES_API_BASE',

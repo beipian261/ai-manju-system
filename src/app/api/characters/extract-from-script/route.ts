@@ -1,11 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma-client';
-import { checkApiAuth } from '@/lib/auth';
-import { parseScriptToStoryboards } from '@/lib/script-parser';
-import { batchGenerateCharacters } from '@/lib/character-batch-generator';
-import { chatCompletion } from '@/lib/agnes-client';
-import { getSetting } from '@/lib/settings';
-import { logger } from '@/lib/logger';
+﻿import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/lib/db/prisma';
+import { checkApiAuth } from '@/lib/auth/auth';
+import { parseScriptToStoryboards } from '@/features/scripts/script-parser';
+import { batchGenerateCharacters } from '@/features/characters/character-batch-generator';
+import { chatCompletion } from '@/lib/ai/agnes-client';
+import { getSetting } from '@/lib/config/settings';
+import { logger } from '@/lib/utils/logger';
 
 // ============================================================
 // POST /api/characters/extract-from-script

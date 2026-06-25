@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma-client';
-import { checkApiAuth } from '@/lib/auth';
-import { fetchWithRetry } from '@/lib/fetch-with-retry';
-import { isAllowedApiBase } from '@/lib/url-guard';
+﻿import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/lib/db/prisma';
+import { checkApiAuth } from '@/lib/auth/auth';
+import { fetchWithRetry } from '@/lib/utils/fetch-with-retry';
+import { isAllowedApiBase } from '@/lib/utils/url-guard';
 
 // 独立的连通性测试端点（向后兼容）
 export async function POST(req: NextRequest) {

@@ -1,13 +1,13 @@
 // StoryboardTab — 分镜编辑器（专业三栏式布局）
 // 左栏：分镜列表 | 中栏：大图预览 | 右栏：参数编辑
 'use client';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { useProjectContext } from './ProjectContext';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
-import ImageGallery from '@/components/ImageGallery';
-import { useConfirmDialog } from '@/components/ConfirmDialog';
+import ImageGallery from '@/components/features/ImageGallery';
+import { useConfirmDialog } from '@/components/common/ConfirmDialog';
 import type { Storyboard } from './types';
 
 const CAMERA_ANGLES = ['远景', '全景', '中景', '中近景', '近景', '特写', '大特写', '仰视', '俯视', '平视', '侧拍', '跟拍'];
@@ -20,7 +20,7 @@ export default function StoryboardTab() {
     batchGeneratingImages, batchGenerateImages,
     batchGenerateVideos, batchGeneratingVideos, batchDeleteStoryboards,
     generateStoryboards, generatingStoryboard, generateImage,
-    updateStoryboard, deleteStoryboard,
+    updateStoryboard, deleteStoryboard, reorderStoryboards,
   } = useProjectContext();
   const { showConfirm, dialog: confirmDialog } = useConfirmDialog();
 
@@ -40,6 +40,9 @@ export default function StoryboardTab() {
   const [selectedTemplate, setSelectedTemplate] = useState<string>('emotional');
   const [templates, setTemplates] = useState<Array<{key: string; name: string; description: string; tips: string[]}>>([]);
   const [loadingTemplates, setLoadingTemplates] = useState(false);
+
+  const dragIdRef = useRef<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
 
   // 加载模板列表
   const loadTemplates = useCallback(async () => {
@@ -80,6 +83,47 @@ export default function StoryboardTab() {
     setEditEmotion(sb.emotion || '');
     setEditCamera(sb.cameraAngle || '');
     setEditPrompt(sb.imagePrompt || '');
+  }, []);
+
+  // 拖拽排序处理
+  const handleDragStart = useCallback((e: React.DragEvent, id: string) => {
+    dragIdRef.current = id;
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', id);
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent, overId: string) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverId(overId);
+  }, []);
+
+  const handleDragLeave = useCallback(() => {
+    setDragOverId(null);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent, targetId: string) => {
+    e.preventDefault();
+    const sourceId = dragIdRef.current;
+    setDragOverId(null);
+    dragIdRef.current = null;
+
+    if (!sourceId || sourceId === targetId) return;
+
+    const newOrder = [...allSB];
+    const sourceIdx = newOrder.findIndex(s => s.id === sourceId);
+    const targetIdx = newOrder.findIndex(s => s.id === targetId);
+    if (sourceIdx === -1 || targetIdx === -1) return;
+
+    const [removed] = newOrder.splice(sourceIdx, 1);
+    newOrder.splice(targetIdx, 0, removed);
+
+    reorderStoryboards(newOrder.map(s => s.id));
+  }, [allSB, reorderStoryboards]);
+
+  const handleDragEnd = useCallback(() => {
+    dragIdRef.current = null;
+    setDragOverId(null);
   }, []);
 
   // 保存编辑
@@ -185,29 +229,96 @@ export default function StoryboardTab() {
                 />
                 全选 ({selectedStoryboards.size}/{allSB.length})
               </label>
+              
+              {/* 快速选择按钮组 */}
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => {
+                    allSB.filter(s => !s.imageUrls).forEach(s => {
+                      if (!selectedStoryboards.has(s.id)) toggleStoryboardSelection(s.id);
+                    });
+                  }}
+                  className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded-md text-ink-muted transition-colors"
+                  title="选择所有没有图片的分镜"
+                >
+                  选无图
+                </button>
+                <button
+                  onClick={() => {
+                    allSB.filter(s => s.imageUrls).forEach(s => {
+                      if (!selectedStoryboards.has(s.id)) toggleStoryboardSelection(s.id);
+                    });
+                  }}
+                  className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded-md text-ink-muted transition-colors"
+                  title="选择所有有图片的分镜"
+                >
+                  选有图
+                </button>
+                <button
+                  onClick={() => {
+                    allSB.forEach(s => toggleStoryboardSelection(s.id));
+                  }}
+                  className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded-md text-ink-muted transition-colors"
+                  title="反选"
+                >
+                  反选
+                </button>
+                <button
+                  onClick={() => {
+                    selectedStoryboards.forEach(id => toggleStoryboardSelection(id));
+                  }}
+                  className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded-md text-ink-muted transition-colors"
+                  title="清除选择"
+                >
+                  清空
+                </button>
+              </div>
+
               <div className="h-4 w-px bg-border" />
               <div className="flex gap-2">
                 <Badge variant="emerald">{storyboardsWithImage}/{allSB.length} 图</Badge>
                 <Badge variant="sky">{storyboardsWithVideo} 视频</Badge>
+                <Badge variant="amber">
+                  {allSB.filter(s => !s.imageUrls).length} 待生成
+                </Badge>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               {storyboardsWithImage > 0 && (
                 <Button size="sm" variant="secondary" onClick={() => { setGalleryOpen(true); setGalleryIndex(0); }}>
                   🖼️ 全屏浏览
                 </Button>
               )}
+
+              {/* 断点续生成 - 一键生成所有缺失图片 */}
+              {storyboardsWithImage < allSB.length && (
+                <Button size="sm" variant="secondary" onClick={handleGenAllImages} loading={generatingAll || !!batchGeneratingImages}>
+                  ⚡ 续生成缺图 ({allSB.length - storyboardsWithImage})
+                </Button>
+              )}
+
+              {/* 选中时的批量操作 */}
               {selectedStoryboards.size > 0 && (
                 <>
+                  <div className="h-4 w-px bg-border" />
                   <Button size="sm" variant="secondary"
                     onClick={() => batchGenerateImages(Array.from(selectedStoryboards))}
                     loading={!!batchGeneratingImages}>
-                    🖼️ 批量图片 ({selectedStoryboards.size})
+                    🖼️ 重生成图片 ({selectedStoryboards.size})
                   </Button>
                   <Button size="sm" variant="secondary"
                     onClick={() => batchGenerateVideos(Array.from(selectedStoryboards))}
                     loading={!!batchGeneratingVideos}>
                     🎬 批量视频 ({selectedStoryboards.size})
+                  </Button>
+                  <Button size="sm" variant="secondary"
+                    onClick={async () => {
+                      const ids = Array.from(selectedStoryboards);
+                      for (const id of ids) {
+                        await updateStoryboard(id, { reviewStatus: 'approved' });
+                      }
+                    }}>
+                    ✅ 通过 ({selectedStoryboards.size})
                   </Button>
                   <Button size="sm" variant="danger"
                     onClick={async () => {
@@ -219,13 +330,59 @@ export default function StoryboardTab() {
                   </Button>
                 </>
               )}
-              {storyboardsWithImage < allSB.length && (
-                <Button size="sm" variant="primary" onClick={handleGenAllImages} loading={generatingAll || !!batchGeneratingImages}>
-                  ✨ 生成全部图片
+
+              {/* 全部重新生成 */}
+              {storyboardsWithImage === allSB.length && allSB.length > 0 && (
+                <Button size="sm" variant="primary"
+                  onClick={async () => {
+                    if (await showConfirm('全部重新生成', `确定要重新生成所有 ${allSB.length} 个分镜的图片吗？已有图片将被覆盖。`)) {
+                      batchGenerateImages(allSB.map(s => s.id));
+                    }
+                  }}
+                  loading={!!batchGeneratingImages}>
+                  🔄 全部重生成
                 </Button>
               )}
             </div>
           </div>
+
+          {/* 批量操作浮动提示 - 当有选中项时显示 */}
+          {selectedStoryboards.size > 0 && (
+            <div className="sticky top-0 z-20 mb-4 -mx-2 px-2 py-2 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-emerald-700 text-sm font-medium">
+                  ✅ 已选择 {selectedStoryboards.size} 个分镜
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    const ids = Array.from(selectedStoryboards);
+                    ids.forEach(id => updateStoryboard(id, { reviewStatus: 'approved' }));
+                  }}
+                  className="px-3 py-1.5 text-xs bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors"
+                >
+                  全部审核通过
+                </button>
+                <button
+                  onClick={() => batchGenerateImages(Array.from(selectedStoryboards))}
+                  className="px-3 py-1.5 text-xs bg-white border border-emerald-300 text-emerald-700 rounded-lg hover:bg-emerald-50 transition-colors"
+                >
+                  重生成图片
+                </button>
+                <button
+                  onClick={async () => {
+                    if (await showConfirm('删除', `确定删除选中的 ${selectedStoryboards.size} 个分镜？`)) {
+                      batchDeleteStoryboards(Array.from(selectedStoryboards));
+                    }
+                  }}
+                  className="px-3 py-1.5 text-xs bg-red-50 border border-red-200 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
+                >
+                  删除
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* 三栏主体 */}
           <div className="grid grid-cols-12 gap-4" style={{ height: 'calc(100vh - 280px)', minHeight: '500px' }}>
@@ -243,25 +400,38 @@ export default function StoryboardTab() {
                     })() : null;
                     const isActive = activeSB?.id === sb.id;
                     const isSelected = selectedStoryboards.has(sb.id);
+                    const isDragging = dragIdRef.current === sb.id;
+                    const isDragOver = dragOverId === sb.id;
                     return (
-                      <div key={sb.id} className="flex items-center gap-2">
+                      <div
+                        key={sb.id}
+                        className={`flex items-center gap-2 transition-all ${isDragging ? 'opacity-40' : ''} ${isDragOver ? 'border-t-2 border-emerald-500 pt-1.5' : ''}`}
+                        onDragOver={(e) => handleDragOver(e, sb.id)}
+                        onDragLeave={handleDragLeave}
+                        onDrop={(e) => handleDrop(e, sb.id)}
+                      >
                         {/* 复选框 */}
                         <input type="checkbox" checked={isSelected}
                           onChange={() => toggleStoryboardSelection(sb.id)}
                           className="w-3.5 h-3.5 rounded accent-emerald-500 flex-shrink-0 cursor-pointer" />
                         {/* 分镜项 */}
                         <button
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, sb.id)}
+                          onDragEnd={handleDragEnd}
                           onClick={() => selectSB(sb)}
-                          className={`flex-1 flex items-center gap-2 p-2 rounded-lg text-left transition-all ${
+                          className={`flex-1 flex items-center gap-2 p-2 rounded-lg text-left transition-all cursor-grab active:cursor-grabbing ${
                             isActive
                               ? 'bg-emerald-50 border border-emerald-200'
                               : 'hover:bg-gray-50 border border-transparent'
                           }`}
                         >
+                          {/* 拖拽手柄图标 */}
+                          <span className="text-gray-400 text-xs select-none">⋮⋮</span>
                           {/* 缩略图 */}
-                          <div className="w-12 h-8 rounded overflow-hidden flex-shrink-0 bg-gray-100 flex items-center justify-center">
+                          <div className="w-10 h-7 rounded overflow-hidden flex-shrink-0 bg-gray-100 flex items-center justify-center">
                             {sbImage ? (
-                              <img src={sbImage} alt="" className="w-full h-full object-cover" />
+                              <img src={sbImage} alt="" className="w-full h-full object-cover pointer-events-none" />
                             ) : (
                               <span className="text-[10px] opacity-40">🎬</span>
                             )}
@@ -274,11 +444,9 @@ export default function StoryboardTab() {
                               {sb.videoUrl && <span className="text-[9px]">🎬</span>}
                             </div>
                             <p className="text-[9px] text-ink-muted truncate leading-tight mt-0.5">
-                              {sb.description?.substring(0, 20) || '待编辑'}
+                              {sb.description?.substring(0, 18) || '待编辑'}
                             </p>
                           </div>
-                          {/* 拖拽手柄 */}
-                          <span className="text-[9px] text-gray-300 cursor-grab">☰</span>
                         </button>
                       </div>
                     );

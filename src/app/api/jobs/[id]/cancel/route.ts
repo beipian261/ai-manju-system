@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { checkApiAuth } from '@/lib/auth';
-import { cancelJob } from '@/lib/job-queue';
+import { checkApiAuth } from '@/lib/auth/auth';
+import { cancelJob } from '@/lib/queue/job-queue';
 
 // POST /api/jobs/[id]/cancel — 取消一个正在执行或等待中的异步任务
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {

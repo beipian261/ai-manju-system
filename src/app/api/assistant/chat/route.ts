@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { checkApiAuth } from '@/lib/auth';
-import { runAssistant, AssistantMessage, AssistantContext } from '@/lib/smart-assistant';
-import prisma from '@/lib/prisma-client';
+﻿import { NextRequest, NextResponse } from 'next/server';
+import { checkApiAuth } from '@/lib/auth/auth';
+import { runAssistant, AssistantMessage, AssistantContext } from '@/features/generation/smart-assistant';
+import prisma from '@/lib/db/prisma';
 
 // ============================================================
 // POST /api/assistant/chat

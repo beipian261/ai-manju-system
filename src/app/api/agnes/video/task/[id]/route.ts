@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { checkApiAuth } from '@/lib/auth';
-import { syncStoryboardVideo } from '@/lib/video-gen';
+import { checkApiAuth } from '@/lib/auth/auth';
+import { syncStoryboardVideo } from '@/features/generation/video-gen';
 
 // 查询 Agnes 视频任务状态
 // 参数 id 是 storyboardId（数据库主键），后端根据 storyboard.videoTaskId 查询 Agnes

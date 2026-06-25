@@ -1,9 +1,9 @@
-// 智能分镜模板生成 API
+﻿// 智能分镜模板生成 API
 import { NextRequest, NextResponse } from 'next/server';
-import { checkApiAuth } from '@/lib/auth';
-import { enqueueJob } from '@/lib/job-queue';
-import { STORYBOARD_TEMPLATES } from '@/lib/storyboard-templates';
-import '@/lib/jobs';
+import { checkApiAuth } from '@/lib/auth/auth';
+import { enqueueJob } from '@/lib/queue/job-queue';
+import { STORYBOARD_TEMPLATES } from '@/features/storyboards/templates';
+import '@/lib/queue/jobs';
 
 export async function POST(req: NextRequest) {
   const auth = await checkApiAuth();
